@@ -1,13 +1,11 @@
 from login import client
+from data.db_connection import stream
+from config import ASSET_LIST
 import pandas as pd
 import numpy as np
 
 def job(interval):
-    assets = ['BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'SOLUSDT', 'XRPUSDT','DOGEUSDT',
-          'SHIBUSDT','AVAXUSDT','DOTUSDT','LINKUSDT','LTCUSDT','MATICUSDT',
-          'FARMUSDT','TNSRUSDT','LEVERUSDT','MEMEUSDT','PEPEUSDT','DODOUSDT',
-          'SAGAUSDT','THETAUSDT','FTMUSDT','ALGOUSDT','AAVEUSDT','CHZUSDT',
-          'MANAUSDT','IOTAUSDT','WLDUSDT','ONGUSDT']
+    assets = ASSET_LIST
     for asset in assets:
         candle = client.get_klines(symbol=asset, interval=interval, limit=1)
         latest_candle = [candle[-1]]

@@ -1,21 +1,7 @@
 # Importing libraries
-from binance.client import Client
-import configparser
 import pandas as pd
-from twisted.internet import reactor
-import numpy as np
-import sqlalchemy
-from sqlalchemy import create_engine
-from tqdm import tqdm
-import asyncio
 import nest_asyncio
 nest_asyncio.apply()
-import dash
-import plotly.graph_objects as go
-import time
-import matplotlib.pyplot as plt
-import json
-import schedule
 
 def createMatrix(msg):
     df = pd.DataFrame([msg])
