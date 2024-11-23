@@ -6,7 +6,7 @@ nest_asyncio.apply()
 
 # loading keys from config file
 config = configparser.ConfigParser()
-config.read_file(open('C:/Users/louis/Documents/CryptoTrading/keys.cfg'))
+config.read('keys.cfg')
 # Effective Account
 #test_api_key = config.get('BINANCE', 'ACTUAL_API_KEY')
 #test_secret_key = config.get('BINANCE', 'ACTUAL_SECRET_KEY')
