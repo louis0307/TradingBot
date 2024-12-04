@@ -50,7 +50,7 @@ app.layout = dbc.Container([
 ])
 
 login_layout = dbc.Container([
-dbc.Row([
+    dbc.Row([
         dbc.Col(html.H2("Please Log In"), className="text-center mb-4")
     ]),
     dbc.Row([
@@ -64,7 +64,7 @@ dbc.Row([
 ])
 
 dashboard_layout = dbc.Container([
-dbc.Row([
+    dbc.Row([
         dbc.Col(html.H1("Trading Bot Dashboard"), className="text-center mb-4")
     ]),
     dbc.Row([
