@@ -38,19 +38,6 @@ def load_user(user_id):
 # load data for illustration purposes
 data_dict = {asset: pd.DataFrame({'Date': [], 'Price': []}) for asset in ASSET_LIST}
 
-# Layout of the dashboard
-app.layout = dbc.Container([
-    dbc.Row([
-        dbc.Col(html.H1("Trading Bot Dashboard"), className="text-center mb-4")
-    ]),
-    dbc.Row([
-        dbc.Col([
-            dcc.Location(id='url', refresh=False),
-            html.Div(id='page-content')
-        ])
-    ])
-])
-
 login_layout = dbc.Container([
     dbc.Row([
         dbc.Col(html.H2("Please Log In"), className="text-center mb-4")
@@ -93,6 +80,12 @@ dashboard_layout = dbc.Container([
                 n_intervals=0
         )])
     ])
+])
+
+# Layout of the dashboard
+app.layout = dbc.Container([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
 ])
 
 @app.callback(
