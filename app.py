@@ -13,13 +13,7 @@ import numpy as np
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # load data for illustration purposes
-data_dict = {}
-for asset in ASSET_LIST:
-    dat = pd.read_sql(asset, stream)
-    dat.set_index('dateTime', inplace=True)
-    dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
-    dat_hist = dat_preprocess(dat_hist)
-    data_dict[asset] = dat_hist
+data_dict = {asset: pd.DataFrame({'Date': [], 'Price': []}) for asset in ASSET_LIST}
 
 # Layout of the dashboard
 app.layout = dbc.Container([
@@ -55,15 +49,28 @@ app.layout = dbc.Container([
      Input('interval-component', 'n_intervals')]
 )
 def update_graph(selected_asset, n_intervals):
+    try:
+        dat = pd.read_sql(selected_asset, stream)
+        dat.set_index('dateTime', inplace=True)
+        dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
+        dat_hist = dat_preprocess(dat_hist)
+        data_dict[selected_asset] = dat_hist
+    except Exception as e:
+        print(f"Data not yet available: {e}")
     df = data_dict[selected_asset]
-    new_price = df['close'].iloc[-1]
-    new_row = pd.DataFrame({'Date': [df['dateTime'].iloc[-1] + pd.Timedelta(minutes=15)], 'Price': [new_price]})
-    data_dict[selected_asset] = pd.concat([df, new_row], ignore_index=True)
-
-    figure = {
-        'data': [go.Scatter(x=data_dict[selected_asset]['Date'], y=data_dict[selected_asset]['Price'], mode='lines')],
-        'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
-    }
+    if df.empty:
+        figure = {'data': [],
+                  'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
+                                      yaxis={'title': 'Price'})
+        }
+    else:
+        new_price = df['close'].iloc[-1]
+        new_row = pd.DataFrame({'Date': [df['dateTime'].iloc[-1] + pd.Timedelta(minutes=15)], 'Price': [new_price]})
+        data_dict[selected_asset] = pd.concat([df, new_row], ignore_index=True)
+        figure = {
+            'data': [go.Scatter(x=data_dict[selected_asset]['dateTime'], y=data_dict[selected_asset]['close'], mode='lines')],
+            'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
+        }
     return figure
 
 if __name__ == '__main__':
