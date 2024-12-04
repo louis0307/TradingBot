@@ -7,4 +7,5 @@ plotly~=5.18.0
 requests~=2.26.0
 gunicorn~=20.1.0
 dash
+dash-bootstrap-components
 psycopg2-binary
