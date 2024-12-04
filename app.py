@@ -93,7 +93,8 @@ app.layout = dbc.Container([
     [Input('url', 'pathname')]
 )
 def display_page(pathname):
-    if pathname == '/':
+    print(f"Current pathname: {pathname}")
+    if pathname == '/' or pathname == '/login':
         if current_user.is_authenticated:
             return dashboard_layout
         else:
@@ -125,7 +126,7 @@ def update_output(n_clicks, username, password):
 def logout(n_clicks):
     if n_clicks > 0:
         logout_user()
-        return dcc.Location(pathname='/', id='redirect')
+        return login_layout
     return dashboard_layout
 
 # Callback to update the chart based on selected asset
