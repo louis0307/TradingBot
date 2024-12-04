@@ -13,14 +13,16 @@ import numpy as np
 from flask import Flask, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+# Flask-Login setup
+secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
-# Flask-Login setup
-secret_key = 'default_secret_key'
-username = os.getenv('USERNAME')
-password = os.getenv('PASSWORD')
+server.secret_key = secret_key
 login_manager = LoginManager()
 login_manager.init_app(server)
 
@@ -28,7 +30,7 @@ login_manager.init_app(server)
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
-users = {username: password} # Replace with a more secure method
+users = {username: password}
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
