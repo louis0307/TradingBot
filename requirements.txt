@@ -9,3 +9,4 @@ requests~=2.26.0
 gunicorn~=20.1.0
 dash
 psycopg2-binary
+Werkzeug=2.2.x
