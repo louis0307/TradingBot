@@ -1,3 +1,5 @@
+import os
+
 from config import INTERVALS, ASSET_LIST
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
@@ -8,10 +10,28 @@ from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
+from flask import Flask, redirect, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
+
+# Flask-Login setup
+secret_key = 'default_secret_key'
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+login_manager = LoginManager()
+login_manager.init_app(server)
+
+# User model
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+users = {username: password} # Replace with a more secure method
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 # load data for illustration purposes
 data_dict = {asset: pd.DataFrame({'Date': [], 'Price': []}) for asset in ASSET_LIST}
@@ -19,6 +39,32 @@ data_dict = {asset: pd.DataFrame({'Date': [], 'Price': []}) for asset in ASSET_L
 # Layout of the dashboard
 app.layout = dbc.Container([
     dbc.Row([
+        dbc.Col(html.H1("Trading Bot Dashboard"), className="text-center mb-4")
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dcc.Location(id='url', refresh=False),
+            html.Div(id='page-content')
+        ])
+    ])
+])
+
+login_layout = dbc.Container([
+dbc.Row([
+        dbc.Col(html.H2("Please Log In"), className="text-center mb-4")
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dcc.Input(id='username', type='text', placeholder='Username'),
+            dcc.Input(id='password', type='password', placeholder='Password'),
+            html.Button('Login', id='login-button', n_clicks=0),
+            html.Div(id='login-output', style={'color': 'red'})
+        ], width=12)
+    ])
+])
+
+dashboard_layout = dbc.Container([
+dbc.Row([
         dbc.Col(html.H1("Trading Bot Dashboard"), className="text-center mb-4")
     ]),
     dbc.Row([
@@ -34,14 +80,58 @@ app.layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
+            html.Button('Logout', id='logout-button', n_clicks=0)
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
             dcc.Interval(
                 id='interval-component',
                 interval=60*1000,  # in milliseconds (here, it updates every minute)
                 n_intervals=0
-            )
-        ])
+        )])
     ])
 ])
+
+@app.callback(
+    Output('page-content', 'children'),
+    [Input('url', 'pathname')]
+)
+def display_page(pathname):
+    if pathname == '/':
+        if current_user.is_authenticated:
+            return dashboard_layout
+        else:
+            return login_layout
+    elif pathname == '/logout':
+        logout_user()
+        return login_layout
+    return login_layout
+
+@app.callback(
+    Output('login-output', 'children'),
+    [Input('login-button', 'n_clicks')],
+    [Input('username', 'value'), Input('password', 'value')]
+)
+def update_output(n_clicks, username, password):
+    if n_clicks > 0:
+        if username in users and users[username] == password:
+            user = User(username)
+            login_user(user)
+            return dcc.Location(pathname='/', id='redirect')
+        else:
+            return 'Invalid username or password'
+    return ''
+
+@app.callback(
+    Output('page-content', 'children'),
+    [Input('logout-button', 'n_clicks')]
+)
+def logout(n_clicks):
+    if n_clicks > 0:
+        logout_user()
+        return dcc.Location(pathname='/', id='redirect')
+    return dashboard_layout
 
 # Callback to update the chart based on selected asset
 @app.callback(
