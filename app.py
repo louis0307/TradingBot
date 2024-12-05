@@ -90,7 +90,8 @@ app.layout = dbc.Container([
     dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
     dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
     html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
-    html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'})
+    html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
+    html.Div(id='login-output', style={'display': 'none'})
 ])
 @app.callback(
     [Output('page-content', 'children'),
