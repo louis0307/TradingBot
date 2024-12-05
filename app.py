@@ -31,6 +31,7 @@ class User(UserMixin):
     def __init__(self, id):
         self.id = id
 users = {username: password}
+
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
@@ -76,15 +77,16 @@ dashboard_layout = dbc.Container([
         dbc.Col([
             dcc.Interval(
                 id='interval-component',
-                interval=60*1000,  # in milliseconds (here, it updates every minute)
+                interval=60*200,  # in milliseconds (here, it updates every minute)
                 n_intervals=0
-        )])
+            )
+        ])
     ])
 ])
 
 # Layout of the dashboard
 app.layout = dbc.Container([
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id='url', refresh=True),
     html.Div(id='page-content')
 ])
 
