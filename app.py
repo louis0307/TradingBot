@@ -6,7 +6,7 @@ from data.preprocessing import dat_preprocess
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
@@ -84,24 +84,24 @@ dashboard_layout = dbc.Container([
     ])
 ])
 
-# Layout of the dashboard
 app.layout = dbc.Container([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content')
+    dcc.Location(id='url', refresh=True),
+    html.Div(id='page-content'),
+    dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
+    dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
+    html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'})
 ])
-
 @app.callback(
     [Output('page-content', 'children'),
      Output('login-output', 'children')],
     [Input('url', 'pathname'),
      Input('login-button', 'n_clicks'),
      Input('logout-button', 'n_clicks')],
-    [dash.dependencies.State('username', 'value'),
-     dash.dependencies.State('password', 'value')]
+    [State('username', 'value'),
+     State('password', 'value')]
 )
 def display_page(pathname, login_clicks, logout_clicks, username, password):
-    print(f"Current pathname: {pathname}")
-
     ctx = dash.callback_context
 
     # Initialize content and message
