@@ -133,6 +133,9 @@ def display_page(pathname, login_clicks, logout_clicks, username, password):
     if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
         print("User is authenticated, showing dashboard")
         content = dashboard_layout
+    else:
+        if pathname =='/':
+            content = login_layout
 
     print(f"Content: {content}, Message: {message}")
     return content, message
