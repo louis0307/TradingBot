@@ -86,50 +86,55 @@ dashboard_layout = dbc.Container([
 
 # Layout of the dashboard
 app.layout = dbc.Container([
-    dcc.Location(id='url', refresh=True),
+    dcc.Location(id='url', refresh=False),
     html.Div(id='page-content')
 ])
 
 @app.callback(
-    Output('page-content', 'children'),
-    [Input('url', 'pathname')]
+    [Output('page-content', 'children'),
+     Output('login-output', 'children')],
+    [Input('url', 'pathname'),
+     Input('login-button', 'n_clicks'),
+     Input('logout-button', 'n_clicks')],
+    [dash.dependencies.State('username', 'value'),
+     dash.dependencies.State('password', 'value')]
 )
-def display_page(pathname):
+def display_page(pathname, login_clicks, logout_clicks, username, password):
     print(f"Current pathname: {pathname}")
-    if pathname == '/' or pathname == '/login':
-        if current_user.is_authenticated:
-            return dashboard_layout
-        else:
-            return login_layout
-    elif pathname == '/logout':
-        logout_user()
-        return login_layout
-    return login_layout
 
-@app.callback(
-    Output('login-output', 'children'),
-    [Input('login-button', 'n_clicks')],
-    [Input('username', 'value'), Input('password', 'value')]
-)
-def update_output(n_clicks, username, password):
-    if n_clicks > 0:
-        if username in users and users[username] == password:
-            user = User(username)
-            login_user(user)
-            return dcc.Location(pathname='/', id='redirect')
-        else:
-            return 'Invalid username or password'
-    return ''
+    ctx = dash.callback_context
 
-@app.callback(
-    Output('page-content', 'children'),
-    [Input('logout-button', 'n_clicks')]
-)
-def logout(n_clicks):
-    if n_clicks > 0:
-        logout_user()
-        return login_layout
-    return dashboard_layout
+    # Initialize content and message
+    content = login_layout
+    message = ''
+
+    # Determine which button was clicked
+    if ctx.triggered:
+        trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+        if trigger == 'login-button' and login_clicks > 0:
+            print(f"Login attempt with username: {username} and password: {password}")
+            if username in users and users[username] == password:
+                user = User(username)
+                login_user(user)
+                print("Login successful")
+                content = dashboard_layout
+                message = dcc.Location(pathname='/', id='redirect')
+            else:
+                print("Login failed")
+                message = 'Invalid username or password'
+
+        elif trigger == 'logout-button' and logout_clicks > 0:
+            logout_user()
+            print("Logout successful")
+            content = login_layout
+
+    if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
+        print("User is authenticated, showing dashboard")
+        content = dashboard_layout
+
+    print(f"Content: {content}, Message: {message}")
+    return content, message
 
 # Callback to update the chart based on selected asset
 @app.callback(
