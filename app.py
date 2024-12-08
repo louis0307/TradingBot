@@ -1,8 +1,10 @@
-import os
-
 from config import INTERVALS, ASSET_LIST
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
+from misc.logger_config import logger
+from main import start_trading_bot, stop_trading_bot
+
+import os
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
@@ -12,11 +14,18 @@ import pandas as pd
 import numpy as np
 from flask import Flask, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from threading import Thread
+
+
+logger.info("Starting the web application")
 
 # Flask-Login setup
 secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
+
+bot_thread = None
+bot_running = False
 
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
@@ -70,6 +79,12 @@ dashboard_layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
+            html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
+            html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0)
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
             html.Button('Logout', id='logout-button', n_clicks=0)
         ])
     ]),
@@ -98,11 +113,14 @@ app.layout = dbc.Container([
      Output('login-output', 'children')],
     [Input('url', 'pathname'),
      Input('login-button', 'n_clicks'),
-     Input('logout-button', 'n_clicks')],
+     Input('logout-button', 'n_clicks'),
+     Input('start-bot-button', 'n_clicks'),
+     Input('stop-bot-button', 'n_clicks')],
     [State('username', 'value'),
      State('password', 'value')]
 )
-def display_page(pathname, login_clicks, logout_clicks, username, password):
+def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_bot_clicks, username, password):
+    global bot_thread, bot_running
     ctx = dash.callback_context
 
     # Initialize content and message
@@ -130,7 +148,19 @@ def display_page(pathname, login_clicks, logout_clicks, username, password):
             print("Logout successful")
             content = login_layout
 
-    if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
+        elif trigger == 'start-bot-button' and start_bot_clicks > 0:
+            if not bot_running:
+                bot_thread = Thread(target=start_trading_bot)
+                bot_thread.start()
+                bot_running = True
+
+        elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
+            if bot_running:
+                stop_trading_bot()
+                bot_thread.join()
+                bot_running = False
+
+    if current_user.is_authenticated:
         print("User is authenticated, showing dashboard")
         content = dashboard_layout
     else:
@@ -170,6 +200,11 @@ def update_graph(selected_asset, n_intervals):
             'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
         }
     return figure
+
+def run_trading_bot():
+    trading_thread = Thread(target=start_trading_bot)
+    trading_thread.daemon = True
+    trading_thread.start()
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=10000)
