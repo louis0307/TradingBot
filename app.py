@@ -193,11 +193,13 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
 )
 def update_graph(selected_asset, n_intervals):
     try:
-        dat = pd.read_sql(selected_asset, stream)
+        query = f'SELECT * FROM public."{selected_asset}"'
+        dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist = dat_preprocess(dat_hist)
         data_dict[selected_asset] = dat_hist
+        logger.info(f"Asset {selected_asset} loaded.")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
