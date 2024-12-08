@@ -106,6 +106,8 @@ app.layout = dbc.Container([
     dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
     html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
     html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
     html.Div(id='login-output', style={'display': 'none'})
 ])
 @app.callback(
@@ -113,7 +115,10 @@ app.layout = dbc.Container([
      Output('login-output', 'children')],
     [Input('url', 'pathname'),
      Input('login-button', 'n_clicks'),
-     Input('logout-button', 'n_clicks')],
+     Input('logout-button', 'n_clicks'),
+     Input('start-bot-button', 'n_clicks'),
+     Input('stop-bot-button', 'n_clicks')
+     ],
     [State('username', 'value'),
      State('password', 'value')]
 )
@@ -172,9 +177,7 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
 @app.callback(
     Output('price-chart', 'figure'),
     [Input('asset-dropdown', 'value'),
-     Input('interval-component', 'n_intervals'),
-     Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')]
+     Input('interval-component', 'n_intervals')]
 )
 def update_graph(selected_asset, n_intervals):
     try:
