@@ -113,9 +113,7 @@ app.layout = dbc.Container([
      Output('login-output', 'children')],
     [Input('url', 'pathname'),
      Input('login-button', 'n_clicks'),
-     Input('logout-button', 'n_clicks'),
-     Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')],
+     Input('logout-button', 'n_clicks')],
     [State('username', 'value'),
      State('password', 'value')]
 )
@@ -174,7 +172,9 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
 @app.callback(
     Output('price-chart', 'figure'),
     [Input('asset-dropdown', 'value'),
-     Input('interval-component', 'n_intervals')]
+     Input('interval-component', 'n_intervals'),
+     Input('start-bot-button', 'n_clicks'),
+     Input('stop-bot-button', 'n_clicks')]
 )
 def update_graph(selected_asset, n_intervals):
     try:
