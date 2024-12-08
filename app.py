@@ -160,11 +160,11 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
                 bot_thread.join()
                 bot_running = False
 
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
         print("User is authenticated, showing dashboard")
         content = dashboard_layout
     else:
-        if pathname =='/':
+        if pathname == '/':
             content = login_layout
 
     print(f"Content: {content}, Message: {message}")
