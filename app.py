@@ -45,8 +45,20 @@ users = {username: password}
 def load_user(user_id):
     return User(user_id)
 
-# load data for illustration purposes
-data_dict = {asset: pd.DataFrame({'Date': [], 'Price': []}) for asset in ASSET_LIST}
+# Load complete history for each asset at startup
+data_dict = {}
+for asset in ASSET_LIST:
+    try:
+        dat = pd.read_sql(asset, stream)
+        dat.set_index('dateTime', inplace=True)
+        dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
+        dat_hist = dat_preprocess(dat_hist)
+        data_dict[asset] = dat_hist
+        logger.info(f"Historical data for {asset} loaded successfully.")
+    except Exception as e:
+        logger.error(f"Error loading data for {asset}: {e}")
+        data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
+
 
 login_layout = dbc.Container([
     dbc.Row([
@@ -188,19 +200,23 @@ def update_graph(selected_asset, n_intervals):
         data_dict[selected_asset] = dat_hist
     except Exception as e:
         print(f"Data not yet available: {e}")
-    df = data_dict[selected_asset]
-    if df.empty:
+    try:
+        df = data_dict[selected_asset]
+        if df.empty:
+            figure = {'data': [],
+                      'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Price'})
+            }
+        else:
+            figure = {
+                'data': [go.Scatter(x=df['dateTime'], y=df['close'], mode='lines')],
+                'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
+            }
+    except Exception as e:
+        logger.error(f"Error updating graph for {selected_asset}: {e}")
         figure = {'data': [],
-                  'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
-                                      yaxis={'title': 'Price'})
-        }
-    else:
-        new_price = df['close'].iloc[-1]
-        new_row = pd.DataFrame({'Date': [df['dateTime'].iloc[-1] + pd.Timedelta(minutes=15)], 'Price': [new_price]})
-        data_dict[selected_asset] = pd.concat([df, new_row], ignore_index=True)
-        figure = {
-            'data': [go.Scatter(x=data_dict[selected_asset]['dateTime'], y=data_dict[selected_asset]['close'], mode='lines')],
-            'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
+                  'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Price'})
         }
     return figure
 

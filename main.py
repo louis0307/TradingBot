@@ -19,3 +19,4 @@ def start_trading_bot():
 
 def stop_trading_bot():
     stop_event.set()
+    logger.info("Trading bot stopped.")
