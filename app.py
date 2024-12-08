@@ -199,11 +199,12 @@ def update_graph(selected_asset, n_intervals):
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist = dat_preprocess(dat_hist)
         data_dict[selected_asset] = dat_hist
-        logger.info(f"Asset {selected_asset} loaded.")
+        logger.info(f"Asset {selected_asset} loaded with {len(data_dict[selected_asset])} rows.")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
         df = data_dict[selected_asset]
+        logger.info(f"Asset loaded with {len(df)} rows.")
         if df.empty:
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
