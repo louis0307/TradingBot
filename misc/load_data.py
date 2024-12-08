@@ -1,4 +1,4 @@
-from login import client
+from misc.login import client
 from data.db_connection import stream
 from config import ASSET_LIST
 import pandas as pd
