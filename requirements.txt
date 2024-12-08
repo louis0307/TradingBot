@@ -10,4 +10,4 @@ dash
 dash-bootstrap-components
 psycopg2-binary
 Flask-Login
-binance
+python-binance
