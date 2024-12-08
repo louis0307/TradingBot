@@ -104,7 +104,7 @@ dashboard_layout = dbc.Container([
         dbc.Col([
             dcc.Interval(
                 id='interval-component',
-                interval=60*200,  # in milliseconds (here, it updates every minute)
+                interval=1000*60*15,  # in milliseconds (updates every 15 minutes)
                 n_intervals=0
             )
         ])
