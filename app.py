@@ -9,6 +9,7 @@ import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
@@ -92,7 +93,12 @@ dashboard_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
-            html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0)
+            html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
+            dcc.Textarea(id='log-textarea',
+                         value='',
+                         style={'width': '100%', 'height': 200},
+                         readOnly=True
+                         )
         ])
     ]),
     dbc.Row([
@@ -120,60 +126,68 @@ app.layout = dbc.Container([
     html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
     html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
     html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
-    html.Div(id='login-output', style={'display': 'none'})
+    html.Div(id='login-output', style={'display': 'none'}),
+    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
 ])
 @app.callback(
     [Output('page-content', 'children'),
-     Output('login-output', 'children')],
+     Output('login-output', 'children'),
+     Output('log-textarea', 'value')],
     [Input('url', 'pathname'),
      Input('login-button', 'n_clicks'),
      Input('logout-button', 'n_clicks'),
      Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')
-     ],
+     Input('stop-bot-button', 'n_clicks')],
     [State('username', 'value'),
-     State('password', 'value')]
+     State('password', 'value'),
+     State('log-textarea', 'value')]
 )
-def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_bot_clicks, username, password):
+def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_bot_clicks, username, password, log_value):
     global bot_thread, bot_running
     ctx = dash.callback_context
 
     # Initialize content and message
     content = login_layout
     message = ''
+    log_update = log_value
 
     # Determine which button was clicked
-    if ctx.triggered:
-        trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    if not ctx.triggered:
+        raise PreventUpdate
 
-        if trigger == 'login-button' and login_clicks > 0:
-            print(f"Login attempt with username: {username} and password: {password}")
-            if username in users and users[username] == password:
-                user = User(username)
-                login_user(user)
-                print("Login successful")
-                content = dashboard_layout
-                message = dcc.Location(pathname='/', id='redirect')
-            else:
-                print("Login failed")
-                message = 'Invalid username or password'
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
 
-        elif trigger == 'logout-button' and logout_clicks > 0:
-            logout_user()
-            print("Logout successful")
-            content = login_layout
+    if trigger == 'login-button' and login_clicks > 0:
+        print(f"Login attempt with username: {username} and password: {password}")
+        if username in users and users[username] == password:
+            user = User(username)
+            login_user(user)
+            print("Login successful")
+            content = dashboard_layout
+            message = dcc.Location(pathname='/', id='redirect')
+        else:
+            print("Login failed")
+            message = 'Invalid username or password'
 
-        elif trigger == 'start-bot-button' and start_bot_clicks > 0:
-            if not bot_running:
-                bot_thread = Thread(target=start_trading_bot)
-                bot_thread.start()
-                bot_running = True
+    elif trigger == 'logout-button' and logout_clicks > 0:
+        logout_user()
+        print("Logout successful")
+        content = login_layout
+        log_update += '\nUser logged out.'
 
-        elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
-            if bot_running:
-                stop_trading_bot()
-                bot_thread.join()
-                bot_running = False
+    elif trigger == 'start-bot-button' and start_bot_clicks > 0:
+        if not bot_running:
+            bot_thread = Thread(target=start_trading_bot)
+            bot_thread.start()
+            bot_running = True
+            log_update += '\nTrading bot started.'
+
+    elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
+        if bot_running:
+            stop_trading_bot()
+            bot_thread.join()
+            bot_running = False
+            log_update += '\nTrading bot stopped.'
 
     if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
         print("User is authenticated, showing dashboard")
@@ -183,7 +197,7 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
             content = login_layout
 
     print(f"Content: {content}, Message: {message}")
-    return content, message
+    return content, message, log_update
 
 # Callback to update the chart based on selected asset
 @app.callback(
