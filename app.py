@@ -50,7 +50,8 @@ def load_user(user_id):
 data_dict = {}
 for asset in ASSET_LIST:
     try:
-        dat = pd.read_sql(asset, stream)
+        query = f'SELECT * FROM public."{asset}"'
+        dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
         dat_hist = dat_preprocess(dat_hist)
@@ -119,16 +120,17 @@ dashboard_layout = dbc.Container([
 
 app.layout = dbc.Container([
     dcc.Location(id='url', refresh=True),
-    html.Div(id='page-content'),
-    dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
-    dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
-    html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
-    html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
-    html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
-    html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
-    html.Div(id='login-output', style={'display': 'none'}),
-    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
+    html.Div(id='page-content')#,
+    #dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
+    #dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
+    #html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
+    #html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
+    #html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
+    #html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
+    #html.Div(id='login-output', style={'display': 'none'})#,
+    #dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
 ])
+
 @app.callback(
     [Output('page-content', 'children'),
      Output('login-output', 'children'),
@@ -145,6 +147,7 @@ app.layout = dbc.Container([
 def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_bot_clicks, username, password, log_value):
     global bot_thread, bot_running
     ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
     # Initialize content and message
     content = login_layout
@@ -152,10 +155,10 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
     log_update = log_value
 
     # Determine which button was clicked
-    if not ctx.triggered:
-        raise PreventUpdate
+    #if not ctx.triggered:
+    #    raise PreventUpdate
 
-    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    #trigger = ctx.triggered[0]['prop_id'].split('.')[0]
 
     if trigger == 'login-button' and login_clicks > 0:
         print(f"Login attempt with username: {username} and password: {password}")
