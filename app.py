@@ -118,7 +118,7 @@ dashboard_layout = dbc.Container([
     ])
 ])
 
-app.layout = html.Div([
+app.layout = dbc.Container([
     dcc.Location(id='url', refresh=True),
     html.Div(id='page-content'),
     dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
