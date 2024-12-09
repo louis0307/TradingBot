@@ -128,7 +128,7 @@ app.layout = html.Div([
     html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
     html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
     #html.Div(id='login-output', style={'display': 'none'}),
-    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
+    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200, 'display': 'none'}, readOnly=True)
 ])
 
 @app.callback(
@@ -145,7 +145,7 @@ app.layout = html.Div([
      State('log-textarea', 'value')]
 )
 def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_bot_clicks, username, password, log_value):
-    global bot_thread, bot_running
+    # global bot_thread, bot_running
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
@@ -177,20 +177,6 @@ def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks, stop_b
         print("Logout successful")
         content = login_layout
         log_update += '\nUser logged out.'
-
-    elif trigger == 'start-bot-button' and start_bot_clicks > 0:
-        if not bot_running:
-            bot_thread = Thread(target=start_trading_bot)
-            bot_thread.start()
-            bot_running = True
-            log_update += '\nTrading bot started.'
-
-    elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
-        if bot_running:
-            stop_trading_bot()
-            bot_thread.join()
-            bot_running = False
-            log_update += '\nTrading bot stopped.'
 
     if current_user.is_authenticated and (pathname == '/' or pathname == '/login'):
         print("User is authenticated, showing dashboard")
@@ -241,10 +227,36 @@ def update_graph(selected_asset, n_intervals):
         }
     return figure
 
-def run_trading_bot():
-    trading_thread = Thread(target=start_trading_bot)
-    trading_thread.daemon = True
-    trading_thread.start()
+@app.callback(
+    Output('log-textarea', 'value'),
+    [Input('start-bot-button', 'n_clicks'),
+     Input('stop-bot-button', 'n_clicks')],
+    [State('log-textarea', 'value')]
+)
+def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
+    global trading_thread
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger == 'start-bot-button' and start_bot_clicks > 0:
+        if trading_thread is None or not trading_thread.is_alive():
+            trading_thread = Thread(target=start_trading_bot, daemon=True)
+            trading_thread.start()
+            log_value += '\nTrading bot started.'
+        else:
+            log_value += '\nTrading bot is already running.'
+
+    elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
+        if trading_thread and trading_thread.is_alive():
+            stop_trading_bot()
+            trading_thread.join()  # Wait for the thread to terminate
+            trading_thread = None
+            log_value += '\nTrading bot stopped.'
+        else:
+            log_value += '\nTrading bot is not running.'
+    return log_value
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=10000)

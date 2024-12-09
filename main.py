@@ -5,11 +5,14 @@ from data.stream_data import stream_data
 import schedule
 import threading
 
+trading_thread = None
 stop_event = threading.Event()
 
 def start_trading_bot():
-    stream_data()
+    global stop_event
+    stop_event.clear()
 
+    stream_data()
     times = ["00:10", "15:10", "30:10", "45:10"]
     for t in times:
         schedule.every().hour.at(t).do(trade_signal)
@@ -18,5 +21,6 @@ def start_trading_bot():
         schedule.run_pending()
 
 def stop_trading_bot():
+    global stop_event
     stop_event.set()
     logger.info("Trading bot stopped.")
