@@ -121,16 +121,14 @@ dashboard_layout = dbc.Container([
 app.layout = html.Div([
     dcc.Location(id='url', refresh=True),
     html.Div(id='page-content'),
-    html.Div([
-        dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
-        dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
-        html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
-        html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
-        html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
-        html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
-        #html.Div(id='login-output', style={'display': 'none'}),
-        dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
-    ])
+    dcc.Input(id='username', type='text', placeholder='Username', style={'display': 'none'}),
+    dcc.Input(id='password', type='password', placeholder='Password', style={'display': 'none'}),
+    html.Button('Login', id='login-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Logout', id='logout-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
+    html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
+    #html.Div(id='login-output', style={'display': 'none'}),
+    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200}, readOnly=True)
 ])
 
 @app.callback(
