@@ -164,10 +164,7 @@ app.layout = dbc.Container([
 #     Input('login-button', 'n_clicks'),
 #     Input('logout-button', 'n_clicks'),
      Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')],
-    [#State('username', 'value'),
-     #State('password', 'value'),
-     State('log-textarea', 'value')]
+     Input('stop-bot-button', 'n_clicks')]
 )
 #def display_page(pathname, login_clicks, logout_clicks, start_bot_clicks , username, password, stop_bot_clicks, log_value):
     # global bot_thread, bot_running
@@ -254,8 +251,7 @@ def update_graph(selected_asset, n_intervals):
 @app.callback(
     Output('log-textarea', 'value'),
     [Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')],
-    [State('log-textarea', 'value')]
+     Input('stop-bot-button', 'n_clicks')]
 )
 def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
     global trading_thread
