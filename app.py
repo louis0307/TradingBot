@@ -159,7 +159,7 @@ app.layout = dbc.Container([
 @app.callback(
     [Output('page-content', 'children'),
 #     Output('login-output', 'children'),
-     Output('log-textarea', 'value')],
+     Output('log-textarea', 'value', allow_duplicate=True)],
     [Input('url', 'pathname'),
 #     Input('login-button', 'n_clicks'),
 #     Input('logout-button', 'n_clicks'),
