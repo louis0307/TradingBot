@@ -153,7 +153,7 @@ app.layout = dbc.Container([
     html.Button('Start Tradingbot', id='start-bot-button', n_clicks=0, style={'display': 'none'}),
     html.Button('Stop Tradingbot', id='stop-bot-button', n_clicks=0, style={'display': 'none'}),
     #html.Div(id='login-output', style={'display': 'none'}),
-    dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200, 'display': 'none'}, readOnly=True)
+    #dcc.Textarea(id='log-textarea', value='', style={'width': '100%', 'height': 200, 'display': 'none'}, readOnly=True)
 ])
 
 @app.callback(
