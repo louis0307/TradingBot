@@ -249,7 +249,7 @@ def update_graph(selected_asset, n_intervals):
     return figure
 
 @app.callback(
-    Output('log-textarea', 'value'),
+    #Output('log-textarea', 'value'),
     [Input('start-bot-button', 'n_clicks'),
      Input('stop-bot-button', 'n_clicks')]
 )
