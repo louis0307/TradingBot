@@ -103,11 +103,8 @@ app.layout = dbc.Container([
 @app.callback(
     [Output('price-chart', 'figure'),
      Output('log-textarea', 'value')],
-    [#Input('url', 'pathname'),
-     Input('asset-dropdown', 'value'),
-     Input('interval-component', 'n_intervals'),
-     Input('start-bot-button', 'n_clicks'),
-     Input('stop-bot-button', 'n_clicks')]
+    [Input('asset-dropdown', 'value'),
+     Input('interval-component', 'n_intervals')]
 )
 
 def update_graph(selected_asset, n_intervals):
@@ -143,6 +140,11 @@ def update_graph(selected_asset, n_intervals):
         }
     return figure
 
+@app.callback(
+    [Input('start-bot-button', 'n_clicks'),
+     Input('stop-bot-button', 'n_clicks')
+     ]
+)
 def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
     global trading_thread
     ctx = dash.callback_context
