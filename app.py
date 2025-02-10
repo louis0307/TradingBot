@@ -102,7 +102,7 @@ app.layout = dbc.Container([
 
 @app.callback(
     [Output('price-chart', 'figure'),
-     Output('log-textarea', 'value', allow_duplicate=True)],
+     Output('log-textarea', 'value')],
     [Input('url', 'pathname'),
      Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals'),
