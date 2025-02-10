@@ -140,9 +140,9 @@ def update_graph(selected_asset, n_intervals):
     return figure
 
 @app.callback(
+    Output('log-textarea', 'value'),
     [Input('start-bot-button', 'n_clicks'),
      Input('stop-bot-button', 'n_clicks')],
-    Output('log-textarea', 'value'),
     [State('log-textarea', 'value')]
 )
 def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
@@ -151,6 +151,9 @@ def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
     if not ctx.triggered:
         raise PreventUpdate
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if log_value is None:
+        log_value = ''
 
     if trigger == 'start-bot-button' and start_bot_clicks > 0:
         if trading_thread is None or not trading_thread.is_alive():
