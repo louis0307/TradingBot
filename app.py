@@ -27,8 +27,7 @@ secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 
-bot_thread = None
-bot_running = False
+trading_thread = None
 
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
