@@ -33,7 +33,7 @@ bot_running = False
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 server = app.server
-dash_authentication = BasicAuth(server, '/login', '/dashboard', secret_key)
+#dash_authentication = BasicAuth(server, '/login', '/dashboard', secret_key)
 
 server.secret_key = secret_key
 if not server.secret_key:
