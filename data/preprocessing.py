@@ -1,7 +1,8 @@
 from trading.indicators import calculate_rsi, kdj
 import numpy as np
 
-def dat_preprocess(dat):
+def dat_preprocess(dat_in):
+    dat = dat_in.copy()
     dat['log_returns'] = np.log(dat.close) - np.log(dat.close.shift(1))
     dat['volume_change'] = np.log(dat.volume) - np.log(dat.volume.shift(1))
     dat['volume_change_perc'] = dat.volume / dat.volume.shift(1) - 1
