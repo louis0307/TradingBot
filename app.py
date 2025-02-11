@@ -107,7 +107,7 @@ app.layout = dbc.Container([
 
 def update_graph(selected_asset, n_intervals):
     try:
-        query = f'SELECT * FROM public."{selected_asset}"'
+        query = f'SELECT * FROM "public"."{selected_asset}"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
         logger.info(f"Asset {selected_asset} loaded with {len(dat)} rows.")
