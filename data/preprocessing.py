@@ -16,7 +16,7 @@ def dat_preprocess(dat_in):
     dat['MACD_Signal'] = dat['MACD'].ewm(span=9, adjust=False).mean()
     dat['MACD_Hist'] = dat['MACD'] - dat['MACD_Signal']
     dat = kdj(dat)
-    logger.info(f"KDJ: Asset loaded with {len(dat)} rows.")
+    print(dat)
     dat = dat.dropna(axis=0)
     logger.info(f"preprocess: Asset loaded with {len(dat)} rows.")
     ret = dat.replace([np.inf, -np.inf], 0, inplace=False)
