@@ -8,8 +8,8 @@ def dat_preprocess(dat_in):
     dat['volume_change'] = np.log(dat.volume) - np.log(dat.volume.shift(1))
     dat['volume_change_perc'] = dat.volume / dat.volume.shift(1) - 1
     dat['vol_ma10'] = dat.volume.rolling(10).mean()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['ema_50'] = dat.close.ewm(span=50, adjust=False).mean()
+    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['ema_200'] = dat.close.ewm(span=200, adjust=False).mean()
     dat['rsi_14'] = calculate_rsi(dat.close, period=14)
     dat['volatility'] = dat.log_returns.rolling(window=10).std()
