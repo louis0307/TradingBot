@@ -113,7 +113,7 @@ def update_graph(selected_asset, n_intervals):
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist1 = dat_preprocess(dat_hist)
-        logger.info(f"Asset {selected_asset} loaded with {len(dat_hist)} rows.")
+        logger.info(f"Asset {selected_asset} loaded with {len(dat_hist1)} rows.")
         data_dict[selected_asset] = dat_hist1
         logger.info(f"Asset {selected_asset} loaded with {len(data_dict[selected_asset])} rows.")
     except Exception as e:
