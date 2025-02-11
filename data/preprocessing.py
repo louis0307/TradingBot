@@ -9,12 +9,11 @@ def dat_preprocess(dat_in):
     dat['volume_change_perc'] = dat.volume / dat.volume.shift(1) - 1
     dat['vol_ma10'] = dat.volume.rolling(10).mean()
     dat['ema_50'] = dat.close.ewm(span=50, adjust=False).mean()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['ema_200'] = dat.close.ewm(span=200, adjust=False).mean()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['rsi_14'] = calculate_rsi(dat.close, period=14)
     logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['volatility'] = dat.log_returns.rolling(window=10).std()
+    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['MACD'] = dat.close.ewm(span=12, adjust=False).mean() - dat.close.ewm(span=26, adjust=False).mean()
     dat['MACD_Signal'] = dat['MACD'].ewm(span=9, adjust=False).mean()
     dat['MACD_Hist'] = dat['MACD'] - dat['MACD_Signal']
