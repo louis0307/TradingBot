@@ -107,11 +107,12 @@ app.layout = dbc.Container([
 
 def update_graph(selected_asset, n_intervals):
     try:
+        data_dict = {}
         query = f'SELECT * FROM "public"."{selected_asset}"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
-        logger.info(f"Asset {selected_asset} loaded with {len(dat)} rows.")
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
+        logger.info(f"Asset {selected_asset} loaded with {len(dat_hist)} rows.")
         dat_hist = dat_preprocess(dat_hist)
         data_dict[selected_asset] = dat_hist
         logger.info(f"Asset {selected_asset} loaded with {len(data_dict[selected_asset])} rows.")
