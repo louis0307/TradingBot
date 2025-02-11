@@ -13,11 +13,8 @@ def dat_preprocess(dat_in):
     dat['rsi_14'] = calculate_rsi(dat.close, period=14)
     dat['volatility'] = dat.log_returns.rolling(window=10).std()
     dat['MACD'] = dat.close.ewm(span=12, adjust=False).mean() - dat.close.ewm(span=26, adjust=False).mean()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['MACD_Signal'] = dat['MACD'].ewm(span=9, adjust=False).mean()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['MACD_Hist'] = dat['MACD'] - dat['MACD_Signal']
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat = kdj(dat)
     dat = dat.dropna(axis=0)
     ret = dat.replace([np.inf, -np.inf], 0, inplace=False)

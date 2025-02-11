@@ -1,6 +1,7 @@
 import numpy as np
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from misc.logger_config import logger
 
 def calculate_rsi(prices, period=6):
     delta = prices.diff()
@@ -151,6 +152,7 @@ def kdj(data):
     dat['K'] = dat['RSV'].ewm(com=2, adjust=False).mean()
     dat['D'] = dat['K'].ewm(com=2, adjust=False).mean()
     dat['J'] = 3 * dat['K'] - 2 * dat['D']
+    logger.info(f"KDJ: Asset loaded with {len(dat)} rows.")
     diff_kd_t = dat['K'] - dat['D']
     diff_kj_t = dat['K'] - dat['J']
     diff_dj_t = dat['D'] - dat['J']
@@ -162,4 +164,5 @@ def kdj(data):
     crossings_dj = (diff_dj_t * diff_dj_t_1 < 0).astype(int)
     crossings = (crossings_kd & crossings_kj & crossings_dj).astype(bool)
     dat['KDJ_cross'] = crossings
+    logger.info(f"KDJ2: Asset loaded with {len(dat)} rows.")
     return dat
