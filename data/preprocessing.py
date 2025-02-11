@@ -4,11 +4,11 @@ from misc.logger_config import logger
 
 def dat_preprocess(dat_in):
     dat = dat_in.copy()
-    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['log_returns'] = np.log(dat.close) - np.log(dat.close.shift(1))
     dat['volume_change'] = np.log(dat.volume) - np.log(dat.volume.shift(1))
     dat['volume_change_perc'] = dat.volume / dat.volume.shift(1) - 1
     dat['vol_ma10'] = dat.volume.rolling(10).mean()
+    logger.info(f"Asset loaded with {len(dat)} rows.")
     dat['ema_50'] = dat.close.ewm(span=50, adjust=False).mean()
     dat['ema_200'] = dat.close.ewm(span=200, adjust=False).mean()
     dat['rsi_14'] = calculate_rsi(dat.close, period=14)
