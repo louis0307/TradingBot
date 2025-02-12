@@ -16,7 +16,8 @@ def trade_signal():
     pd.options.mode.chained_assignment = None  # default='warn'
     warnings.filterwarnings("ignore", category=FutureWarning)
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-    trades_1 = pd.read_sql('trades', stream)
+    query = f'SELECT * FROM "public"."TRADES"'
+    trades_1 = pd.read_sql(query, stream)
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
     print(last_trades)
@@ -91,4 +92,4 @@ def trade_signal():
                                          dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit]]),
                               columns=['symbol', 'quantity', 'price', 'side', 'signal', 'order_timestamp',
                                        'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason'])
-        trades.to_sql('trades', stream, if_exists='append', index=False)
+        trades.to_sql('TRADES', stream, if_exists='append', index=False)
