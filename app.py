@@ -169,6 +169,7 @@ def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
             log_value += '\nTrading bot stopped.'
         else:
             log_value += '\nTrading bot is not running.'
+        log_value += '\nTrading bot stopped.'
     return log_value
 
 if __name__ == '__main__':
