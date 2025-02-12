@@ -50,21 +50,21 @@ auth = dash_auth.BasicAuth(app, users)
 # Load complete history for each asset at startup
 data_dict = {}
 for asset in ASSET_LIST:
-    try:
-        query = f'SELECT * FROM "public"."{asset}"'
-        dat = pd.read_sql(query, stream)
-        logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
-        dat.set_index('dateTime', inplace=True)
-        logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
-        dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
-        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
-        dat_hist = dat_preprocess(dat_hist)
-        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
-        data_dict[asset] = dat_hist
+    #try:
+    query = f'SELECT * FROM "public"."{asset}"'
+    dat = pd.read_sql(query, stream)
+    logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
+    dat.set_index('dateTime', inplace=True)
+    logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
+    dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
+    logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
+    dat_hist = dat_preprocess(dat_hist)
+    logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
+    data_dict[asset] = dat_hist
         logger.info(f"Historical data for {asset} loaded successfully.")
-    except Exception as e:
-        logger.error(f"Error loading data for {asset}: {e}")
-        data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
+    #except Exception as e:
+        #logger.error(f"Error loading data for {asset}: {e}")
+        #data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
 
 app.layout = dbc.Container([
     dbc.Row([
