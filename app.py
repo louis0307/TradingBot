@@ -117,25 +117,25 @@ def update_graph(selected_asset, n_intervals):
         logger.info(f"Asset {selected_asset} loaded with {len(dat_dict[selected_asset])} rows.")
     except Exception as e:
         print(f"Data not yet available: {e}")
-    #try:
-    df = dat_dict[selected_asset]
-    #print(df)
-    if df.empty:
+    try:
+        df = dat_dict[selected_asset]
+        #print(df)
+        if df.empty:
+            figure = {'data': [],
+                      'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Price'})
+            }
+        else:
+            figure = {
+                'data': [go.Scatter(x=df.index, y=df['close'], mode='lines')],
+                'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
+            }
+    except Exception as e:
+        logger.error(f"Error updating graph for {selected_asset}: {e}")
         figure = {'data': [],
-                  'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
-                                      yaxis={'title': 'Price'})
+                  'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Price'})
         }
-    else:
-        figure = {
-            'data': [go.Scatter(x=df['dateTime'], y=df['close'], mode='lines')],
-            'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
-        }
-    #except Exception as e:
-        #logger.error(f"Error updating graph for {selected_asset}: {e}")
-        #figure = {'data': [],
-        #          'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
-        #                                  yaxis={'title': 'Price'})
-        #}
     return figure
 
 @app.callback(
