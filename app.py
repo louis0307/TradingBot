@@ -5,7 +5,9 @@ from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
 
 import os
+import signal
 import dash
+import sys
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
@@ -46,6 +48,18 @@ def enforce_https():
 
 users = {username: password}
 auth = dash_auth.BasicAuth(app, users)
+
+def handle_shutdown(signal, frame):
+    logger.info("Shuttinng down gracefully...")
+    stop_trading_bot()
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, handle_shutdown)
+signal.signal(signal.SIGINT, handle_shutdown)
+
+@app.route("/")
+def home():
+    return "App is running!"
 
 # Load complete history for each asset at startup
 data_dict = {}
