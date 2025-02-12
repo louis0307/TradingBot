@@ -53,8 +53,9 @@ for asset in ASSET_LIST:
     try:
         query = f'SELECT * FROM "public"."{asset}"'
         dat = pd.read_sql(query, stream)
+        logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
         dat.set_index('dateTime', inplace=True)
-        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
+        logger.info(f"Initial Asset {asset} loaded with {len(dat[asset])} rows.")
         dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
         logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
         dat_hist = dat_preprocess(dat_hist)
