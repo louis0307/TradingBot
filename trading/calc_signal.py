@@ -1,3 +1,5 @@
+import time
+
 from config import INTERVALS, ASSET_LIST
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
@@ -44,6 +46,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         # exchange_info = client.futures_exchange_info()
         # asset_info = next(symbol for symbol in exchange_info['symbols'] if symbol['symbol'] == asset)
+        time.sleep(1)
         asset_info = client.get_symbol_info(symbol=asset)
         pos_info = last_trades[last_trades['symbol'] == asset]
         if 'quantity' in pos_info and not pos_info['quantity'].empty:
