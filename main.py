@@ -4,12 +4,12 @@ import time
 from misc.logger_config import logger
 from trading.calc_signal import trade_signal
 from data.stream_data import stream_data
+from config import stop_event
 
 import schedule
 import threading
 
 trading_thread = None
-stop_event = threading.Event()
 
 def start_trading_bot():
     global stop_event

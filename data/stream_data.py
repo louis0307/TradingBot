@@ -3,7 +3,7 @@ from misc.load_data import job
 import schedule
 import time
 from misc.logger_config import logger
-from main import stop_event
+from config import stop_event
 
 def stream_data():
     times = [":00", ":15", ":30", ":45"]
