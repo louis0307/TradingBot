@@ -57,7 +57,7 @@ def handle_shutdown(signal, frame):
 signal.signal(signal.SIGTERM, handle_shutdown)
 signal.signal(signal.SIGINT, handle_shutdown)
 
-@app.route("/health")
+@server.route("/health")
 def health_check():
     return "App is running!", 200
 
