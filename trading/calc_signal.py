@@ -35,7 +35,7 @@ def trade_signal():
         #    signal_1 = int(last_trades[last_trades['symbol'] == asset]['signal'])
         # else:
         #    signal_1 = 0
-        signal_1 = int(last_trades[last_trades['symbol'] == asset]['signal'])
+        signal_1 = int(last_trades[last_trades['symbol'] == asset]['signal'].iloc[0])
         # ind = math.floor((i+1)/4)
         dat_1 = dat_hist1h.iloc[-1]
         dat_2 = dat_hist1h.iloc[-2]
