@@ -57,9 +57,9 @@ def handle_shutdown(signal, frame):
 signal.signal(signal.SIGTERM, handle_shutdown)
 signal.signal(signal.SIGINT, handle_shutdown)
 
-@app.route("/")
-def home():
-    return "App is running!"
+@app.route("/health")
+def health_check():
+    return "App is running!", 200
 
 # Load complete history for each asset at startup
 data_dict = {}
