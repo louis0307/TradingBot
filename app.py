@@ -51,11 +51,12 @@ auth = dash_auth.BasicAuth(app, users)
 data_dict = {}
 for asset in ASSET_LIST:
     try:
-        query = f'SELECT * FROM public."{asset}"'
+        query = f'SELECT * FROM "public"."{asset}"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
         dat_hist = dat_preprocess(dat_hist)
+        logger.info(f"Asset {asset} loaded with {len(dat_hist[asset])} rows.")
         data_dict[asset] = dat_hist
         logger.info(f"Historical data for {asset} loaded successfully.")
     except Exception as e:
