@@ -54,9 +54,11 @@ for asset in ASSET_LIST:
         query = f'SELECT * FROM "public"."{asset}"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
+        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
         dat_hist = dat[dat['Symbol'] == asset + INTERVALS]
+        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
         dat_hist = dat_preprocess(dat_hist)
-        logger.info(f"Asset {asset} loaded with {len(dat_hist[asset])} rows.")
+        logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
         data_dict[asset] = dat_hist
         logger.info(f"Historical data for {asset} loaded successfully.")
     except Exception as e:
@@ -115,12 +117,12 @@ def update_graph(selected_asset, n_intervals):
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist1 = dat_preprocess(dat_hist)
         data_dict[selected_asset] = dat_hist1
-        logger.info(f"Asset {selected_asset} loaded with {len(data_dict[selected_asset])} rows.")
+        #logger.info(f"Asset {selected_asset} loaded with {len(data_dict[selected_asset])} rows.")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
         df = data_dict[selected_asset]
-        print(df)
+        #print(df)
         if df.empty:
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
