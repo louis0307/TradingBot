@@ -61,7 +61,7 @@ for asset in ASSET_LIST:
     dat_hist = dat_preprocess(dat_hist)
     logger.info(f"Initial Asset {asset} loaded with {len(dat_hist[asset])} rows.")
     data_dict[asset] = dat_hist
-        logger.info(f"Historical data for {asset} loaded successfully.")
+    logger.info(f"Historical data for {asset} loaded successfully.")
     #except Exception as e:
         #logger.error(f"Error loading data for {asset}: {e}")
         #data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
