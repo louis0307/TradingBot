@@ -30,12 +30,11 @@ def trade_signal():
         dat_hist = dat[dat['Symbol'] == asset + interval]
         dat_hist = dat_preprocess(dat_hist)
         dat_hist1h = dat_preprocess(dat[dat['Symbol'] == asset + '1h'])
-        # print(last_trades[last_trades['symbol'] == asset]['signal'])
-        # if not last_trades[last_trades['symbol'] == asset].empty:
-        #    signal_1 = int(last_trades[last_trades['symbol'] == asset]['signal'])
-        # else:
-        #    signal_1 = 0
-        signal_1 = int(last_trades[last_trades['symbol'] == asset]['signal'].iloc[0])
+        filtered_trades = last_trades[last_trades['symbol'] == asset]['signal']
+        if not filtered_trades.empty:
+            signal_1 = int(filtered_trades.iloc[0])
+        else:
+            signal_1 = 0
         # ind = math.floor((i+1)/4)
         dat_1 = dat_hist1h.iloc[-1]
         dat_2 = dat_hist1h.iloc[-2]
