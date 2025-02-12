@@ -13,7 +13,7 @@ def start_trading_bot():
     stop_event.clear()
 
     stream_data()
-    times = ["00:10", "15:10", "30:10", "45:10"]
+    times = [":00", ":15", ":30", ":45"]
     for t in times:
         schedule.every().hour.at(t).do(trade_signal)
     logger.info("Trading bot initialized.")

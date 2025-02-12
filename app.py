@@ -114,7 +114,6 @@ def update_graph(selected_asset, n_intervals):
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist1 = dat_preprocess(dat_hist)
         dat_dict[selected_asset] = dat_hist1
-        logger.info(f"Asset {selected_asset} loaded with {len(dat_dict[selected_asset])} rows.")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
