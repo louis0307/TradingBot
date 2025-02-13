@@ -100,7 +100,7 @@ app.layout = dbc.Container([
                 clearable=False
             ),
             dcc.Graph(id='price-chart'),
-            html.Div(id='trades')
+            html.Div(id='table')
         ], width=3),
     ]),
     dbc.Row([
@@ -127,7 +127,7 @@ app.layout = dbc.Container([
 
 @app.callback(
     [Output('price-chart', 'figure'),
-     Output('trades', 'children')],
+     Output('table', 'children')],
     [Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals')]
 )
