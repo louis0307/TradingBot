@@ -100,7 +100,7 @@ app.layout = dbc.Container([
                 clearable=False
             ),
             dcc.Graph(id='price-chart'),
-            dcc.Div(id='trades')
+            html.Div(id='trades')
         ], width=3),
     ]),
     dbc.Row([
