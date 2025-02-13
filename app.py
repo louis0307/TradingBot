@@ -59,7 +59,7 @@ signal.signal(signal.SIGINT, handle_shutdown)
 
 @server.route("/health")
 def health_check():
-    return "App is running!", 200
+    return 'OK', 200
 
 # Load complete history for each asset at startup
 data_dict = {}

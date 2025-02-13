@@ -1,17 +1,22 @@
 import main
-from misc.load_data import job
+from config import ASSET_LIST
+from misc.load_data import handle_socket_message
 import schedule
 import time
 from misc.logger_config import logger
 from config import stop_event
+from binance.streams import ThreadedWebsocketManager
+import threading
 
 def stream_data():
-    times = [":00", ":15", ":30", ":45"]
-    for t in times:
-        schedule.every().hour.at(t).do(lambda: job('15m'))
-    schedule.every().hour.at(":00").do(lambda: job('1h'))
+    twm = ThreadedWebsocketManager()
+    twm.start()
+    for asset in ASSET_LIST:
+        twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='15m')
     logger.info("Streaming data initialized.")
-    while not stop_event.is_set():
-        time.sleep(5)
-        schedule.run_pending()
-    logger.info("Streaming data stopped.")
+    try:
+        while not stop_event.is_set():
+            time.sleep(5)
+    finally:
+        twm.stop()
+        logger.info("Streaming data stopped.")

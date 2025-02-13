@@ -17,13 +17,12 @@ def start_trading_bot():
 
     stream_thread = threading.Thread(target=stream_data, daemon=True)
     stream_thread.start()
-    times = [":00", ":15", ":30", ":45"]
-    for t in times:
-        schedule.every().hour.at(t).do(trade_signal)
     logger.info("Trading bot initialized.")
-    while not stop_event.is_set():
-        schedule.run_pending()
-        time.sleep(1)
+    try:
+        while not stop_event.is_set():
+            time.sleep(1)
+    finally:
+        stop_trading_bot()
 
 def stop_trading_bot():
     global stop_event

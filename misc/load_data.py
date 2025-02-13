@@ -1,38 +1,39 @@
-from misc.login import client
 from data.db_connection import stream
-from config import ASSET_LIST
+from misc.logger_config import logger
 import pandas as pd
 import numpy as np
-from misc.logger_config import logger
 
-def job(interval):
-    assets = ASSET_LIST
-    for asset in assets:
-        try:
-            candle = client.get_klines(symbol=asset, interval=interval, limit=1)
-            latest_candle = [candle[-1]]
-            # open time
-            # open
-            # high
-            # low
-            # close
-            # volume
-            # close time
-            # quote asset volume
-            # number of trades
-            # taker buy base asset volume
-            # taker buy quote asset volume
-            # ignore
-            # convert into data frame and saving as csv
-            coin_df = pd.DataFrame(latest_candle, columns=["dateTime", "open", "high", "low", "close", "volume", "closeTime", "quoteAssetVolume", "numberOfTrades", "takerBuyBaseVol", "takerBuyQuoteVol", "ignore"])
-            coin_df.dateTime = pd.to_datetime(coin_df.dateTime, unit='ms')
-            coin_df.closeTime = pd.to_datetime(coin_df.closeTime, unit='ms')
-            coin_df["Symbol"] = asset+interval
-            new_dtypes = {"open":np.float64, "high":np.float64, "low":np.float64, "close":np.float64, "volume":np.float64}
-            coin_df = coin_df.astype(new_dtypes)
-            #print(coin_df.tail(10))
-            # store data
-            coin_df.to_sql(asset, stream, if_exists='append', index=False) # if_exists = 'replace' / 'append'
-            logger.info(f"Data for {asset} stored successfully.")
-        except Exception as e:
-            logger.error(f"Error processing {asset}: {e}")
+
+def handle_socket_message(msg):
+    try:
+        asset = msg['s']  # Symbol
+        interval = msg['k']['i']  # Intervall
+        latest_candle = [[
+            msg['k']['t'],  # open time
+            msg['k']['o'],  # open
+            msg['k']['h'],  # high
+            msg['k']['l'],  # low
+            msg['k']['c'],  # close
+            msg['k']['v'],  # volume
+            msg['k']['T'],  # close time
+            msg['k']['q'],  # quote asset volume
+            msg['k']['n'],  # number of trades
+            msg['k']['V'],  # taker buy base asset volume
+            msg['k']['Q'],  # taker buy quote asset volume
+            msg['k']['B']  # ignore
+        ]]
+
+        coin_df = pd.DataFrame(latest_candle,
+                               columns=["dateTime", "open", "high", "low", "close", "volume", "closeTime",
+                                        "quoteAssetVolume", "numberOfTrades", "takerBuyBaseVol", "takerBuyQuoteVol",
+                                        "ignore"])
+        coin_df.dateTime = pd.to_datetime(coin_df.dateTime, unit='ms')
+        coin_df.closeTime = pd.to_datetime(coin_df.closeTime, unit='ms')
+        coin_df["Symbol"] = asset + interval
+        coin_df = coin_df.astype(
+            {"open": np.float64, "high": np.float64, "low": np.float64, "close": np.float64, "volume": np.float64})
+
+        coin_df.to_sql(asset, stream, if_exists='append', index=False)
+        logger.info(f"Data for {asset} stored successfully.")
+    except Exception as e:
+        logger.error(f"Error processing {asset}: {e}")
