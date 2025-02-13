@@ -32,7 +32,7 @@ password = os.getenv('PASSWORD')
 trading_thread = None
 
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY], suppress_callback_exceptions=True)
 server = app.server
 #dash_authentication = BasicAuth(server, '/login', '/dashboard', secret_key)
 
