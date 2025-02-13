@@ -101,7 +101,7 @@ app.layout = dbc.Container([
             ),
             dcc.Graph(id='price-chart'),
             html.Div(id='table')
-        ], width=3),
+        ], width=12),
     ]),
     dbc.Row([
         dbc.Col([
@@ -156,6 +156,15 @@ def update_graphs(selected_asset, n_intervals):
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
             }
+            table_data = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close'])
+            table = dash_table.DataTable(
+                id='table',
+                columns=[{'name': col, 'id': col} for col in table_data.columns],
+                data=table_data.to_dict('records'),
+                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
+                style_cell={'textAlign': 'center'},  # Optional styling
+                style_header={'fontWeight': 'bold'},  # Optional header styling
+            )
         else:
             figure = go.Figure(data=[go.Candlestick(
                 x=df['date'],
@@ -187,6 +196,16 @@ def update_graphs(selected_asset, n_intervals):
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
         }
+        table_data = pd.DataFrame(columns=['Error'])
+        table_data = table_data.append({'Error': 'Failed to load data for the selected asset'}, ignore_index=True)
+        table = dash_table.DataTable(
+            id='asset-table',
+            columns=[{'name': col, 'id': col} for col in table_data.columns],
+            data=table_data.to_dict('records'),
+            style_table={'height': '400px', 'overflowY': 'auto'},
+            style_cell={'textAlign': 'center'},
+            style_header={'fontWeight': 'bold'},
+        )
     return figure, table
 
 @app.callback(
