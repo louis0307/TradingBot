@@ -15,6 +15,7 @@ def stream_data():
         twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='15m')
     logger.info("Streaming data initialized.")
     try:
+        time.sleep(1)
         while not stop_event.is_set():
             time.sleep(5)
     finally:
