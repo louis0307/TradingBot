@@ -167,7 +167,7 @@ def update_graphs(selected_asset, n_intervals):
             )
         else:
             figure = go.Figure(data=[go.Candlestick(
-                x=df['date'],
+                x=df['dateTime'],
                 open=df['open'],
                 high=df['high'],
                 low=df['low'],
