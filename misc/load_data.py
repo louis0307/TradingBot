@@ -6,6 +6,9 @@ import numpy as np
 
 def handle_socket_message(msg):
     try:
+        if not msg['k']['x']:  # Check if the candle is closed
+            return
+
         asset = msg['s']  # Symbol
         interval = msg['k']['i']  # Intervall
         latest_candle = [[
