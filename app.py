@@ -7,12 +7,13 @@ from main import start_trading_bot, stop_trading_bot
 import os
 import signal
 import dash
+import dash_table
 import sys
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 from flask import Flask, redirect, url_for, request, session
@@ -32,7 +33,7 @@ password = os.getenv('PASSWORD')
 trading_thread = None
 
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY], suppress_callback_exceptions=True)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 server = app.server
 #dash_authentication = BasicAuth(server, '/login', '/dashboard', secret_key)
 
@@ -41,6 +42,8 @@ if not server.secret_key:
     raise ValueError("No SECRET_KEY set for Flask application.")
 @server.before_request
 def enforce_https():
+    if request.path == '/health':
+        return # skip authentication for health check
     if not request.is_secure and request.headers.get("X-Forwarded-Proto", "http") != "https": # X-Forwarded-Proto is there to deal with the fact that in Render reverse proxy/load balancer is used
                                                                                               # and that nevertheless we can see whether the request is http or https
         url = request.url.replace("http://", "https://", 1)
@@ -77,9 +80,17 @@ for asset in ASSET_LIST:
         data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
 
 app.layout = dbc.Container([
-    dbc.Row([
-        dbc.Col(html.H1("Trading Bot Dashboard"), className="text-center mb-4")
-    ]),
+    dbc.Navbar(
+        dbc.Container([
+            dbc.Row([
+                dbc.Col(html.Img(src="/assets/logo.png", height="40px"), width="auto"),  # Add your logo
+                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3"), width="auto")
+            ], align="center", className="g-0"),
+        ]),
+        color="dark",
+        dark=True,
+        className="mb-4"
+    ),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
@@ -88,8 +99,9 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
-            dcc.Graph(id='price-chart')
-        ], width=12)
+            dcc.Graph(id='price-chart'),
+            dcc.Div(id='trades')
+        ], width=3),
     ]),
     dbc.Row([
         dbc.Col([
@@ -106,7 +118,7 @@ app.layout = dbc.Container([
         dbc.Col([
             dcc.Interval(
                 id='interval-component',
-                interval=1000*60*15,  # in milliseconds (updates every 15 minutes)
+                interval=1000*60,  # in milliseconds (updates every 15 minutes)
                 n_intervals=0
             )
         ])
@@ -114,42 +126,68 @@ app.layout = dbc.Container([
 ])
 
 @app.callback(
-    Output('price-chart', 'figure'),
+    [Output('price-chart', 'figure'),
+     Output('trades', 'children')],
     [Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals')]
 )
 
-def update_graph(selected_asset, n_intervals):
+def update_graphs(selected_asset, n_intervals):
     try:
         dat_dict = {}
+        trades = {}
         query = f'SELECT * FROM "public"."{selected_asset}"'
+        query2 = f'SELECT * FROM "public"."TRADES"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
+        dat2 = pd.read_sql(query2, stream)
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
+        dat_hist2 = dat2[dat2['symbol'] == selected_asset]
         dat_hist1 = dat_preprocess(dat_hist)
         dat_dict[selected_asset] = dat_hist1
+        trades[selected_asset] = dat_hist2
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
         df = dat_dict[selected_asset]
-        #print(df)
+        tab = trades[selected_asset]
         if df.empty:
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
             }
         else:
-            figure = {
-                'data': [go.Scatter(x=df.index, y=df['close'], mode='lines')],
-                'layout': go.Layout(title=f'Price Over Time: {selected_asset}', xaxis={'title': 'Date'}, yaxis={'title': 'Price'})
-            }
+            figure = go.Figure(data=[go.Candlestick(
+                x=df['date'],
+                open=df['open'],
+                high=df['high'],
+                low=df['low'],
+                close=df['close'],
+                increasing_line_color='green',  # Optional, color for increasing candles
+                decreasing_line_color='red'  # Optional, color for decreasing candles
+            )])
+            figure.update_layout(
+                title=f'Candlestick Chart for {selected_asset}',
+                xaxis_title='Date',
+                yaxis_title='Price',
+                template='plotly_dark'  # You can change the template or use 'plotly' for a light theme
+            )
+
+            table = dash_table.DataTable(
+                id='asset-table',
+                columns=[{'name': col, 'id': col} for col in tab.columns],
+                data=tab.to_dict('records'),
+                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
+                style_cell={'textAlign': 'center'},  # Optional styling
+                style_header={'fontWeight': 'bold'},  # Optional header styling
+            )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
         figure = {'data': [],
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
         }
-    return figure
+    return figure, table
 
 @app.callback(
     Output('log-textarea', 'value'),
