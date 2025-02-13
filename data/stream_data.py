@@ -5,7 +5,7 @@ import schedule
 import time
 from misc.logger_config import logger
 from config import stop_event
-from binance.streams import ThreadedWebsocketManager
+from binance import ThreadedWebsocketManager
 import threading
 
 def stream_data():
