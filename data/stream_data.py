@@ -10,7 +10,7 @@ import threading
 
 def stream_data():
     twm = ThreadedWebsocketManager()
-    twm.start()
+    twm.start(timeout=5)
     for asset in ASSET_LIST:
         twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='15m')
         time.sleep(2)
