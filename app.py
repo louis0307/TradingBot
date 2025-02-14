@@ -53,7 +53,7 @@ users = {username: password}
 auth = dash_auth.BasicAuth(app, users)
 
 def handle_shutdown(signal, frame):
-    logger.info("Shuttinng down gracefully...")
+    logger.info("Shutting down gracefully...")
     stop_trading_bot()
     sys.exit(0)
 

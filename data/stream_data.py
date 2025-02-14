@@ -13,6 +13,7 @@ def stream_data():
     twm.start()
     for asset in ASSET_LIST:
         twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='15m')
+        twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='1h')
     logger.info("Streaming data initialized.")
     try:
         time.sleep(1)
