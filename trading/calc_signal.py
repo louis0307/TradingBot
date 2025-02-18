@@ -9,6 +9,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import warnings
+import pytz
 
 
 
@@ -88,7 +89,7 @@ def trade_signal():
         #                      columns=['symbol','quantity','price','side','signal', 'order_timestamp'])
         # else:
         kdj_cross_signal = 1 if dat_1['KDJ_cross'] == 1 else 0
-        trades = pd.DataFrame(np.array([[asset, quant, dat15m_1.close, signal_side, signal, datetime.datetime.now(),
+        trades = pd.DataFrame(np.array([[asset, quant, dat15m_1.close, signal_side, signal, datetime.datetime.now(pytz.timezone("Europe/Zurich")),
                                          dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit]]),
                               columns=['symbol', 'quantity', 'price', 'side', 'signal', 'order_timestamp',
                                        'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason'])
