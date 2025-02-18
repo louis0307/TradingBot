@@ -1,5 +1,6 @@
 from data.db_connection import stream
 from misc.logger_config import logger
+from trading.calc_signal import trade_signal
 import pandas as pd
 import numpy as np
 
@@ -38,5 +39,6 @@ def handle_socket_message(msg):
 
         coin_df.to_sql(asset, stream, if_exists='append', index=False)
         # logger.info(f"Data for {asset} stored successfully.")
+        trade_signal()
     except Exception as e:
         logger.error(f"Error processing {asset}: {e}")

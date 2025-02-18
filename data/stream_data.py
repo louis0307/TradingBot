@@ -1,7 +1,5 @@
-import main
 from config import ASSET_LIST
 from misc.load_data import handle_socket_message
-import schedule
 import time
 from misc.logger_config import logger
 from config import stop_event
