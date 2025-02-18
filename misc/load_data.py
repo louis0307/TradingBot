@@ -3,6 +3,7 @@ from misc.logger_config import logger
 from trading.calc_signal import trade_signal
 import pandas as pd
 import numpy as np
+import pytz
 
 
 def handle_socket_message(msg):
@@ -31,8 +32,8 @@ def handle_socket_message(msg):
                                columns=["dateTime", "open", "high", "low", "close", "volume", "closeTime",
                                         "quoteAssetVolume", "numberOfTrades", "takerBuyBaseVol", "takerBuyQuoteVol",
                                         "ignore"])
-        coin_df.dateTime = pd.to_datetime(coin_df.dateTime, unit='ms')
-        coin_df.closeTime = pd.to_datetime(coin_df.closeTime, unit='ms')
+        coin_df.dateTime = pd.to_datetime(coin_df.dateTime, unit='ms').dt.tz_localize('UTC').dt.tz_convert('Europe/Zurich')
+        coin_df.closeTime = pd.to_datetime(coin_df.closeTime, unit='ms').dt.tz_localize('UTC').dt.tz_convert('Europe/Zurich')
         coin_df["Symbol"] = asset + interval
         coin_df = coin_df.astype(
             {"open": np.float64, "high": np.float64, "low": np.float64, "close": np.float64, "volume": np.float64})
