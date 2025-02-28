@@ -15,11 +15,11 @@ def run_trade():
         return
     trade_signal()
 
-schedule.every(15).minutes.at(":30").do(run_trade())
-
 def start_trading_bot():
     global stop_event
     stop_event.clear()
+
+    schedule.every(15).minutes.at(":30").do(run_trade())
 
     stream_thread = threading.Thread(target=stream_data, daemon=True)
     stream_thread.start()
