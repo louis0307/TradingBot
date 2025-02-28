@@ -40,6 +40,5 @@ def handle_socket_message(msg):
 
         coin_df.to_sql(asset, stream, if_exists='append', index=False)
         # logger.info(f"Data for {asset} stored successfully.")
-        #trade_signal()
     except Exception as e:
         logger.error(f"Error processing {asset}: {e}")
