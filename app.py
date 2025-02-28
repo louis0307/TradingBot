@@ -7,7 +7,7 @@ from main import start_trading_bot, stop_trading_bot
 import os
 import signal
 import dash
-import dash_table
+from dash import dash_table
 import sys
 from dash import dcc, html
 import dash_bootstrap_components as dbc

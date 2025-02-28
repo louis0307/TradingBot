@@ -13,6 +13,7 @@ trading_thread = None
 def run_trade():
     if stop_event.is_set():
         return
+    time.sleep(30)
     trade_signal()
 
 def run_trade_thread():
@@ -23,7 +24,7 @@ def start_trading_bot():
     global stop_event
     stop_event.clear()
 
-    schedule.every(15).minutes.at(":30").do(run_trade_thread)
+    schedule.every(15).minutes.at(":00").do(run_trade_thread)
 
     stream_thread = threading.Thread(target=stream_data, daemon=True)
     stream_thread.start()
