@@ -11,6 +11,8 @@ import threading
 trading_thread = None
 
 def run_trade():
+    if stop_event.is_set():
+        return
     trade_signal()
 
 schedule.every(15).minutes.at(":30").do(run_trade())
