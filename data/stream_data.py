@@ -1,4 +1,4 @@
-from config import ASSET_LIST
+from ..config import ASSET_LIST
 from misc.load_data import handle_socket_message
 import time
 from misc.logger_config import logger
