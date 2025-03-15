@@ -23,12 +23,12 @@ def stream_data():
 
         logger.info("Streaming data initialized.")
 
-        # Run for 10 minutes
-        run_duration = 180
+        # Run for 3 minutes
+        run_duration = 120
         start_time = time.time()
 
         while time.time() - start_time < run_duration:
-            time.sleep(5)
+            time.sleep(2)
 
     except Exception as e:
         logger.error(f"Error in stream_data: {e}")
@@ -39,4 +39,4 @@ def stream_data():
         logger.info("Streaming data cron job completed.")
 
 if __name__ == "__main__":
-    stream_data()  # <-- Ensure this runs!
+    stream_data()
