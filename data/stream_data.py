@@ -40,4 +40,3 @@ def stream_data():
 
 if __name__ == "__main__":
     stream_data()  # <-- Ensure this runs!
-
