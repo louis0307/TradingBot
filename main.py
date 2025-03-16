@@ -18,6 +18,11 @@ def run_trade():
     trade_signal()
 
 def run_trade_thread():
+    global trading_thread
+    if trading_thread and trading_thread.is_alive():
+        logger.info("Trading thread is already running.")
+        return
+
     trade_thread = threading.Thread(target=run_trade, daemon=True)
     trade_thread.start()
 
@@ -35,5 +40,6 @@ def start_trading_bot():
         stop_trading_bot()
 
 def stop_trading_bot():
+    global trading_thread
     stop_event.set()
     logger.info("Trading bot stopped.")
