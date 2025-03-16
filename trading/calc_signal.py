@@ -5,6 +5,7 @@ from data.db_connection import stream
 from data.preprocessing import dat_preprocess
 from trading.indicators import macd_trade
 from misc.login import client
+from misc.logger_config import logger
 import datetime
 import pandas as pd
 import numpy as np
@@ -38,6 +39,7 @@ def trade_signal():
         else:
             signal_1 = 0
         # ind = math.floor((i+1)/4)
+        logger.info(f"asset: {asset} {dat_hist1h}")
         dat_1 = dat_hist1h.iloc[-1]
         dat_2 = dat_hist1h.iloc[-2]
         dat15m_1 = dat_hist.iloc[-1]

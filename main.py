@@ -30,7 +30,10 @@ def run_trade_thread():
 
 def start_trading_bot():
     stop_event.clear()
-    schedule.every(15).minutes.do(run_trade_thread)
+    schedule.every().hour.at(":00").do(run_trade_thread)
+    schedule.every().hour.at(":15").do(run_trade_thread)
+    schedule.every().hour.at(":30").do(run_trade_thread)
+    schedule.every().hour.at(":45").do(run_trade_thread)
     logger.info("Trading bot initialized.")
     try:
         while not stop_event.is_set():
