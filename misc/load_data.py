@@ -39,6 +39,6 @@ def handle_socket_message(msg):
             {"open": np.float64, "high": np.float64, "low": np.float64, "close": np.float64, "volume": np.float64})
 
         coin_df.to_sql(asset, stream, if_exists='append', index=False)
-        logger.info(f"Data for {asset} stored successfully.")
+        #0logger.info(f"Data for {asset} stored successfully.")
     except Exception as e:
         logger.error(f"Error processing {asset}: {e}")

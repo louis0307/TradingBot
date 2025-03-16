@@ -1,19 +1,20 @@
 import sys
 import time
 from misc.logger_config import logger
-from data.stream_data import stream_data
+from misc.global_state import trading_thread
 from config import stop_event
 from trading.calc_signal import trade_signal
 
 import schedule
 import threading
 
-trading_thread = None
-
 def run_trade():
     if stop_event.is_set():
         return
-    time.sleep(30)
+    for _ in range(30):  # Check stop_event periodically to avoid delay issues
+        if stop_event.is_set():
+            return
+        time.sleep(1)
     trade_signal()
 
 def run_trade_thread():
@@ -21,22 +22,18 @@ def run_trade_thread():
     trade_thread.start()
 
 def start_trading_bot():
-    global stop_event
     stop_event.clear()
-
-    schedule.every(15).minutes.at(":00").do(run_trade_thread)
-
-    stream_thread = threading.Thread(target=stream_data, daemon=True)
-    stream_thread.start()
+    schedule.every(15).minutes.do(run_trade_thread)
     logger.info("Trading bot initialized.")
     try:
         while not stop_event.is_set():
+            time.sleep(30)
             schedule.run_pending()
             time.sleep(1)
+        logger.info("Trading bot shutting down...")
     finally:
         stop_trading_bot()
 
 def stop_trading_bot():
-    global stop_event
     stop_event.set()
     logger.info("Trading bot stopped.")

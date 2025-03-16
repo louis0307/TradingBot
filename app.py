@@ -3,6 +3,7 @@ from data.db_connection import stream
 from data.preprocessing import dat_preprocess
 from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
+from misc.global_state import trading_thread
 
 import os
 import signal
@@ -30,7 +31,6 @@ secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 
-trading_thread = None
 
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
@@ -235,12 +235,11 @@ def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
     elif trigger == 'stop-bot-button' and stop_bot_clicks > 0:
         if trading_thread and trading_thread.is_alive():
             stop_trading_bot()
-            trading_thread.join()  # Wait for the thread to terminate
+            trading_thread.join()
             trading_thread = None
             log_value += '\nTrading bot stopped.'
         else:
             log_value += '\nTrading bot is not running.'
-        log_value += '\nTrading bot stopped.'
     return log_value
 
 if __name__ == '__main__':
