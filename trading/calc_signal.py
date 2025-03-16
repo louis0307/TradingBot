@@ -39,7 +39,7 @@ def trade_signal():
         else:
             signal_1 = 0
         # ind = math.floor((i+1)/4)
-        logger.info(f"asset: {asset} {dat_hist1h}")
+        # logger.info(f"asset: {asset} {dat_hist1h}")
         dat_1 = dat_hist1h.iloc[-1]
         dat_2 = dat_hist1h.iloc[-2]
         dat15m_1 = dat_hist.iloc[-1]
