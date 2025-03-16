@@ -27,7 +27,7 @@ def start_trading_bot():
     logger.info("Trading bot initialized.")
     try:
         while not stop_event.is_set():
-            time.sleep(30)
+            time.sleep(20)
             schedule.run_pending()
             time.sleep(1)
         logger.info("Trading bot shutting down...")
