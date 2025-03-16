@@ -1,12 +1,13 @@
 import sys
 import time
 from misc.logger_config import logger
-from misc.global_state import trading_thread
 from config import stop_event
 from trading.calc_signal import trade_signal
 
 import schedule
 import threading
+
+trade_thread = None
 
 def run_trade():
     if stop_event.is_set():
@@ -16,10 +17,11 @@ def run_trade():
             return
         time.sleep(1)
     trade_signal()
+    logger.info("Trade signal generated.")
 
 def run_trade_thread():
-    global trading_thread
-    if trading_thread and trading_thread.is_alive():
+    global trade_thread
+    if trade_thread and trade_thread.is_alive():
         logger.info("Trading thread is already running.")
         return
 
@@ -40,6 +42,6 @@ def start_trading_bot():
         stop_trading_bot()
 
 def stop_trading_bot():
-    global trading_thread
+    global trade_thread
     stop_event.set()
     logger.info("Trading bot stopped.")
