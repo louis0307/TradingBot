@@ -4,6 +4,7 @@ from data.preprocessing import dat_preprocess
 from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
 from misc.global_state import trading_thread
+from misc.portfolio_value import calc_pv
 
 import os
 import signal
@@ -15,6 +16,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
+import plotly.express as px
 import pandas as pd
 import numpy as np
 from flask import Flask, redirect, url_for, request, session
@@ -99,7 +101,10 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
-            dcc.Graph(id='price-chart'),
+            dbc.Col([
+                dcc.Graph(id='price-chart'),
+                dcc.Graph(id='portfolio-chart')
+            ]),
             html.Div(id='table')
         ], width=12),
     ]),
@@ -127,6 +132,7 @@ app.layout = dbc.Container([
 
 @app.callback(
     [Output('price-chart', 'figure'),
+     Output('portfolio-chart', 'figure'),
      Output('table', 'children')],
     [Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals')]
@@ -156,6 +162,10 @@ def update_graphs(selected_asset, n_intervals):
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
             }
+            pv_fig = {'data': [],
+                      'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Portfolio Value'})
+            }
             table_data = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close'])
             table = dash_table.DataTable(
                 id='table',
@@ -182,6 +192,17 @@ def update_graphs(selected_asset, n_intervals):
                 template='plotly_dark'  # You can change the template or use 'plotly' for a light theme
             )
 
+            pv = calc_pv(selected_asset)
+            pv_fig = go.Figure()
+            pv_fig.add_trace(go.Scatter(
+                x=pv["timestamp"],
+                y=pv["portfolio_value"],
+                mode="lines",
+                name=selected_asset
+            ))
+            pv_fig.update_layout(title=f'Portfolio Value Over Time for {selected_asset}', xaxis_title="Time",
+                              yaxis_title="Portfolio Value")
+
             table = dash_table.DataTable(
                 id='asset-table',
                 columns=[{'name': col, 'id': col} for col in tab.columns],
@@ -196,6 +217,10 @@ def update_graphs(selected_asset, n_intervals):
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
         }
+        pv_fig = {'data': [],
+                  'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
+                                      yaxis={'title': 'Portfolio Value'})
+                  }
         table_data = pd.DataFrame(columns=['Error'])
         table_data = table_data.append({'Error': 'Failed to load data for the selected asset'}, ignore_index=True)
         table = dash_table.DataTable(
@@ -206,7 +231,7 @@ def update_graphs(selected_asset, n_intervals):
             style_cell={'textAlign': 'center'},
             style_header={'fontWeight': 'bold'},
         )
-    return figure, table
+    return figure, pv_fig, table
 
 @app.callback(
     Output('log-textarea', 'value'),
