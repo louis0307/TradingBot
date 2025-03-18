@@ -31,20 +31,30 @@ def calc_pv(asset):
     #dat_hist = dat[dat['Symbol'] == asset + interval]
     #dat_hist = dat_preprocess(dat_hist)
 
-    for i, row in trades.iterrows():
-        logger.info(f"trades {i}: {row}")
-        if row["side"] == "BUY":
-            if i > 0 and trades.iloc[i - 1]["side"] == "SELL":
-                position = 0  # Closing short
-            position += row["quantity"] * row["price"]
-        elif row["side"] == "SELL":
-            if i > 0 and trades.iloc[i - 1]["side"] == "BUY":
-                position = 0  # Closing long
-            position -= row["quantity"] * row["price"]
+    # Group by symbol (asset) to avoid mixing rows of different assets
+    for _, group in trades.groupby("symbol"):
+        prev_row = None  # Initialize the previous row for each asset
 
-        portfolio_values.append({
-            "timestamp": row["order_timestamp"],
-            "portfolio_value": position
-        })
+        for i, row in group.iterrows():
+            # For the first row, we don't need to compare
+            if prev_row is not None:
+                if prev_row["side"] == "SELL" and row["side"] == "BUY":
+                    position = 0  # Closing short
+                elif prev_row["side"] == "BUY" and row["side"] == "SELL":
+                    position = 0  # Closing long
+
+            # Update position based on side
+            if row["side"] == "BUY":
+                position += row["quantity"] * row["price"]
+            elif row["side"] == "SELL":
+                position -= row["quantity"] * row["price"]
+
+            # Append portfolio value for this transaction
+            portfolio_values.append({
+                "timestamp": row["order_timestamp"],
+                "portfolio_value": position
+            })
+
+            prev_row = row  # Update prev_row for the next iteration
 
     return pd.DataFrame(portfolio_values)
