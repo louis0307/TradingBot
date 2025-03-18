@@ -1,6 +1,7 @@
 import time
 
 from config import INTERVALS, ASSET_LIST
+from misc.logger_config import logger
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
 import datetime
@@ -31,6 +32,7 @@ def calc_pv(asset):
     #dat_hist = dat_preprocess(dat_hist)
 
     for i, row in trades.iterrows():
+        logger.info(f"trades {i}: {row}")
         if row["side"] == "BUY":
             if i > 0 and trades.iloc[i - 1]["side"] == "SELL":
                 position = 0  # Closing short
