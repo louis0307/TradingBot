@@ -24,6 +24,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from threading import Thread
 import dash_auth
 from dash_auth import BasicAuth
+from plotly.subplots import make_subplots
 
 
 logger.info("Starting the web application")
@@ -101,10 +102,8 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
-            dbc.Col([
-                dcc.Graph(id='price-chart'),
-                dcc.Graph(id='portfolio-chart')
-            ]),
+            dcc.Graph(id='price-chart'),
+            dcc.Graph(id='portfolio-chart'),
             html.Div(id='table')
         ], width=12),
     ]),
@@ -143,7 +142,8 @@ def update_graphs(selected_asset, n_intervals):
         dat_dict = {}
         trades = {}
         query = f'SELECT * FROM "public"."{selected_asset}"'
-        query2 = f'SELECT * FROM "public"."TRADES"'
+        query2 = 'SELECT * FROM "public"."TRADES"'
+        query3 = 'SELECT * FROM "public"."INDICATORS"'
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
         dat2 = pd.read_sql(query2, stream)
@@ -152,6 +152,9 @@ def update_graphs(selected_asset, n_intervals):
         dat_hist1 = dat_preprocess(dat_hist)
         dat_dict[selected_asset] = dat_hist1
         trades[selected_asset] = dat_hist2
+        dat_ind = pd.read_sql(query3, stream)
+        dat_ind.set_index('dateTime', inplace=True)
+        dat_ind_hist = dat_ind[dat_ind['symbol'] == selected_asset+'1h']
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -176,20 +179,46 @@ def update_graphs(selected_asset, n_intervals):
                 style_header={'fontWeight': 'bold'},  # Optional header styling
             )
         else:
-            figure = go.Figure(data=[go.Candlestick(
-                x=df.index,
-                open=df['open'],
-                high=df['high'],
-                low=df['low'],
-                close=df['close'],
-                increasing_line_color='green',  # Optional, color for increasing candles
-                decreasing_line_color='red'  # Optional, color for decreasing candles
-            )])
+            figure = make_subplots(
+                rows=2, cols=1,  # Two rows, one column
+                shared_xaxes=True,  # Sync x-axes
+                row_heights=[0.75, 0.25],  # Adjust row height ratio
+                vertical_spacing=0.05  # Space between plots
+            )
+            figure.add_trace(
+                go.Figure(data=[go.Candlestick(
+                    x=df.index,
+                    open=df['open'],
+                    high=df['high'],
+                    low=df['low'],
+                    close=df['close'],
+                    increasing_line_color='green',  # Optional, color for increasing candles
+                    decreasing_line_color='red'  # Optional, color for decreasing candles
+                )])
+            )
+            figure.add_trace(
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD"], mode="lines", name="MACD", line=dict(color="blue")),
+                row=2, col=1
+            )
+
+            # Add MACD Signal Line (Second Row)
+            figure.add_trace(
+                go.Scatter(x=df.index, y=dat_ind_hist["MACD_Signal"], mode="lines", name="MACD Signal",
+                           line=dict(color="red")),
+                row=2, col=1
+            )
+
+            # Add MACD Histogram as Bars (Second Row)
+            figure.add_trace(
+                go.Bar(x=df.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
+                row=2, col=1
+            )
             figure.update_layout(
-                title=f'Candlestick Chart for {selected_asset}',
+                title=f'Candlestick Chart for {selected_asset} with MACD Indicator',
                 xaxis_title='Date',
                 yaxis_title='Price',
-                template='plotly_dark'  # You can change the template or use 'plotly' for a light theme
+                height=600,
+                template='plotly_dark'
             )
 
             pv = calc_pv(selected_asset)
