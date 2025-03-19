@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import pytz
+from sqlalchemy import text
 
 
 
@@ -35,8 +36,11 @@ def trade_signal():
         dat_hist1h = dat_preprocess(dat[dat['Symbol'] == asset + '1h'])
         dat_hist1h_store = dat_hist1h[['Symbol', 'volume', 'log_returns', 'volume_change', 'ema_50',
                                        'ema_200', 'rsi_14', 'volatility', 'MACD', 'MACD_Signal', 'MACD_Hist', 'KDJ_cross']]
+
+        asset_symbol = asset + '1h'  # Ensure correct asset format
         with stream.connect() as conn:
-            conn.execute(f"DELETE FROM public.\"INDICATORS\" WHERE \"Symbol\" = '{asset+'1h'}'")
+            # Use parameterized query for safety
+            conn.execute(text('DELETE FROM public."INDICATORS" WHERE "Symbol" = :symbol'), {"symbol": asset_symbol})
             conn.commit()  # Commit deletion
 
         dat_hist1h_store.to_sql('INDICATORS', stream, if_exists='append', index=True)
