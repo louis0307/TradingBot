@@ -186,7 +186,7 @@ def update_graphs(selected_asset, n_intervals):
                 vertical_spacing=0.05  # Space between plots
             )
             figure.add_trace(
-                go.Figure(data=[go.Candlestick(
+                go.Candlestick(
                     x=df.index,
                     open=df['open'],
                     high=df['high'],
@@ -194,7 +194,7 @@ def update_graphs(selected_asset, n_intervals):
                     close=df['close'],
                     increasing_line_color='green',  # Optional, color for increasing candles
                     decreasing_line_color='red'  # Optional, color for decreasing candles
-                )])
+                )
             )
             figure.add_trace(
                 go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD"], mode="lines", name="MACD", line=dict(color="blue")),
