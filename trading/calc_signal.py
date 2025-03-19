@@ -33,9 +33,9 @@ def trade_signal():
         dat_hist = dat[dat['Symbol'] == asset + interval]
         dat_hist = dat_preprocess(dat_hist)
         dat_hist1h = dat_preprocess(dat[dat['Symbol'] == asset + '1h'])
-        dat_hist1h_store = dat_hist1h[['dateTime', 'Symbol', 'volume', 'log_returns', 'volume_change', 'ema_50',
+        dat_hist1h_store = dat_hist1h[['Symbol', 'volume', 'log_returns', 'volume_change', 'ema_50',
                                        'ema_200', 'rsi_14', 'volatility', 'MACD', 'MACD_Signal', 'MACD_Hist', 'KDJ_cross']]
-        dat_hist1h_store.to_sql('INDICATORS', stream, if_exists='replace', index=False)
+        dat_hist1h_store.to_sql('INDICATORS', stream, if_exists='replace', index=True)
         filtered_trades = last_trades[last_trades['symbol'] == asset]['signal']
         if not filtered_trades.empty:
             signal_1 = int(filtered_trades.iloc[0])
