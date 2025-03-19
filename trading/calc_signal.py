@@ -32,8 +32,11 @@ def trade_signal():
         dat = pd.read_sql(asset, stream)
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == asset + interval]
+        dat_hist = dat_hist.sort_index()
         dat_hist = dat_preprocess(dat_hist)
-        dat_hist1h = dat_preprocess(dat[dat['Symbol'] == asset + '1h'])
+        dat_hist1h_temp = dat[dat['Symbol'] == asset + '1h']
+        dat_hist1h = dat_hist1h_temp.sort_index()
+        dat_hist1h = dat_preprocess(dat_hist1h)
         dat_hist1h_store = dat_hist1h[['Symbol', 'volume', 'log_returns', 'volume_change', 'ema_50',
                                        'ema_200', 'rsi_14', 'volatility', 'MACD', 'MACD_Signal', 'MACD_Hist',
                                        'KDJ_cross', 'K', 'D', 'J']]

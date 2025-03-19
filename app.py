@@ -184,7 +184,7 @@ def update_graphs(selected_asset, n_intervals):
                 rows=3, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
                 row_heights=[0.6, 0.2, 0.2],  # Adjust row height ratio
-                vertical_spacing=0.25  # Space between plots
+                vertical_spacing=0.1  # Space between plots
             )
             figure.add_trace(
                 go.Candlestick(
