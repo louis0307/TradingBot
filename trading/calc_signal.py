@@ -35,7 +35,8 @@ def trade_signal():
         dat_hist = dat_preprocess(dat_hist)
         dat_hist1h = dat_preprocess(dat[dat['Symbol'] == asset + '1h'])
         dat_hist1h_store = dat_hist1h[['Symbol', 'volume', 'log_returns', 'volume_change', 'ema_50',
-                                       'ema_200', 'rsi_14', 'volatility', 'MACD', 'MACD_Signal', 'MACD_Hist', 'KDJ_cross']]
+                                       'ema_200', 'rsi_14', 'volatility', 'MACD', 'MACD_Signal', 'MACD_Hist',
+                                       'KDJ_cross', 'K', 'D', 'J']]
 
         asset_symbol = asset + '1h'  # Ensure correct asset format
         with stream.connect() as conn:

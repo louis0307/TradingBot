@@ -181,10 +181,10 @@ def update_graphs(selected_asset, n_intervals):
             )
         else:
             figure = make_subplots(
-                rows=2, cols=1,  # Two rows, one column
+                rows=3, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
-                row_heights=[0.7, 0.3],  # Adjust row height ratio
-                vertical_spacing=0.1  # Space between plots
+                row_heights=[0.6, 0.2, 0.2],  # Adjust row height ratio
+                vertical_spacing=0.2  # Space between plots
             )
             figure.add_trace(
                 go.Candlestick(
@@ -215,10 +215,24 @@ def update_graphs(selected_asset, n_intervals):
                 go.Bar(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
                 row=2, col=1
             )
-            figure.update_yaxes(range=[dat_ind_hist["MACD"].min() * 1.2, dat_ind_hist["MACD"].max() * 1.2], row=2, col=1)
 
+            figure.add_trace(
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["K"], mode="lines", name="K", line=dict(color="blue")),
+                row=3, col=1
+            )
+            figure.add_trace(
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["D"], mode="lines", name="D", line=dict(color="green")),
+                row=3, col=1
+            )
+            figure.add_trace(
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["J"], mode="lines", name="J", line=dict(color="red")),
+                row=3, col=1
+            )
+
+            figure.update_yaxes(range=[dat_ind_hist["MACD"].min() * 1.2, dat_ind_hist["MACD"].max() * 1.2], row=2,
+                                col=1)
             figure.update_layout(
-                title=f'Candlestick Chart for {selected_asset} with MACD Indicator',
+                title=f'Candlestick Chart for {selected_asset} with MACD and KDJ Indicator',
                 xaxis_title='Date',
                 yaxis_title='Price',
                 height=600,
