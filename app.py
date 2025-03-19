@@ -233,9 +233,10 @@ def update_graphs(selected_asset, n_intervals):
                                 col=1)
             figure.update_layout(
                 title=f'Candlestick Chart for {selected_asset} with MACD and KDJ Indicator',
+                xaxis=dict(rangeslider=dict(visible=False)),
                 xaxis_title='Date',
                 yaxis_title='Price',
-                height=600,
+                height=800,
                 template='plotly_dark'
             )
 
