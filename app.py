@@ -184,7 +184,7 @@ def update_graphs(selected_asset, n_intervals):
                 rows=2, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
                 row_heights=[0.7, 0.3],  # Adjust row height ratio
-                vertical_spacing=0.5  # Space between plots
+                vertical_spacing=0.2  # Space between plots
             )
             figure.add_trace(
                 go.Candlestick(
@@ -204,14 +204,14 @@ def update_graphs(selected_asset, n_intervals):
 
             # Add MACD Signal Line (Second Row)
             figure.add_trace(
-                go.Scatter(x=df.index, y=dat_ind_hist["MACD_Signal"], mode="lines", name="MACD Signal",
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Signal"], mode="lines", name="MACD Signal",
                            line=dict(color="red")),
                 row=2, col=1
             )
 
             # Add MACD Histogram as Bars (Second Row)
             figure.add_trace(
-                go.Bar(x=df.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
+                go.Bar(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
                 row=2, col=1
             )
             figure.update_yaxes(range=[dat_ind_hist["MACD"].min() * 1.2, dat_ind_hist["MACD"].max() * 1.2], row=2, col=1)
