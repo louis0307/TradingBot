@@ -154,7 +154,7 @@ def update_graphs(selected_asset, n_intervals):
         trades[selected_asset] = dat_hist2
         dat_ind = pd.read_sql(query3, stream)
         dat_ind.set_index('dateTime', inplace=True)
-        dat_ind_hist = dat_ind[dat_ind['symbol'] == selected_asset+'1h']
+        dat_ind_hist = dat_ind[dat_ind['Symbol'] == selected_asset+'1h']
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
