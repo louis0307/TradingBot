@@ -183,7 +183,7 @@ def update_graphs(selected_asset, n_intervals):
             figure = make_subplots(
                 rows=2, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
-                row_heights=[0.75, 0.25],  # Adjust row height ratio
+                row_heights=[0.7, 0.3],  # Adjust row height ratio
                 vertical_spacing=0.05  # Space between plots
             )
             figure.add_trace(
@@ -214,6 +214,8 @@ def update_graphs(selected_asset, n_intervals):
                 go.Bar(x=df.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
                 row=2, col=1
             )
+            figure.update_yaxes(range=[dat_ind_hist["MACD"].min() * 1.2, dat_ind_hist["MACD"].max() * 1.2], row=2, col=1)
+
             figure.update_layout(
                 title=f'Candlestick Chart for {selected_asset} with MACD Indicator',
                 xaxis_title='Date',
