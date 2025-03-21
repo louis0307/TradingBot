@@ -198,7 +198,7 @@ def update_graphs(selected_asset, n_intervals):
                 x=pv_total["timestamp"],
                 y=pv_total["portfolio_value"],
                 mode="lines",
-                name=selected_asset
+                name="pv_tot"
             ))
             pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
                                  yaxis_title="Total Portfolio Value")
