@@ -63,17 +63,13 @@ def calc_pv(asset):
     return pd.DataFrame(portfolio_values)
 
 def calc_pv_total():
-    pv = []
+    pv = pd.DataFrame(columns=["timestamp", "portfolio_value"])
     for asset in ASSET_LIST:
         pv_asset = calc_pv(asset)
         df = pd.DataFrame(pv_asset)
         df["timestamp"] = df["timestamp"].dt.ceil("T")
-        pv.append(df)
+        pv = pd.concat([pv, df], ignore_index=True)
 
-        if not pv:
-            return pd.DataFrame(columns=["timestamp", "portfolio_value"])
-
-    df_total = pd.concat(pv)
-    df_total = df_total.groupby("timestamp")["portfolio_value"].sum().reset_index()
+    df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
     return df_total
