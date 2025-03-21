@@ -73,7 +73,7 @@ def calc_pv_total():
         if not pv:
             return pd.DataFrame(columns=["timestamp", "portfolio_value"])
 
-        df_total = pd.concat(pv)
-        df_total = df_total.groupby("timestamp")["portfolio_value"].sum().reset_index()
+    df_total = pd.concat(pv)
+    df_total = df_total.groupby("timestamp")["portfolio_value"].sum().reset_index()
 
-        return df_total
+    return df_total
