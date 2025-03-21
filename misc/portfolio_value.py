@@ -34,17 +34,20 @@ def calc_pv(asset):
 
     # Group by symbol (asset) to avoid mixing rows of different assets
     for _, group in trades.groupby("symbol"):
-        prev_row = None  # Initialize the previous row for each asset
+        prev_prev_row = None
+        prev_row = prev_prev_row  # Initialize the previous row for each asset
 
         for i, row in group.iterrows():
             # For the first row, we don't need to compare
-            if prev_row is not None:
-                if prev_row["signal"] != 0 and row["signal"] == 0:
-                    position = row["quantity"] * row["price"] - investment_amt
+            if prev_prev_row is not None:
+                if prev_prev_row["signal"] != 0 and prev_row["signal"] != 0 and row["signal"] == 0:
+                    position += row["quantity"] * row["price"] - 2*investment_amt
+                elif prev_prev_row["signal"] == 0 and prev_row["signal"] != 0 and row["signal"] == 0:
+                    position += row["quantity"] * row["price"] - investment_amt
                 elif prev_row["signal"] != 0 and row["signal"] != 0:
-                    position = row["quantity"] * row["price"] - 2*investment_amt
+                    position += row["quantity"] * row["price"] - 2*investment_amt
                 elif prev_row["signal"] == 0 and row["signal"] != 0:
-                    position = 0
+                    position += 0
 
 
             # Append portfolio value for this transaction
@@ -53,6 +56,7 @@ def calc_pv(asset):
                 "portfolio_value": position
             })
 
+            prev_prev_row = prev_row
             prev_row = row  # Update prev_row for the next iteration
 
     return pd.DataFrame(portfolio_values)
