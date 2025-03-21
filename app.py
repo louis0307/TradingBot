@@ -160,7 +160,11 @@ def update_graphs(selected_asset, n_intervals):
         print(f"Data not yet available: {e}")
     try:
         df = dat_dict[selected_asset]
+        df = df.sort_index()
         tab = trades[selected_asset]
+        tab["order_timestamp"] = pd.to_datetime(tab["order_timestamp"])
+        tab = tab.sort_values(by='order_timestamp')
+
         if df.empty:
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},

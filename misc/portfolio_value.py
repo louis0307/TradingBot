@@ -25,6 +25,7 @@ def calc_pv(asset):
 
     position = 0
     portfolio_values = []
+    investment_amt = 1000
 
     #dat = pd.read_sql(asset, stream)
     #dat.set_index('dateTime', inplace=True)
@@ -38,16 +39,13 @@ def calc_pv(asset):
         for i, row in group.iterrows():
             # For the first row, we don't need to compare
             if prev_row is not None:
-                if prev_row["side"] == "SELL" and row["side"] == "BUY":
-                    position = 0  # Closing short
-                elif prev_row["side"] == "BUY" and row["side"] == "SELL":
-                    position = 0  # Closing long
+                if prev_row["signal"] != 0 and row["signal"] == 0:
+                    position = row["quantity"] * row["price"] - investment_amt
+                elif prev_row["signal"] != 0 and row["signal"] != 0:
+                    position = row["quantity"] * row["price"] - 2*investment_amt
+                elif prev_row["signal"] == 0 and row["signal"] != 0:
+                    position = 0
 
-            # Update position based on side
-            if row["side"] == "BUY":
-                position += row["quantity"] * row["price"]
-            elif row["side"] == "SELL":
-                position -= row["quantity"] * row["price"]
 
             # Append portfolio value for this transaction
             portfolio_values.append({
