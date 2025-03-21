@@ -95,11 +95,6 @@ app.layout = dbc.Container([
         className="mb-4"
     ),
     dbc.Row([
-       dbc.Col([
-           dcc.Graph(id='total-pv-chart')
-       ], width=12)
-    ]),
-    dbc.Row([
         dbc.Col([
             dcc.Dropdown(
                 id='asset-dropdown',
@@ -107,6 +102,7 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
+            dcc.Graph(id='total-pv-chart'),
             dcc.Graph(id='price-chart'),
             dcc.Graph(id='portfolio-chart'),
             html.Div(id='table')
