@@ -4,7 +4,7 @@ from data.preprocessing import dat_preprocess
 from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
 from misc.global_state import trading_thread
-from misc.portfolio_value import calc_pv
+from misc.portfolio_value import calc_pv, calc_pv_total
 
 import os
 import signal
@@ -95,6 +95,11 @@ app.layout = dbc.Container([
         className="mb-4"
     ),
     dbc.Row([
+       dbc.Col([
+           dcc.Graph(id='total-pv-chart')
+       ], width=12)
+    ]),
+    dbc.Row([
         dbc.Col([
             dcc.Dropdown(
                 id='asset-dropdown',
@@ -130,7 +135,8 @@ app.layout = dbc.Container([
 ])
 
 @app.callback(
-    [Output('price-chart', 'figure'),
+    [Output('total-pv-chart', 'figure'),
+     Output('price-chart', 'figure'),
      Output('portfolio-chart', 'figure'),
      Output('table', 'children')],
     [Input('asset-dropdown', 'value'),
@@ -166,14 +172,20 @@ def update_graphs(selected_asset, n_intervals):
         tab = tab.sort_values(by='order_timestamp')
 
         if df.empty:
+            pv_total_fig = {'data': [],
+                      'layout': go.Layout(title=f'No Data', xaxis={'title': 'Date'},
+                                          yaxis={'title': 'Total Portfolio Value'})
+                      }
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
             }
+
             pv_fig = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Portfolio Value'})
             }
+
             table_data = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close'])
             table = dash_table.DataTable(
                 id='table',
@@ -184,6 +196,17 @@ def update_graphs(selected_asset, n_intervals):
                 style_header={'fontWeight': 'bold'},  # Optional header styling
             )
         else:
+            pv_total = calc_pv_total()
+            pv_total_fig = go.Figure()
+            pv_total_fig.add_trace(go.Scatter(
+                x=pv_total["timestamp"],
+                y=pv_total["portfolio_value"],
+                mode="lines",
+                name=selected_asset
+            ))
+            pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
+                                 yaxis_title="Total Portfolio Value")
+
             figure = make_subplots(
                 rows=3, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
@@ -265,14 +288,21 @@ def update_graphs(selected_asset, n_intervals):
             )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
+        pv_total_fig = {'data': [],
+                  'layout': go.Layout(title=f'Error loading data', xaxis={'title': 'Date'},
+                                      yaxis={'title': 'Total Portfolio Value'})
+                  }
+
         figure = {'data': [],
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
         }
+
         pv_fig = {'data': [],
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
                                       yaxis={'title': 'Portfolio Value'})
                   }
+
         table_data = pd.DataFrame(columns=['Error'])
         table_data = table_data.append({'Error': 'Failed to load data for the selected asset'}, ignore_index=True)
         table = dash_table.DataTable(
@@ -283,7 +313,7 @@ def update_graphs(selected_asset, n_intervals):
             style_cell={'textAlign': 'center'},
             style_header={'fontWeight': 'bold'},
         )
-    return figure, pv_fig, table
+    return pv_total_fig, figure, pv_fig, table
 
 @app.callback(
     Output('log-textarea', 'value'),
