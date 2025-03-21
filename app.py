@@ -83,6 +83,9 @@ for asset in ASSET_LIST:
         data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
 
 app.layout = dbc.Container([
+    dbc.Row([
+        dcc.Graph(id='total-pv-chart')
+    ]),
     dbc.Navbar(
         dbc.Container([
             dbc.Row([
@@ -102,7 +105,6 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
-            dcc.Graph(id='total-pv-chart'),
             dcc.Graph(id='price-chart'),
             dcc.Graph(id='portfolio-chart'),
             html.Div(id='table')
