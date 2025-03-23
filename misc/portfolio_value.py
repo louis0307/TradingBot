@@ -63,24 +63,33 @@ def calc_pv(asset):
 
     return pd.DataFrame(portfolio_values)
 
-def calc_pv_total():
-    pv = pd.DataFrame(columns=["timestamp", "portfolio_value"])
-    for asset in ASSET_LIST:
-        pv_asset = calc_pv(asset)
-        df = pd.DataFrame(pv_asset)
-        df["timestamp"] = df["timestamp"].dt.ceil("T")
-        pv = pd.concat([pv, df], ignore_index=True)
 
-        #pv1 = df.copy()
-        #pv1['Symbol'] = asset
-        #with stream.connect() as conn:
-        #    # Use parameterized query for safety
-        #    conn.execute(text('DELETE FROM public."PV" WHERE "Symbol" = :symbol'), {"symbol": asset})
-        #    conn.commit()  # Commit deletion
-        #pv1.to_sql('PV', stream, if_exists='append', index=False)
-    pv = pv.sort_values("timestamp")
-    pv.fillna(method='ffill', inplace=True)
-    logger.info(f"pv: {pv}")
+def calc_pv_total():
+    pv_list = []  # Store individual asset dataframes
+    all_timestamps = set()  # To collect all unique timestamps
+
+    for asset in ASSET_LIST:
+        pv_asset = calc_pv(asset)  # Get portfolio value for asset
+        df = pd.DataFrame(pv_asset)
+        df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round to nearest minute
+
+        pv_list.append(df)
+        all_timestamps.update(df["timestamp"])  # Collect all timestamps
+
+    # Create a full timestamp index
+    all_timestamps = sorted(all_timestamps)  # Ensure order
+    full_index = pd.DataFrame({"timestamp": all_timestamps})
+
+    # Merge all asset dataframes on the full timestamp index
+    pv = pd.concat(pv_list, ignore_index=True)
+    pv = full_index.merge(pv, on="timestamp", how="left")  # Ensure all timestamps exist
+
+    # Forward-fill missing portfolio values
+    pv["portfolio_value"] = pv["portfolio_value"].fillna(method="ffill")
+
+    #logger.info(f"pv: {pv}")
+
+    # Group by timestamp and sum the portfolio values
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
     return df_total
