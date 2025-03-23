@@ -78,9 +78,8 @@ def calc_pv_total():
         #    conn.execute(text('DELETE FROM public."PV" WHERE "Symbol" = :symbol'), {"symbol": asset})
         #    conn.commit()  # Commit deletion
         #pv1.to_sql('PV', stream, if_exists='append', index=False)
-    df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
-    logger.info(f"df_total before fill: {df_total}")
+    df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"]
     df_total.fillna(method='ffill', inplace=True)
-    logger.info(f"df_total after fill: {df_total}")
+    df_pv = df_total.sum()
 
-    return df_total
+    return df_pv
