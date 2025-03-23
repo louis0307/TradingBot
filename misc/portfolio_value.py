@@ -76,5 +76,4 @@ def calc_pv_total():
         pv1.to_sql('PV', stream, if_exists='replace', index=False)
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
-
     return df_total
