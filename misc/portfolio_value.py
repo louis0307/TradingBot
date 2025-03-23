@@ -69,7 +69,8 @@ def calc_pv_total():
         df = pd.DataFrame(pv_asset)
         df["timestamp"] = df["timestamp"].dt.ceil("T")
         pv = pd.concat([pv, df], ignore_index=True)
-
+        logger.info(f"{asset}: {df}")
+        logger.info(f"total pv: {pv}")
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
     return df_total
