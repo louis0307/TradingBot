@@ -71,7 +71,8 @@ def calc_pv_total():
         pv = pd.concat([pv, df], ignore_index=True)
         logger.info(f"{asset}: {df}")
         logger.info(f"total pv: {pv}")
+        pv.to_sql('PV', stream, if_exists='replace', index=False)
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
-    df_total.to_sql('PV', stream, if_exists='replace', index=False)
+
 
     return df_total
