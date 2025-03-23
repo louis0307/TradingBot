@@ -46,10 +46,10 @@ def calc_pv(asset):
                 #    position += row["quantity"] * row["price"] - investment_amt
                 #elif prev_row["signal"] != 0 and row["signal"] != 0:
                 #    position += row["quantity"] * row["price"] - 2*investment_amt
-                #if prev_row["signal"] == 0 and row["signal"] != 0:
-                #    position += 0
-
-                position += investment_amt / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
+                if prev_row["signal"] == 0 and row["signal"] != 0:
+                    position += 0
+                else:
+                    position += investment_amt / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
 
 
             # Append portfolio value for this transaction
