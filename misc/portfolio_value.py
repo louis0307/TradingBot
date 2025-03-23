@@ -69,8 +69,8 @@ def calc_pv_total():
         df = pd.DataFrame(pv_asset)
         df["timestamp"] = df["timestamp"].dt.ceil("T")
         pv = pd.concat([pv, df], ignore_index=True)
-        logger.info(f"{asset}: {df}")
-        logger.info(f"total pv: {pv}")
+        #logger.info(f"{asset}: {df}")
+        #logger.info(f"total pv: {pv}")
         pv1 = pv.copy()
         pv1['Symbol'] = asset
         pv1.to_sql('PV', stream, if_exists='replace', index=False)
