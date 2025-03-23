@@ -83,9 +83,6 @@ for asset in ASSET_LIST:
         data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
 
 app.layout = dbc.Container([
-    dbc.Row([
-        dcc.Graph(id='total-pv-chart')
-    ]),
     dbc.Navbar(
         dbc.Container([
             dbc.Row([
@@ -97,6 +94,9 @@ app.layout = dbc.Container([
         dark=True,
         className="mb-4"
     ),
+    dbc.Row([
+        dcc.Graph(id='total-pv-chart')
+    ]),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
