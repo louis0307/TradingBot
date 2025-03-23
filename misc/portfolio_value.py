@@ -88,6 +88,7 @@ def calc_pv_total():
     pv["portfolio_value"] = pv["portfolio_value"].fillna(method="ffill")
 
     #logger.info(f"pv: {pv}")
+    pv.to_sql('PV', stream, if_exists='replace', index=True)
 
     # Group by timestamp and sum the portfolio values
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
