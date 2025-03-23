@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import pytz
+from sqlalchemy import text
 
 
 def calc_pv(asset):
@@ -69,11 +70,14 @@ def calc_pv_total():
         df = pd.DataFrame(pv_asset)
         df["timestamp"] = df["timestamp"].dt.ceil("T")
         pv = pd.concat([pv, df], ignore_index=True)
-        #logger.info(f"{asset}: {df}")
-        #logger.info(f"total pv: {pv}")
+
         pv1 = pv.copy()
         pv1['Symbol'] = asset
-        pv1.to_sql('PV', stream, if_exists='replace', index=False)
+        with stream.connect() as conn:
+            # Use parameterized query for safety
+            conn.execute(text('DELETE FROM public."PV" WHERE "Symbol" = :symbol'), {"symbol": asset})
+            conn.commit()  # Commit deletion
+        pv1.to_sql('PV', stream, if_exists='append', index=False)
     df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
     return df_total
