@@ -69,15 +69,15 @@ def calc_pv_total():
         pv_asset = calc_pv(asset)
         df = pd.DataFrame(pv_asset)
         df["timestamp"] = df["timestamp"].dt.ceil("T")
-        pv = pd.concat([pv, df], ignore_index=True)
+        # pv = pd.concat([pv, df], ignore_index=True)
 
-        pv1 = pv.copy()
-        pv1['Symbol'] = asset
+        pv = df.copy()
+        pv['Symbol'] = asset
         with stream.connect() as conn:
             # Use parameterized query for safety
             conn.execute(text('DELETE FROM public."PV" WHERE "Symbol" = :symbol'), {"symbol": asset})
             conn.commit()  # Commit deletion
-        pv1.to_sql('PV', stream, if_exists='append', index=False)
-    df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
+        pv.to_sql('PV', stream, if_exists='append', index=False)
+    df_total = df.groupby("timestamp", as_index=False)["portfolio_value"].sum()
 
     return df_total
