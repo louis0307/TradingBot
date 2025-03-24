@@ -65,32 +65,33 @@ def calc_pv(asset):
 
 
 def calc_pv_total():
-    pv_list = []  # Store individual asset dataframes
-    all_timestamps = set()  # To collect all unique timestamps
+    all_timestamps = set()  # Collect all unique timestamps
+    pv_list = []  # Store individual asset DataFrames
 
     for asset in ASSET_LIST:
         pv_asset = calc_pv(asset)  # Get portfolio value for asset
         df = pd.DataFrame(pv_asset)
-        df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round to nearest minute
-
+        df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round timestamp
+        df.rename(columns={"portfolio_value": asset}, inplace=True)  # Rename for merging
         pv_list.append(df)
-        all_timestamps.update(df["timestamp"])  # Collect all timestamps
+        all_timestamps.update(df["timestamp"])  # Store timestamps
 
-    # Create a full timestamp index
-    all_timestamps = sorted(all_timestamps)  # Ensure order
-    full_index = pd.DataFrame({"timestamp": all_timestamps})
+    # Step 1: Create a DataFrame with all timestamps
+    full_timestamps = pd.DataFrame({"timestamp": sorted(all_timestamps)})
 
-    # Merge all asset dataframes on the full timestamp index
-    pv = pd.concat(pv_list, ignore_index=True)
-    pv = full_index.merge(pv, on="timestamp", how="left")  # Ensure all timestamps exist
+    # Step 2: Start with a DataFrame containing all timestamps
+    pv = full_timestamps.copy()
 
-    # Forward-fill missing portfolio values
-    pv["portfolio_value"] = pv["portfolio_value"].fillna(method="ffill")
+    # Step 3: Merge each asset's data
+    for df in pv_list:
+        pv = pv.merge(df, on="timestamp", how="left")  # Ensure all timestamps are included
 
-    #logger.info(f"pv: {pv}")
-    pv.to_sql('PV', stream, if_exists='replace', index=True)
+    # Step 4: Forward-fill missing values
+    pv.fillna(method="ffill", inplace=True)
 
-    # Group by timestamp and sum the portfolio values
-    df_total = pv.groupby("timestamp", as_index=False)["portfolio_value"].sum()
+    # Step 5: Compute total portfolio value
+    pv["portfolio_value"] = pv[ASSET_LIST].sum(axis=1)  # Sum asset values per timestamp
 
-    return df_total
+    logger.info(f"pv:\n{pv}")
+
+    return pv

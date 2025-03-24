@@ -265,7 +265,7 @@ def update_graphs(selected_asset, n_intervals):
                 template='plotly_dark'
             )
 
-            pv = calc_pv(selected_asset)
+            pv = calc_pv(selected_asset)["portfolio_value"]
             pv_fig = go.Figure()
             pv_fig.add_trace(go.Scatter(
                 x=pv["timestamp"],
