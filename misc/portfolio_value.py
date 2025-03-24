@@ -92,6 +92,4 @@ def calc_pv_total():
     # Step 5: Compute total portfolio value
     pv["portfolio_value"] = pv[ASSET_LIST].sum(axis=1)  # Sum asset values per timestamp
 
-    logger.info(f"pv:\n{pv}")
-
     return pv
