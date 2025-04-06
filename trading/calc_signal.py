@@ -61,15 +61,19 @@ def trade_signal():
         dat15m_2 = dat_hist.iloc[-2]
         dat15m_3 = dat_hist.iloc[-3]
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
-        # exchange_info = client.futures_exchange_info()
-        # asset_info = next(symbol for symbol in exchange_info['symbols'] if symbol['symbol'] == asset)
-        asset_info = client.get_symbol_info(symbol=asset)
+        exchange_info = client.futures_exchange_info()
+        symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
+        if symbol_info:
+            quant_precision = symbol_info.get('quotePrecision')
+        else:
+            print("Symbol not found.")
+        #asset_info = client.get_symbol_info(symbol=asset)
         pos_info = last_trades[last_trades['symbol'] == asset]
         if 'quantity' in pos_info and not pos_info['quantity'].empty:
             pos_amt = np.float32(pos_info['quantity'])
         else:
             pos_amt = 0
-        quant_precision = int(asset_info['quotePrecision'])
+        #quant_precision = int(asset_info['quotePrecision'])
 
         symbol_info = client.get_symbol_info(asset)
         percent_price_filter = next(
