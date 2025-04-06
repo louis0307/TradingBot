@@ -108,14 +108,17 @@ def trade_signal():
                 signal_side = 'SELL'
                 quant = round(amount / dat15m_1.close, quant_precision)
 
-        if lower_limit <= current_price <= upper_limit:
-            order = client.futures_create_order(
-                symbol=asset,
-                isIsolated=True,
-                side=signal_side,
-                positionSide='BOTH',
-                type='MARKET',
-                quantity=quant)
+        try:
+            if lower_limit <= current_price <= upper_limit:
+                order = client.futures_create_order(
+                    symbol=asset,
+                    isIsolated=True,
+                    side=signal_side,
+                    positionSide='BOTH',
+                    type='MARKET',
+                    quantity=quant)
+        except Exception as e:
+            logger.info(f"Couldn't process asset: {asset}")
 
         quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(
             quant)
