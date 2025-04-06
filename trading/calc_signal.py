@@ -13,7 +13,7 @@ import warnings
 import pytz
 from sqlalchemy import text
 
-
+amount = 50
 
 def trade_signal():
     interval = INTERVALS
@@ -71,6 +71,15 @@ def trade_signal():
             pos_amt = 0
         quant_precision = int(asset_info['quotePrecision'])
 
+        symbol_info = client.get_symbol_info(asset)
+        percent_price_filter = next(
+            filter for filter in symbol_info['filters'] if filter['filterType'] == 'PERCENT_PRICE_BY_SIDE')
+        multiplier_up = float(percent_price_filter['askMultiplierUp'])
+        multiplier_down = float(percent_price_filter['askMultiplierDown'])
+        current_price = float(client.futures_symbol_ticker(symbol=asset)['price'])
+        upper_limit = current_price * multiplier_up
+        lower_limit = current_price * multiplier_down
+
         if signal == 0:
             if signal_1 > 0:
                 signal_side = 'SELL'
@@ -88,7 +97,7 @@ def trade_signal():
                 quant = 2 * abs(pos_amt)
             elif signal_1 == 0:
                 signal_side = 'BUY'
-                quant = round(1000 / dat15m_1.close, quant_precision)
+                quant = round(amount / dat15m_1.close, quant_precision)
         elif signal == -1:
             if signal_1 > 0:
                 signal_side = 'SELL'
@@ -97,7 +106,16 @@ def trade_signal():
                 continue
             elif signal_1 == 0:
                 signal_side = 'SELL'
-                quant = round(1000 / dat15m_1.close, quant_precision)
+                quant = round(amount / dat15m_1.close, quant_precision)
+
+        if lower_limit <= current_price <= upper_limit:
+            order = client.futures_create_order(
+                symbol=asset,
+                isIsolated=True,
+                side=signal_side,
+                positionSide='BOTH',
+                type='MARKET',
+                quantity=quant)
 
         quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(
             quant)

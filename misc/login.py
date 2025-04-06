@@ -8,11 +8,11 @@ nest_asyncio.apply()
 config = configparser.ConfigParser()
 config.read('keys.cfg')
 # Effective Account
-#test_api_key = config.get('BINANCE', 'ACTUAL_API_KEY')
-#test_secret_key = config.get('BINANCE', 'ACTUAL_SECRET_KEY')
+#test_api_key = config.get('BINANCE', 'TEST_API_KEY')
+#test_secret_key = config.get('BINANCE', 'TEST_SECRET_KEY')
 # Test Account Spot
-test_api_key = config.get('BINANCE', 'TEST_API_KEY')
-test_secret_key = config.get('BINANCE', 'TEST_SECRET_KEY')
+test_api_key = config.get('BINANCE', 'ACTUAL_API_KEY')
+test_secret_key = config.get('BINANCE', 'ACTUAL_SECRET_KEY')
 # Test Account Futures
 #test_api_key = config.get('BINANCE', 'TESTFUTURE_API_KEY')
 #test_secret_key = config.get('BINANCE', 'TESTFUTURE_SECRET_KEY')
