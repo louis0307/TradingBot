@@ -118,7 +118,7 @@ def trade_signal():
                     type='MARKET',
                     quantity=quant)
         except Exception as e:
-            logger.info(f"Couldn't process asset: {asset}")
+            logger.info(f"Couldn't trade asset: {asset} with error {e}")
 
         quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(
             quant)
