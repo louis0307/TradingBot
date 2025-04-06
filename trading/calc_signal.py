@@ -64,7 +64,7 @@ def trade_signal():
         exchange_info = client.futures_exchange_info()
         symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
         if symbol_info:
-            quant_precision = symbol_info.get('quotePrecision')
+            quant_precision = symbol_info.get('quotePrecision') - 1
             logger.info(f"quant precision for {asset}: {quant_precision}")
         else:
             print("Symbol not found.")
