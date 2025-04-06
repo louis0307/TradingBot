@@ -65,6 +65,7 @@ def trade_signal():
         symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
         if symbol_info:
             quant_precision = symbol_info.get('quotePrecision')
+            logger.info(f"quant precision for {asset}: {quant_precision}")
         else:
             print("Symbol not found.")
         #asset_info = client.get_symbol_info(symbol=asset)

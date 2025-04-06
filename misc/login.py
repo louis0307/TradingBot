@@ -18,3 +18,4 @@ test_secret_key = config.get('BINANCE', 'ACTUAL_SECRET_KEY')
 #test_secret_key = config.get('BINANCE', 'TESTFUTURE_SECRET_KEY')
 
 client = Client(test_api_key, test_secret_key, testnet=False)
+client.futures_timestamp = True
