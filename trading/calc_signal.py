@@ -113,6 +113,9 @@ def trade_signal():
                 signal_side = 'SELL'
                 quant = round(amount / dat15m_1.close, quant_precision)
 
+        quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(
+            quant)
+
         try:
             if lower_limit <= current_price <= upper_limit:
                 order = client.futures_create_order(
@@ -125,8 +128,6 @@ def trade_signal():
         except Exception as e:
             logger.info(f"Couldn't trade asset: {asset} with error {e}")
 
-        quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(
-            quant)
         # if quant == 0:
         #    trades = pd.DataFrame(np.array([[asset, 0, None, 'BUY', 0, datetime.datetime.now()] for asset in assets]),
         #                      columns=['symbol','quantity','price','side','signal', 'order_timestamp'])
