@@ -64,11 +64,16 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         exchange_info = client.futures_exchange_info()
         symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
+
         if symbol_info:
-            quant_precision = symbol_info.get('quotePrecision') - 1
-            logger.info(f"quant precision for {asset}: {quant_precision}")
+            for f in symbol_info['filters']:
+                if f['filterType'] == 'LOT_SIZE':
+                    step_size = f['stepSize']
+                    quant_precision = abs(Decimal(step_size).as_tuple().exponent)
+                    #logger.info(f"Quantity precision for {asset}: {quant_precision}")
         else:
-            print("Symbol not found.")
+            print(f"Symbol {asset} not found in exchange info.")
+
         #asset_info = client.get_symbol_info(symbol=asset)
         pos_info = last_trades[last_trades['symbol'] == asset]
         if 'quantity' in pos_info and not pos_info['quantity'].empty:
