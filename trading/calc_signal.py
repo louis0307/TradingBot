@@ -13,7 +13,7 @@ import warnings
 import pytz
 from sqlalchemy import text
 
-amount = 50
+amount = 100
 
 def trade_signal():
     interval = INTERVALS
@@ -116,12 +116,12 @@ def trade_signal():
         try:
             if lower_limit <= current_price <= upper_limit:
                 order = client.futures_create_order(
-                    symbol=asset,
-                    isIsolated=True,
-                    side=signal_side,
+                    #isIsolated=True,
                     positionSide='BOTH',
-                    type='MARKET',
-                    quantity=quant)
+                    quantity=quant,
+                    side=signal_side,
+                    symbol=asset,
+                    type='MARKET')
         except Exception as e:
             logger.info(f"Couldn't trade asset: {asset} with error {e}")
 
