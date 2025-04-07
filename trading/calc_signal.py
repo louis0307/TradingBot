@@ -120,7 +120,7 @@ def trade_signal():
                 quant = round(amount / dat15m_1.close, quant_precision)
 
         #quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(quant)
-        quant = Decimal(str(quant))
+        #quant = Decimal(str(quant))
 
         try:
             if lower_limit <= current_price <= upper_limit:
