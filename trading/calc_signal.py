@@ -119,7 +119,7 @@ def trade_signal():
                 signal_side = 'SELL'
                 quant = round(amount / dat15m_1.close, quant_precision)
 
-        #quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(quant)
+        quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(quant)
         #quant = Decimal(str(quant))
 
         try:
