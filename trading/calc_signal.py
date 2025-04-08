@@ -1,6 +1,6 @@
 import time
 
-from config import INTERVALS, ASSET_LIST
+from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
 from trading.indicators import macd_trade
@@ -14,7 +14,6 @@ import pytz
 from sqlalchemy import text
 from decimal import Decimal
 
-amount = 100
 
 def trade_signal():
     interval = INTERVALS
@@ -108,7 +107,7 @@ def trade_signal():
                 quant = 2 * abs(pos_amt)
             elif signal_1 == 0:
                 signal_side = 'BUY'
-                quant = round(amount / dat15m_1.close, quant_precision)
+                quant = round(INVESTMENT_AMT / dat15m_1.close, quant_precision)
         elif signal == -1:
             if signal_1 > 0:
                 signal_side = 'SELL'
@@ -117,7 +116,7 @@ def trade_signal():
                 continue
             elif signal_1 == 0:
                 signal_side = 'SELL'
-                quant = round(amount / dat15m_1.close, quant_precision)
+                quant = round(INVESTMENT_AMT / dat15m_1.close, quant_precision)
 
         quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(quant)
         #quant = Decimal(str(quant))
@@ -131,18 +130,14 @@ def trade_signal():
                     side=signal_side,
                     symbol=asset,
                     type='MARKET')
+
+                kdj_cross_signal = 1 if dat_1['KDJ_cross'] == 1 else 0
+                trades = pd.DataFrame(
+                    np.array([[asset, quant, dat15m_1.close, signal_side, signal, datetime.datetime.now(),
+                               dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit]]),
+                    columns=['symbol', 'quantity', 'price', 'side', 'signal', 'order_timestamp',
+                             'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason'])
+                trades.to_sql('TRADES', stream, if_exists='append', index=False)
         except Exception as e:
             logger.info(f"Couldn't trade asset: {asset} with error {e}")
 
-        # if quant == 0:
-        #    trades = pd.DataFrame(np.array([[asset, 0, None, 'BUY', 0, datetime.datetime.now()] for asset in assets]),
-        #                      columns=['symbol','quantity','price','side','signal', 'order_timestamp'])
-        # else:
-        kdj_cross_signal = 1 if dat_1['KDJ_cross'] == 1 else 0
-        #quant = Decimal(str(quant))
-        logger.info(f"quant: {quant}")
-        trades = pd.DataFrame(np.array([[asset, quant, dat15m_1.close, signal_side, signal, datetime.datetime.now(),
-                                         dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit]]),
-                              columns=['symbol', 'quantity', 'price', 'side', 'signal', 'order_timestamp',
-                                       'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason'])
-        trades.to_sql('TRADES', stream, if_exists='append', index=False)

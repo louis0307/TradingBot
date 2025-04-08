@@ -1,6 +1,6 @@
 import time
 
-from config import INTERVALS, ASSET_LIST
+from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
 from misc.logger_config import logger
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
@@ -25,7 +25,6 @@ def calc_pv(asset):
 
     position = 0
     portfolio_values = []
-    investment_amt = 1000
 
     #dat = pd.read_sql(asset, stream)
     #dat.set_index('dateTime', inplace=True)
@@ -41,15 +40,15 @@ def calc_pv(asset):
             # For the first row, we don't need to compare
             if prev_row is not None:
                 #if prev_prev_row["signal"] != 0 and prev_row["signal"] != 0 and row["signal"] == 0:
-                #    position += row["quantity"] * row["price"] * prev_row["signal"] - 2*investment_amt
+                #    position += row["quantity"] * row["price"] * prev_row["signal"] - 2*INVESTMENT_AMT
                 #elif prev_prev_row["signal"] == 0 and prev_row["signal"] != 0 and row["signal"] == 0:
-                #    position += row["quantity"] * row["price"] - investment_amt
+                #    position += row["quantity"] * row["price"] - INVESTMENT_AMT
                 #elif prev_row["signal"] != 0 and row["signal"] != 0:
-                #    position += row["quantity"] * row["price"] - 2*investment_amt
+                #    position += row["quantity"] * row["price"] - 2*INVESTMENT_AMT
                 if prev_row["signal"] == 0 and row["signal"] != 0:
                     position += 0
                 else:
-                    position += investment_amt / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
+                    position += INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
 
 
             # Append portfolio value for this transaction
