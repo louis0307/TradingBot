@@ -134,9 +134,9 @@ def trade_signal():
                 kdj_cross_signal = 1 if dat_1['KDJ_cross'] == 1 else 0
                 trades = pd.DataFrame(
                     np.array([[asset, quant, dat15m_1.close, signal_side, signal, datetime.datetime.now(),
-                               dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit]]),
+                               dat_1['MACD_Signal'], dat_1['MACD'], kdj_cross_signal, hit, quant_precision]]),
                     columns=['symbol', 'quantity', 'price', 'side', 'signal', 'order_timestamp',
-                             'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason'])
+                             'MACD_Signal', 'MACD', 'KDJ_cross', 'signal_reason', 'quant_precision'])
                 trades.to_sql('TRADES', stream, if_exists='append', index=False)
         except Exception as e:
             logger.info(f"Couldn't trade asset: {asset} with error {e}")
