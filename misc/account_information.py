@@ -1,4 +1,5 @@
 # Importing libraries
+from misc.login import client
 import pandas as pd
 import nest_asyncio
 nest_asyncio.apply()
@@ -82,3 +83,17 @@ def assets_usdt(assets, values, token_usdt):
         else:
             assets_in_usdt.append(float(values[i] * 1))
     return assets_in_usdt
+
+
+
+def get_binance_futures_position(asset):
+    try:
+        positions = client.futures_position_information(symbol=asset.upper())
+        for pos in positions:
+            pos_amt = float(pos['positionAmt'])
+            if pos_amt != 0:
+                return pos_amt  # return the current open position (positive or negative)
+        return 0
+    except Exception as e:
+        print(f"Error fetching position for {asset}: {e}")
+        return 0

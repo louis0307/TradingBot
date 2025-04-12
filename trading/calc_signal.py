@@ -6,6 +6,7 @@ from data.preprocessing import dat_preprocess
 from trading.indicators import macd_trade
 from misc.login import client
 from misc.logger_config import logger
+from misc.account_information import get_binance_futures_position
 import datetime
 import pandas as pd
 import numpy as np
@@ -73,13 +74,12 @@ def trade_signal():
         else:
             print(f"Symbol {asset} not found in exchange info.")
 
-        #asset_info = client.get_symbol_info(symbol=asset)
-        pos_info = last_trades[last_trades['symbol'] == asset]
-        if 'quantity' in pos_info and not pos_info['quantity'].empty:
-            pos_amt = np.float32(pos_info['quantity'])
-        else:
-            pos_amt = 0
-        #quant_precision = int(asset_info['quotePrecision'])
+        #pos_info = last_trades[last_trades['symbol'] == asset]
+        #if 'quantity' in pos_info and not pos_info['quantity'].empty:
+        #    pos_amt = np.float32(pos_info['quantity'])
+        #else:
+        #    pos_amt = 0
+        pos_amt = get_binance_futures_position(asset)
 
         symbol_info = client.get_symbol_info(asset)
         percent_price_filter = next(
