@@ -26,10 +26,14 @@ def calc_pv(asset):
     position = 0
     portfolio_values = []
 
-    #dat = pd.read_sql(asset, stream)
-    #dat.set_index('dateTime', inplace=True)
-    #dat_hist = dat[dat['Symbol'] == asset + interval]
-    #dat_hist = dat_preprocess(dat_hist)
+    if trades.empty:
+        now = pd.Timestamp.now()
+        rounded = now.replace(minute=45, second=0, microsecond=0)
+        portfolio_values.append({
+            "timestamp": rounded,
+            "portfolio_value": position
+        })
+        return pd.DataFrame(portfolio_values)
 
     # Group by symbol (asset) to avoid mixing rows of different assets
     for _, group in trades.groupby("symbol"):
