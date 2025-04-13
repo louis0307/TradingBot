@@ -5,6 +5,7 @@ from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
 from misc.global_state import trading_thread
 from misc.portfolio_value import calc_pv, calc_pv_total
+from data.stats import reconstruct_trades, compute_trade_stats, compute_drawdown
 
 import os
 import signal
@@ -160,6 +161,8 @@ def update_graphs(selected_asset, n_intervals):
         dat_ind.set_index('dateTime', inplace=True)
         dat_ind_hist = dat_ind[dat_ind['Symbol'] == selected_asset+'1h']
         dat_ind_hist = dat_ind_hist.sort_index()
+        structured_trades = reconstruct_trades(trades)
+        compute_trade_stats(structured_trades)
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -195,6 +198,7 @@ def update_graphs(selected_asset, n_intervals):
             )
         else:
             pv_total = calc_pv_total()
+            #drawdowns = compute_drawdown(pv_total)
             pv_total_fig = go.Figure()
             pv_total_fig.add_trace(go.Scatter(
                 x=pv_total["timestamp"],
