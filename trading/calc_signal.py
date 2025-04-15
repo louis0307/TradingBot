@@ -22,7 +22,7 @@ def trade_signal():
     pd.options.mode.chained_assignment = None  # default='warn'
     warnings.filterwarnings("ignore", category=FutureWarning)
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-    query = f'SELECT * FROM "public"."TRADES"'
+    query = f'SELECT * FROM "public"."TRADES" ORDER BY "order_timestamp" ASC'
     trades_1 = pd.read_sql(query, stream)
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
