@@ -1,18 +1,19 @@
 import time
 
-from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
-from misc.logger_config import logger
+from config import INTERVALS, INVESTMENT_AMT
 from data.db_connection import stream
-from data.preprocessing import dat_preprocess
-import datetime
 import pandas as pd
-import numpy as np
 import warnings
-import pytz
 from sqlalchemy import text
+
+from misc.logger_config import logger
+from config import stop_event
 
 
 def calc_pv(asset):
+    if stop_event.is_set():
+        logger.info("Trading Bot is not running. No PV calculations.")
+        return
     interval = INTERVALS
     pd.options.mode.chained_assignment = None  # default='warn'
     warnings.filterwarnings("ignore", category=FutureWarning)
@@ -23,6 +24,8 @@ def calc_pv(asset):
     trades["order_timestamp"] = pd.to_datetime(trades["order_timestamp"])
     trades = trades.sort_values("order_timestamp")
 
+    win_loss = 0
+    wins_losses = []
     position = 0
     portfolio_values = []
 
@@ -35,64 +38,41 @@ def calc_pv(asset):
         })
         return pd.DataFrame(portfolio_values)
 
-    # Group by symbol (asset) to avoid mixing rows of different assets
     for _, group in trades.groupby("symbol"):
-        #prev_prev_row = None
         prev_row = None  # Initialize the previous row for each asset
 
         for i, row in group.iterrows():
             # For the first row, we don't need to compare
             if prev_row is not None:
-                #if prev_prev_row["signal"] != 0 and prev_row["signal"] != 0 and row["signal"] == 0:
-                #    position += row["quantity"] * row["price"] * prev_row["signal"] - 2*INVESTMENT_AMT
-                #elif prev_prev_row["signal"] == 0 and prev_row["signal"] != 0 and row["signal"] == 0:
-                #    position += row["quantity"] * row["price"] - INVESTMENT_AMT
-                #elif prev_row["signal"] != 0 and row["signal"] != 0:
-                #    position += row["quantity"] * row["price"] - 2*INVESTMENT_AMT
                 if prev_row["signal"] == 0 and row["signal"] != 0:
-                    position += 0
+                    position += win_loss
                 else:
-                    position += INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
+                    win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
+                    position += win_loss
 
+            wins_losses.append({
+                "symbol": asset,
+                "timestamp": row["order_timestamp"],
+                "win_loss": win_loss
+            })
 
             # Append portfolio value for this transaction
             portfolio_values.append({
+                "symbol": asset,
                 "timestamp": row["order_timestamp"],
                 "portfolio_value": position
             })
 
-            #prev_prev_row = prev_row
             prev_row = row  # Update prev_row for the next iteration
 
-    return pd.DataFrame(portfolio_values)
+            with stream.connect() as conn:
+                # Use parameterized query for safety
+                conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
+                conn.commit()  # Commit deletion
+            pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
 
-
-def calc_pv_total():
-    all_timestamps = set()  # Collect all unique timestamps
-    pv_list = []  # Store individual asset DataFrames
-
-    for asset in ASSET_LIST:
-        pv_asset = calc_pv(asset)  # Get portfolio value for asset
-        df = pd.DataFrame(pv_asset)
-        df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round timestamp
-        df.rename(columns={"portfolio_value": asset}, inplace=True)  # Rename for merging
-        pv_list.append(df)
-        all_timestamps.update(df["timestamp"])  # Store timestamps
-
-    # Step 1: Create a DataFrame with all timestamps
-    full_timestamps = pd.DataFrame({"timestamp": sorted(all_timestamps)})
-
-    # Step 2: Start with a DataFrame containing all timestamps
-    pv = full_timestamps.copy()
-
-    # Step 3: Merge each asset's data
-    for df in pv_list:
-        pv = pv.merge(df, on="timestamp", how="left")  # Ensure all timestamps are included
-
-    # Step 4: Forward-fill missing values
-    pv.fillna(method="ffill", inplace=True)
-
-    # Step 5: Compute total portfolio value
-    pv["portfolio_value"] = pv[ASSET_LIST].sum(axis=1)  # Sum asset values per timestamp
-
-    return pv
+            with stream.connect() as conn:
+                # Use parameterized query for safety
+                conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
+                conn.commit()  # Commit deletion
+            pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)

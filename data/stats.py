@@ -2,6 +2,45 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
+from data.db_connection import stream
+
+def calc_pv_total():
+    all_timestamps = set()  # Collect all unique timestamps
+    pv_list = []  # Store individual asset DataFrames
+    query = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
+    pvs = pd.read_sql(query, stream)
+
+    for asset in ASSET_LIST:
+        pv_asset = pvs[pvs["symbol"] == asset].copy()
+        pv_asset["timestamp"] = pd.to_datetime(pv_asset["timestamp"])
+        pv_asset = pv_asset.sort_values("timestamp")
+        pv_asset = pv_asset.drop(columns=["symbol"])
+        df = pv_asset.copy()
+        df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round timestamp
+        df.rename(columns={"portfolio_value": asset}, inplace=True)  # Rename for merging
+        pv_list.append(df)
+        all_timestamps.update(df["timestamp"])  # Store timestamps
+
+    # Step 1: Create a DataFrame with all timestamps
+    full_timestamps = pd.DataFrame({"timestamp": sorted(all_timestamps)})
+
+    # Step 2: Start with a DataFrame containing all timestamps
+    pv = full_timestamps.copy()
+
+    # Step 3: Merge each asset's data
+    for df in pv_list:
+        pv = pv.merge(df, on="timestamp", how="left")  # Ensure all timestamps are included
+
+    # Step 4: Forward-fill missing values
+    pv.fillna(method="ffill", inplace=True)
+
+    # Step 5: Compute total portfolio value
+    pv["portfolio_value"] = pv[ASSET_LIST].sum(axis=1)  # Sum asset values per timestamp
+
+    return pv
+
+
 def reconstruct_trades(trades):
     trades = trades.sort_values("order_timestamp").copy()
     trades["order_timestamp"] = pd.to_datetime(trades["order_timestamp"])

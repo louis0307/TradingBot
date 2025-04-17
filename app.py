@@ -4,7 +4,8 @@ from data.preprocessing import dat_preprocess
 from misc.logger_config import logger
 from main import start_trading_bot, stop_trading_bot
 from misc.global_state import trading_thread
-from misc.portfolio_value import calc_pv, calc_pv_total
+from misc.portfolio_value import calc_pv
+from data.stats import calc_pv_total
 from data.stats import reconstruct_trades, compute_trade_stats, compute_drawdown
 
 import os
@@ -269,7 +270,13 @@ def update_graphs(selected_asset, n_intervals):
                 template='plotly_dark'
             )
 
-            pv = calc_pv(selected_asset)[["timestamp", "portfolio_value"]]
+            query = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
+            pvs = pd.read_sql(query, stream)
+            pv = pvs[pvs["symbol"] == asset].copy()
+            pv["timestamp"] = pd.to_datetime(pv["timestamp"])
+            pv = pv.sort_values("timestamp")
+            pv = pv.drop(columns=["symbol"])
+            pv = pv[["timestamp", "portfolio_value"]]
             pv_fig = go.Figure()
             pv_fig.add_trace(go.Scatter(
                 x=pv["timestamp"],
