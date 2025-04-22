@@ -11,13 +11,14 @@ from config import stop_event, ASSET_LIST
 
 
 def calc_pv():
-    if stop_event.is_set():
-        logger.info("Trading Bot is not running. No PV calculations.")
-        return
-
+    #logger.info("Initialization.")
+    #if stop_event.is_set():
+    #    logger.info("Trading Bot is not running. No PV calculations.")
+    #    return
+    logger.info("Initialization.")
     query = f'SELECT * FROM "public"."TRADES"'
     trades_all = pd.read_sql(query, stream)
-
+    logger.info(f"Trades: {trades_all}")
     for asset in ASSET_LIST:
         interval = INTERVALS
         pd.options.mode.chained_assignment = None  # default='warn'
