@@ -11,14 +11,14 @@ from config import stop_event, ASSET_LIST
 
 
 def calc_pv():
-    #logger.info("Initialization.")
-    #if stop_event.is_set():
-    #    logger.info("Trading Bot is not running. No PV calculations.")
-    #    return
     logger.info("Initialization.")
+    if stop_event.is_set():
+        logger.info("Trading Bot is not running. No PV calculations.")
+        return
+
     query = f'SELECT * FROM "public"."TRADES"'
     trades_all = pd.read_sql(query, stream)
-    logger.info(f"Trades: {trades_all}")
+
     for asset in ASSET_LIST:
         interval = INTERVALS
         pd.options.mode.chained_assignment = None  # default='warn'
@@ -80,3 +80,8 @@ def calc_pv():
                     conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
                     conn.commit()  # Commit deletion
                 pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
+
+    logger.info("Job completed.")
+
+if __name__ == "__main__":
+    calc_pv()
