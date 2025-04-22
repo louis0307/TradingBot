@@ -19,6 +19,7 @@ def calc_pv_total():
         df = pv_asset.copy()
         df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round timestamp
         df.rename(columns={"portfolio_value": asset}, inplace=True)  # Rename for merging
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
         pv_list.append(df)
         all_timestamps.update(df["timestamp"])  # Store timestamps
 
