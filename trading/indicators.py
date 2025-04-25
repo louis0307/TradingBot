@@ -98,49 +98,32 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
     dat2 = dat_2
     signal = 0
     hit = ""
-    # if dat1['rsi_14'] > 45 and dat1['rsi_14'] < 55:
-    #    signal = 0
     if dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal']:  # bearish crossing
         signal = -1
         hit = "1.1"
     elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal']:  # bearish continuation
-        if dat1['KDJ_cross'] == 1 or signal_1 == 1:
+        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] > dat_1['D']) or signal_1 == 1:
             signal = 1
             hit = "2.1"
-        elif dat1['KDJ_cross'] == 1 and signal_1 == 1:
+        else:
             signal = -1
             hit = "2.2"
-        else:
-            signal = -1
+        if dat15m_3['close'] < dat15m_1['close']:
+            signal = 0
             hit = "2.3"
-        #if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 > 0:
-        #    signal = 0
-        #    hit = "2.4"
     elif dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal']:  # bullish continuation
-        # signal = 1
-        if dat1['KDJ_cross'] == 1 or signal_1 == -1:
+        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] < dat_1['D']) or signal_1 == -1:
             signal = -1
             hit = "3.1"
-        elif dat1['KDJ_cross'] == 1 and signal_1 == -1:
-            signal = 1
-            hit = "3.2"
         else:
             signal = 1
+            hit = "3.2"
+        if dat15m_3['close'] > dat15m_1['close']:
+            signal = 0
             hit = "3.3"
-
-        #if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 < 0:  # or signal_1 == 0
-        #    signal = 0
-        #    hit = "3.4"
-        # if dat15m_1['MACD_Hist'] < dat15m_2['MACD_Hist'] or signal_1 == 0:
-        #    signal = 0
-    elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] > dat1[
-        'MACD_Signal']:  # bullish crossing  and dat1['MACD'] < 0
+    elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal']:  # bullish crossing
         signal = 1
         hit = "4.1"
-    # elif dat1['MACD'] < dat1['MACD_Signal'] and (dat15m_3['volume_change_perc'] > 0.5
-    #                                             or dat15m_2['volume_change_perc'] > 0.5
-    #                                             or dat15m_1['volume_change_perc'] > 0.5):
-    #    signal = 1
     return signal, hit
 
 
