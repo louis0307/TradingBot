@@ -20,7 +20,6 @@ def calc_pv():
     trades_all = pd.read_sql(query, stream)
 
     for asset in ASSET_LIST:
-        interval = INTERVALS
         pd.options.mode.chained_assignment = None  # default='warn'
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -42,44 +41,43 @@ def calc_pv():
             })
             return pd.DataFrame(portfolio_values)
 
-        for _, group in trades.groupby("symbol"):
-            prev_row = None  # Initialize the previous row for each asset
+        prev_row = None  # Initialize the previous row for each asset
 
-            for i, row in group.iterrows():
-                # For the first row, we don't need to compare
-                if prev_row is not None:
-                    if prev_row["signal"] == 0 and row["signal"] != 0:
-                        position += win_loss
-                    else:
-                        win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
-                        position += win_loss
+        for i, row in trades.iterrows():
+            # For the first row, we don't need to compare
+            if prev_row is not None:
+                if prev_row["signal"] == 0 and row["signal"] != 0:
+                    position += 0
+                else:
+                    win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
+                    position += win_loss
 
-                wins_losses.append({
-                    "symbol": asset,
-                    "timestamp": row["order_timestamp"],
-                    "win_loss": win_loss
-                })
+            wins_losses.append({
+                "symbol": asset,
+                "timestamp": row["order_timestamp"],
+                "win_loss": win_loss
+            })
 
-                # Append portfolio value for this transaction
-                portfolio_values.append({
-                    "symbol": asset,
-                    "timestamp": row["order_timestamp"],
-                    "portfolio_value": position
-                })
+            # Append portfolio value for this transaction
+            portfolio_values.append({
+                "symbol": asset,
+                "timestamp": row["order_timestamp"],
+                "portfolio_value": position
+            })
 
-                prev_row = row  # Update prev_row for the next iteration
+            prev_row = row  # Update prev_row for the next iteration
 
-                with stream.connect() as conn:
-                    # Use parameterized query for safety
-                    conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
-                    conn.commit()  # Commit deletion
-                pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
+        with stream.connect() as conn:
+            # Use parameterized query for safety
+            conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
+            conn.commit()  # Commit deletion
+        pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
 
-                with stream.connect() as conn:
-                    # Use parameterized query for safety
-                    conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
-                    conn.commit()  # Commit deletion
-                pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
+        with stream.connect() as conn:
+            # Use parameterized query for safety
+            conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
+            conn.commit()  # Commit deletion
+        pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
 
     logger.info("Job completed.")
 
