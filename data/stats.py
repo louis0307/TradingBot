@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 
 from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
 from data.db_connection import stream
+from misc.logger_config import logger
 
 def calc_pv_total():
     all_timestamps = set()  # Collect all unique timestamps
     pv_list = []  # Store individual asset DataFrames
-    query = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
+    query = f'SELECT DISTINCT * FROM "public"."PORTFOLIO_VALUES"'
     pvs = pd.read_sql(query, stream)
 
     for asset in ASSET_LIST:
@@ -16,7 +17,7 @@ def calc_pv_total():
         pv_asset["timestamp"] = pd.to_datetime(pv_asset["timestamp"])
         pv_asset = pv_asset.sort_values("timestamp")
         pv_asset = pv_asset.drop(columns=["symbol"])
-        df = pv_asset.copy()
+        df = pv_asset.copy().reset_index(drop=True)
         df["timestamp"] = df["timestamp"].dt.ceil("T")  # Round timestamp
         df.rename(columns={"portfolio_value": asset}, inplace=True)  # Rename for merging
         df["timestamp"] = pd.to_datetime(df["timestamp"])
@@ -28,9 +29,13 @@ def calc_pv_total():
 
     # Step 2: Start with a DataFrame containing all timestamps
     pv = full_timestamps.copy()
+    pv["timestamp"] = pd.to_datetime(pv["timestamp"])
 
     # Step 3: Merge each asset's data
     for df in pv_list:
+        df = df.drop(columns=["index"], errors="ignore")
+        df = df.groupby("timestamp", as_index=False).last()
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
         pv = pv.merge(df, on="timestamp", how="left")  # Ensure all timestamps are included
 
     # Step 4: Forward-fill missing values
