@@ -82,7 +82,7 @@ def calc_pv():
                 # Use parameterized query for safety
                 conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
                 conn.commit()  # Commit deletion
-            portfolio_values = portfolio_values.drop(columns=['index'])
+            portfolio_values = pd.DataFrame(portfolio_values).drop(columns=['index'])
             pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
         except Exception as e:
             logger.error(f"Error: {e}")
