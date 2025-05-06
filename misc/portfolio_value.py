@@ -39,6 +39,7 @@ def calc_pv():
                 "timestamp": rounded,
                 "portfolio_value": position
             })
+            logger.info("No trades yet. Job completed.")
             return pd.DataFrame(portfolio_values)
 
         prev_row = None  # Initialize the previous row for each asset
