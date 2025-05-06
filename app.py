@@ -162,8 +162,8 @@ def update_graphs(selected_asset, n_intervals):
         dat_ind.set_index('dateTime', inplace=True)
         dat_ind_hist = dat_ind[dat_ind['Symbol'] == selected_asset+'1h']
         dat_ind_hist = dat_ind_hist.sort_index()
-        structured_trades = reconstruct_trades(trades)
-        compute_trade_stats(structured_trades)
+        #structured_trades = reconstruct_trades(trades)
+        #compute_trade_stats(structured_trades)
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
