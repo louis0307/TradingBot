@@ -313,7 +313,7 @@ def update_graphs(selected_asset, n_intervals):
                   }
 
         table_data = pd.DataFrame(columns=['Error'])
-        table_data = table_data.append({'Error': 'Failed to load data for the selected asset'}, ignore_index=True)
+        table_data = pd.concat([table_data, {'Error': 'Failed to load data for the selected asset'}], ignore_index=True)
         table = dash_table.DataTable(
             id='asset-table',
             columns=[{'name': col, 'id': col} for col in table_data.columns],
