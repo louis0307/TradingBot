@@ -1,9 +1,10 @@
 import numpy as np
+import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from misc.logger_config import logger
 
-def calculate_rsi(prices, period=6):
+def calculate_rsi(prices, period=6, stoch_period=14):
     delta = prices.diff()
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
@@ -11,8 +12,26 @@ def calculate_rsi(prices, period=6):
     avg_loss = loss.ewm(com=period - 1, min_periods=period).mean()
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-    return rsi
 
+    rsi_min = rsi.rolling(window=stoch_period, min_periods=stoch_period).min()
+    rsi_max = rsi.rolling(window=stoch_period, min_periods=stoch_period).max()
+    stoch_rsi = (rsi - rsi_min) / (rsi_max - rsi_min)
+
+    return rsi, stoch_rsi
+
+def calculate_atr(df, period=14):
+    high = df['high']
+    low = df['low']
+    close = df['close']
+    # True Range components
+    tr1 = high - low
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
+    # True Range
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    # ATR as rolling mean of True Range
+    atr = tr.rolling(window=period).mean()
+    return atr
 
 def plot_macd(dat_subset):
     # dat_subset_macd = dat_hist4h.loc['2024-02-10':'2024-02-25']
@@ -98,30 +117,42 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
     dat2 = dat_2
     signal = 0
     hit = ""
-    if dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal']:  # bearish crossing
+    atr_threshold = dat15m_1['close'] * 0.006
+    # --- ATR Filter: Skip trades in low volatility environments ---
+    if dat15m_1['ATR'] < atr_threshold:
+        return 0  # skip signal
+    if dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal'] and dat1['MACD'] > 0:  # bearish crossing
         signal = -1
         hit = "1.1"
     elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal']:  # bearish continuation
-        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] > dat_1['D']) or signal_1 == 1:
+        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] > dat_1['D'] and dat1['MACD'] < 0) or signal_1 == 1:
             signal = 1
             hit = "2.1"
         else:
             signal = -1
             hit = "2.2"
-        if dat15m_3['close'] < dat15m_1['close']:
+        if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 > 0:
             signal = 0
             hit = "2.3"
+            # Filter: avoid long entries if StochRSI is high (not oversold)
+        if dat1['stoch_rsi'] is not None and signal == 1 and dat1['stoch_rsi'] > 0.2:
+            signal = 0
+            hit = "2.4"
     elif dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal']:  # bullish continuation
-        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] < dat_1['D']) or signal_1 == -1:
+        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] < dat_1['D'] and dat1['MACD'] > 0) or signal_1 == -1:
             signal = -1
             hit = "3.1"
         else:
             signal = 1
             hit = "3.2"
-        if dat15m_3['close'] > dat15m_1['close']:
+        if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 < 0:  # or signal_1 == 0
             signal = 0
             hit = "3.3"
-    elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal']:  # bullish crossing
+            # Filter: avoid short entries if StochRSI is low (not overbought)
+        if dat1['stoch_rsi'] is not None and signal == -1 and dat1['stoch_rsi'] < 0.8:
+            signal = 0
+            hit = "3.4"
+    elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal'] and dat1['MACD'] < 0:  # bullish crossing
         signal = 1
         hit = "4.1"
     return signal, hit
