@@ -74,7 +74,7 @@ def calc_pv():
                 conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
                 conn.commit()  # Commit deletion
 
-            wins_losses = pd.DataFrame(wins_losses).drop(columns=['index'])
+            wins_losses = pd.DataFrame(wins_losses).reset_index(drop=True)
             pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -85,7 +85,7 @@ def calc_pv():
                 conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
                 conn.commit()  # Commit deletion
 
-            portfolio_values = pd.DataFrame(portfolio_values).drop(columns=['index'])
+            portfolio_values = pd.DataFrame(portfolio_values).reset_index(drop=True)
             pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
         except Exception as e:
             logger.error(f"Error: {e}")
