@@ -67,17 +67,23 @@ def calc_pv():
 
             prev_row = row  # Update prev_row for the next iteration
 
-        with stream.connect() as conn:
-            # Use parameterized query for safety
-            conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
-            conn.commit()  # Commit deletion
-        pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
+        try:
+            with stream.connect() as conn:
+                # Use parameterized query for safety
+                conn.execute(text('DELETE FROM public."WINS_LOSSES" WHERE "symbol" = :symbol'), {"symbol": asset})
+                conn.commit()  # Commit deletion
+            pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
+        except Exception as e:
+            logger.error(f"Error: {e}")
 
-        with stream.connect() as conn:
-            # Use parameterized query for safety
-            conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
-            conn.commit()  # Commit deletion
-        pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
+        try:
+            with stream.connect() as conn:
+                # Use parameterized query for safety
+                conn.execute(text('DELETE FROM public."PORTFOLIO_VALUES" WHERE "symbol" = :symbol'), {"symbol": asset})
+                conn.commit()  # Commit deletion
+            pd.DataFrame(portfolio_values).to_sql('PORTFOLIO_VALUES', stream, if_exists='append', index=True)
+        except Exception as e:
+            logger.error(f"Error: {e}")
 
     logger.info("Job completed.")
 
