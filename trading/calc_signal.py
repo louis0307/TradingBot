@@ -29,7 +29,7 @@ def trade_signal():
     for asset in assets:
         # print(asset)
         quant = 0
-        hit = 0
+        hit = ""
         dat = pd.read_sql(asset, stream)
         dat.set_index('dateTime', inplace=True)
         dat_hist = dat[dat['Symbol'] == asset + interval]

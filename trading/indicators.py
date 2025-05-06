@@ -125,7 +125,7 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
         signal = -1
         hit = "1.1"
     elif dat2['MACD'] < dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal']:  # bearish continuation
-        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] > dat_1['D'] and dat1['MACD'] < 0) or signal_1 == 1:
+        if (dat1['KDJ_cross'] == 1 and dat1['J'] > dat1['D'] and dat1['MACD'] < 0) or signal_1 == 1:
             signal = 1
             hit = "2.1"
         else:
@@ -139,7 +139,7 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
             signal = 0
             hit = "2.4"
     elif dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] > dat1['MACD_Signal']:  # bullish continuation
-        if (dat_1['KDJ_cross'] == 1 and dat_1['J'] < dat_1['D'] and dat1['MACD'] > 0) or signal_1 == -1:
+        if (dat1['KDJ_cross'] == 1 and dat1['J'] < dat1['D'] and dat1['MACD'] > 0) or signal_1 == -1:
             signal = -1
             hit = "3.1"
         else:
