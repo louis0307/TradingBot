@@ -120,7 +120,7 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
     atr_threshold = dat15m_1['close'] * 0.006
     # --- ATR Filter: Skip trades in low volatility environments ---
     if dat15m_1['ATR'] < atr_threshold:
-        return 0  # skip signal
+        return 0, ""  # skip signal
     if dat2['MACD'] > dat2['MACD_Signal'] and dat1['MACD'] < dat1['MACD_Signal'] and dat1['MACD'] > 0:  # bearish crossing
         signal = -1
         hit = "1.1"
