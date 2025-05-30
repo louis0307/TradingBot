@@ -175,9 +175,9 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
         else:
             signal = -1
             hit = "2.2"
-        if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 > 0:
-            signal = 0
-            hit = "2.3"
+        #if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 > 0:
+        #    signal = 0
+        #    hit = "2.3"
             # Filter: avoid long entries if StochRSI is high (not oversold)
         if dat1['stoch_rsi'] is not None and signal == 1 and dat1['stoch_rsi'] > 0.2:
             signal = 0
@@ -189,9 +189,9 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
         else:
             signal = 1
             hit = "3.2"
-        if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 < 0:  # or signal_1 == 0
-            signal = 0
-            hit = "3.3"
+        #if (dat15m_3['log_returns'] + dat15m_2['log_returns'] + dat15m_1['log_returns']) / 3 < 0:  # or signal_1 == 0
+        #    signal = 0
+        #    hit = "3.3"
             # Filter: avoid short entries if StochRSI is low (not overbought)
         if dat1['stoch_rsi'] is not None and signal == -1 and dat1['stoch_rsi'] < 0.8:
             signal = 0
