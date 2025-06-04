@@ -119,43 +119,43 @@ def macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1):
     hit = ""
 
     if dat15m_1['Symbol'] == 'ETHUSDT15m':
-        atr_param = 0.003
+        atr_param = 0.005
     elif dat15m_1['Symbol'] == 'ADAUSDT15m':
         atr_param = 0.007
     elif dat15m_1['Symbol'] == 'SOLUSDT15m':
-        atr_param = 0.007
+        atr_param = 0.01
     elif dat15m_1['Symbol'] == 'XRPUSDT15m':
         atr_param = 0.007
     elif dat15m_1['Symbol'] == 'AVAXUSDT15m':
-        atr_param = 0.004
+        atr_param = 0.005
     elif dat15m_1['Symbol'] == 'LTCUSDT15m':
-        atr_param = 0.002
+        atr_param = 0.006
     elif dat15m_1['Symbol'] == 'TNSRUSDT15m':
-        atr_param = 0.009
-    elif dat15m_1['Symbol'] == 'LEVERUSDT15m':
         atr_param = 0.01
+    elif dat15m_1['Symbol'] == 'LEVERUSDT15m':
+        atr_param = 0.003
     elif dat15m_1['Symbol'] == 'MEMEUSDT15m':
         atr_param = 0.006
     elif dat15m_1['Symbol'] == 'SAGAUSDT15m':
-        atr_param = 0.01
+        atr_param = 0.007
     elif dat15m_1['Symbol'] == 'THETAUSDT15m':
-        atr_param = 0.006
+        atr_param = 0.005
     elif dat15m_1['Symbol'] == 'ALGOUSDT15m':
-        atr_param = 0.009
+        atr_param = 0.005
     elif dat15m_1['Symbol'] == 'AAVEUSDT15m':
         atr_param = 0.008
     elif dat15m_1['Symbol'] == 'CHZUSDT15m':
         atr_param = 0.004
     elif dat15m_1['Symbol'] == 'MANAUSDT15m':
-        atr_param = 0.006
+        atr_param = 0.008
     elif dat15m_1['Symbol'] == 'IOTAUSDT15m':
         atr_param = 0.009
     elif dat15m_1['Symbol'] == 'WLDUSDT15m':
         atr_param = 0.008
     elif dat15m_1['Symbol'] == 'HBARUSDT15m':
-        atr_param = 0.009
+        atr_param = 0.006
     elif dat15m_1['Symbol'] == 'SUIUSDT15m':
-        atr_param = 0.007
+        atr_param = 0.006
     elif dat15m_1['Symbol'] == 'VETUSDT15m':
         atr_param = 0.007
     else:
