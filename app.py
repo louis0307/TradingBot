@@ -92,7 +92,7 @@ app.layout = dbc.Container([
                 dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3"), width="auto")
             ], align="center", className="g-0"),
         ]),
-        color="dark",
+        color="#d60404",
         dark=True,
         className="mb-4"
     ),
@@ -105,11 +105,29 @@ app.layout = dbc.Container([
         "borderRadius": "10px",
         "padding": "10px",
         "width": "50%",
-        "margin": "0 auto",
+        "margin": "30px auto 30px auto",
         "backgroundColor": "#dbd5d5",
-        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
+        "boxShadow": "0 4px 8px rgba(89, 88, 88, 0.3)"
     }),
     dbc.Row([
+        html.Div(
+            "Total Portfolio Value Over Time",
+            id="pv-total-display",
+            style={
+                "textAlign": "center",
+                "fontSize": "24px",
+                "fontWeight": "bold",
+                "color": "#333",
+                "border": "2px solid #ccc",
+                "borderRadius": "12px",
+                "padding": "15px 20px",
+                "width": "100%",
+                "maxWidth": "600px",
+                "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                "backgroundColor": "#f2f2f2",
+                "boxShadow": "0 6px 12px rgba(89, 88, 88, 0.1)",
+            }
+        ),
         dcc.Graph(id='total-pv-chart')
     ]),
     dbc.Row([
