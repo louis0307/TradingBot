@@ -151,7 +151,7 @@ def update_total_pv_chart(n_intervals):
             x=pv_total["timestamp"],
             y=pv_total["portfolio_value"],
             mode="lines",
-            name="pv_tot",
+            name="Total PV",
             line=dict(width=2),
             yaxis="y1"
         ))
@@ -165,7 +165,7 @@ def update_total_pv_chart(n_intervals):
                 y=df_symbol["portfolio_value"],
                 mode="lines",
                 name=symbol,
-                line=dict(width=1, color=colors[i % len(colors)], dash="dot"),
+                line=dict(width=1, color=colors[i % len(colors)]),
                 yaxis="y2",
                 hovertemplate=f"Symbol: {symbol}<br>Time: %{{x}}<br>Value: %{{y}}<extra></extra>",
                 opacity=0.8
