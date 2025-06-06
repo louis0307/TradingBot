@@ -88,7 +88,7 @@ app.layout = dbc.Container([
     dbc.Navbar(
         dbc.Container([
             dbc.Row([
-                dbc.Col(html.Img(src="/assets/logo.png", height="50px"), width="auto"),  # Add your logo
+                dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
                 dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3", style={"fontWeight": "bold"}), width="auto")
             ], align="center", className="g-0"),
         ]),
@@ -104,7 +104,7 @@ app.layout = dbc.Container([
         "border": "2px solid #ccc",
         "borderRadius": "10px",
         "padding": "10px",
-        "width": "50%",
+        "width": "30%",
         "margin": "30px auto 30px auto",
         "backgroundColor": "#dbd5d5",
         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
@@ -119,9 +119,9 @@ app.layout = dbc.Container([
                 "fontWeight": "bold",
                 "color": "#333",
                 "border": "2px solid #ccc",
-                "borderRadius": "12px",
+                "borderRadius": "3px",
                 "padding": "15px 20px",
-                "width": "100%",
+                "width": "auto",
                 "maxWidth": "600px",
                 "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
                 "backgroundColor": "#f2f2f2",
@@ -152,9 +152,9 @@ app.layout = dbc.Container([
                     "fontWeight": "bold",
                     "color": "#333",
                     "border": "2px solid #ccc",
-                    "borderRadius": "12px",
+                    "borderRadius": "3px",
                     "padding": "15px 20px",
-                    "width": "100%",
+                    "width": "auto",
                     "maxWidth": "600px",
                     "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
                     "backgroundColor": "#f2f2f2",
@@ -225,7 +225,7 @@ def update_total_pv_chart(n_intervals):
             ))
 
         fig.update_layout(
-            title="Total Portfolio Value Over Time",
+            title="",
             xaxis_title="Time",
             yaxis=dict(title="Total Portfolio Value", side="left", showgrid=True),
             yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
