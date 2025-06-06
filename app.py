@@ -175,6 +175,11 @@ def update_graphs(selected_asset, n_intervals):
         pv = pv.sort_values("timestamp")
         pv = pv.drop(columns=["symbol"])
         pv = pv[["timestamp", "portfolio_value"]]
+
+        pvs_all = pd.read_sql(query4, stream)
+        pv_all = pvs_all.copy()
+        pv_all["timestamp"] = pd.to_datetime(pv["timestamp"])
+        pv_all = pv_all.sort_values("timestamp")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -211,10 +216,6 @@ def update_graphs(selected_asset, n_intervals):
         else:
             pv_total = calc_pv_total()
             #drawdowns = compute_drawdown(pv_total)
-            pvs_all = pd.read_sql(query4, stream)
-            pv_all = pvs_all.copy()
-            pv_all["timestamp"] = pd.to_datetime(pv["timestamp"])
-            pv_all = pv_all.sort_values("timestamp")
 
             pv_total_fig = go.Figure()
             pv_total_fig.add_trace(go.Scatter(
@@ -227,13 +228,13 @@ def update_graphs(selected_asset, n_intervals):
             ))
             #pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
             #                     yaxis_title="Total Portfolio Value")
-            for symbol in pv_all["symbol"].unique():
-                df_symbol = pv_all[pv_all["symbol"] == symbol]
+            for sym in pv_all["symbol"].unique():
+                df_symbol = pv_all[pv_all["symbol"] == sym]
                 pv_total_fig.add_trace(go.Scatter(
                     x=df_symbol["timestamp"],
                     y=df_symbol["portfolio_value"],
                     mode="lines",
-                    name=symbol,
+                    name=sym,
                     line=dict(width=1),  # thinner, optional dashed
                     yaxis="y2"
                 ))
