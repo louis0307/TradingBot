@@ -235,8 +235,7 @@ def update_graphs(selected_asset, n_intervals):
                     mode="lines",
                     name=symbol,
                     line=dict(width=1),  # thinner, optional dashed
-                    yaxis="y2",
-                    hovertemplate=f"Symbol: {symbol}<br>Time: %{{x}}<br>Value: %{{y}}<extra></extra>"
+                    yaxis="y2"
                 ))
 
             # Update layout with two y-axes
