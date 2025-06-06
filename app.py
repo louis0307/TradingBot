@@ -96,6 +96,7 @@ app.layout = dbc.Container([
         dark=True,
         className="mb-4"
     ),
+    html.Div(id="pv-total-display", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "20px"}),
     dbc.Row([
         dcc.Graph(id='total-pv-chart')
     ]),
@@ -108,7 +109,6 @@ app.layout = dbc.Container([
                 clearable=False
             ),
             dcc.Graph(id='price-chart'),
-            dcc.Graph(id='portfolio-chart'),
             html.Div(id='table')
         ], width=12),
     ]),
@@ -135,7 +135,8 @@ app.layout = dbc.Container([
 ])
 
 @app.callback(
-    Output('total-pv-chart', 'figure'),
+    [Output('total-pv-chart', 'figure'),
+     Output('pv-total-display', 'children')],
     Input('interval-component', 'n_intervals')
 )
 def update_total_pv_chart(n_intervals):
@@ -178,14 +179,18 @@ def update_total_pv_chart(n_intervals):
             yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
             legend_title="Legend"
         )
-        return fig
+
+        total_pv_display = ""
+        if not pv_total.empty:
+            current_total_pv = pv_total["portfolio_value"].iloc[-1]
+            total_pv_display = f"Current Total Portfolio Value: ${current_total_pv:,.2f}"
+        return fig, total_pv_display
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
-        return go.Figure()
+        return go.Figure(), "Error loading total portfolio value"
 
 @app.callback(
     [Output('price-chart', 'figure'),
-     Output('portfolio-chart', 'figure'),
      Output('table', 'children')],
     [Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals')]
@@ -198,7 +203,6 @@ def update_graphs(selected_asset, n_intervals):
         query = f'SELECT * FROM "public"."{selected_asset}"'
         query2 = 'SELECT * FROM "public"."TRADES"'
         query3 = 'SELECT * FROM "public"."INDICATORS"'
-        query4 = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
 
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
@@ -217,13 +221,6 @@ def update_graphs(selected_asset, n_intervals):
         #structured_trades = reconstruct_trades(trades)
         #compute_trade_stats(structured_trades)
 
-        pvs = pd.read_sql(query4, stream)
-        pv = pvs[pvs["symbol"] == selected_asset].copy()
-        pv["timestamp"] = pd.to_datetime(pv["timestamp"])
-        pv = pv.sort_values("timestamp")
-        pv = pv.drop(columns=["symbol"])
-        pv = pv[["timestamp", "portfolio_value"]]
-
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -237,11 +234,6 @@ def update_graphs(selected_asset, n_intervals):
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
-            }
-
-            pv_fig = {'data': [],
-                      'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
-                                          yaxis={'title': 'Portfolio Value'})
             }
 
             table_data = pd.DataFrame(columns=['Date', 'Open', 'High', 'Low', 'Close'])
@@ -314,16 +306,6 @@ def update_graphs(selected_asset, n_intervals):
                 template='plotly_dark'
             )
 
-            pv_fig = go.Figure()
-            pv_fig.add_trace(go.Scatter(
-                x=pv["timestamp"],
-                y=pv["portfolio_value"],
-                mode="lines",
-                name=selected_asset
-            ))
-            pv_fig.update_layout(title=f'Portfolio Value Over Time for {selected_asset}', xaxis_title="Time",
-                              yaxis_title="Portfolio Value")
-
             table = dash_table.DataTable(
                 id='asset-table',
                 columns=[{'name': col, 'id': col} for col in tab.columns],
@@ -340,11 +322,6 @@ def update_graphs(selected_asset, n_intervals):
                                           yaxis={'title': 'Price'})
         }
 
-        pv_fig = {'data': [],
-                  'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
-                                      yaxis={'title': 'Portfolio Value'})
-                  }
-
         table_data = pd.DataFrame(columns=['Error'])
         table_data = pd.concat([table_data, {'Error': 'Failed to load data for the selected asset'}], ignore_index=True)
         table = dash_table.DataTable(
@@ -355,7 +332,7 @@ def update_graphs(selected_asset, n_intervals):
             style_cell={'textAlign': 'center'},
             style_header={'fontWeight': 'bold'},
         )
-    return figure, pv_fig, table
+    return figure, table
 
 @app.callback(
     Output('log-textarea', 'value'),
