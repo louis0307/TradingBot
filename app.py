@@ -150,11 +150,15 @@ def update_graphs(selected_asset, n_intervals):
         query = f'SELECT * FROM "public"."{selected_asset}"'
         query2 = 'SELECT * FROM "public"."TRADES"'
         query3 = 'SELECT * FROM "public"."INDICATORS"'
+        query4 = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
+
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
+
         dat2 = pd.read_sql(query2, stream)
         dat_hist = dat[dat['Symbol'] == selected_asset + INTERVALS]
         dat_hist2 = dat2[dat2['symbol'] == selected_asset]
+
         dat_hist1 = dat_preprocess(dat_hist)
         dat_dict[selected_asset] = dat_hist1
         trades[selected_asset] = dat_hist2
@@ -164,6 +168,13 @@ def update_graphs(selected_asset, n_intervals):
         dat_ind_hist = dat_ind_hist.sort_index()
         #structured_trades = reconstruct_trades(trades)
         #compute_trade_stats(structured_trades)
+
+        pvs = pd.read_sql(query4, stream)
+        pv = pvs[pvs["symbol"] == selected_asset].copy()
+        pv["timestamp"] = pd.to_datetime(pv["timestamp"])
+        pv = pv.sort_values("timestamp")
+        pv = pv.drop(columns=["symbol"])
+        pv = pv[["timestamp", "portfolio_value"]]
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -270,13 +281,6 @@ def update_graphs(selected_asset, n_intervals):
                 template='plotly_dark'
             )
 
-            query = f'SELECT * FROM "public"."PORTFOLIO_VALUES"'
-            pvs = pd.read_sql(query, stream)
-            pv = pvs[pvs["symbol"] == asset].copy()
-            pv["timestamp"] = pd.to_datetime(pv["timestamp"])
-            pv = pv.sort_values("timestamp")
-            pv = pv.drop(columns=["symbol"])
-            pv = pv[["timestamp", "portfolio_value"]]
             pv_fig = go.Figure()
             pv_fig.add_trace(go.Scatter(
                 x=pv["timestamp"],
