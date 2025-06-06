@@ -96,7 +96,19 @@ app.layout = dbc.Container([
         dark=True,
         className="mb-4"
     ),
-    html.Div(id="pv-total-display", style={"textAlign": "center", "fontSize": "20px", "marginBottom": "20px"}),
+    html.Div(id="pv-total-display", style={
+        "textAlign": "center",
+        "fontSize": "20px",
+        "marginBottom": "20px",
+        "fontWeight": "bold",
+        "border": "2px solid #ccc",
+        "borderRadius": "10px",
+        "padding": "10px",
+        "width": "50%",
+        "margin": "0 auto",
+        "backgroundColor": "#f9f9f9",
+        "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)"
+    }),
     dbc.Row([
         dcc.Graph(id='total-pv-chart')
     ]),
@@ -183,7 +195,7 @@ def update_total_pv_chart(n_intervals):
         total_pv_display = ""
         if not pv_total.empty:
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
-            total_pv_display = f"Current Total Portfolio Value: ${current_total_pv:,.2f}"
+            total_pv_display = f"Current Total Portfolio Return: ${current_total_pv:,.2f}"
         return fig, total_pv_display
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
