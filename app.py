@@ -156,15 +156,19 @@ def update_total_pv_chart(n_intervals):
             yaxis="y1"
         ))
 
-        for sym in pvs_all["symbol"].unique():
-            df_symbol = pvs_all[pvs_all["symbol"] == sym]
+        colors = px.colors.qualitative.Plotly
+
+        for i, symbol in enumerate(pvs_all["symbol"].unique()):
+            df_symbol = pvs_all[pvs_all["symbol"] == symbol]
             fig.add_trace(go.Scatter(
                 x=df_symbol["timestamp"],
                 y=df_symbol["portfolio_value"],
                 mode="lines",
-                name=sym,
-                line=dict(width=1),
-                yaxis="y2"
+                name=symbol,
+                line=dict(width=1, color=colors[i % len(colors)], dash="dot"),
+                yaxis="y2",
+                hovertemplate=f"Symbol: {symbol}<br>Time: %{{x}}<br>Value: %{{y}}<extra></extra>",
+                opacity=0.8
             ))
 
         fig.update_layout(
