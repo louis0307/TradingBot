@@ -211,15 +211,51 @@ def update_graphs(selected_asset, n_intervals):
         else:
             pv_total = calc_pv_total()
             #drawdowns = compute_drawdown(pv_total)
+            pvs_all = pd.read_sql(query4, stream)
+            pv_all = pvs_all.copy()
+            pv_all["timestamp"] = pd.to_datetime(pv["timestamp"])
+            pv_all = pv_all.sort_values("timestamp")
+
             pv_total_fig = go.Figure()
             pv_total_fig.add_trace(go.Scatter(
                 x=pv_total["timestamp"],
                 y=pv_total["portfolio_value"],
                 mode="lines",
-                name="pv_tot"
+                name="pv_tot",
+                line=dict(width=2),
+                yaxis="y1"
             ))
-            pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
-                                 yaxis_title="Total Portfolio Value")
+            #pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
+            #                     yaxis_title="Total Portfolio Value")
+            for symbol in pv_all["symbol"].unique():
+                df_symbol = pv_all[pv_all["symbol"] == symbol]
+                pv_total_fig.add_trace(go.Scatter(
+                    x=df_symbol["timestamp"],
+                    y=df_symbol["portfolio_value"],
+                    mode="lines",
+                    name=symbol,
+                    line=dict(width=1),  # thinner, optional dashed
+                    yaxis="y2",
+                    hovertemplate=f"Symbol: {symbol}<br>Time: %{x}<br>Value: %{y}<extra></extra>"
+                ))
+
+            # Update layout with two y-axes
+            pv_total_fig.update_layout(
+                title="Total Portfolio Value Over Time",
+                xaxis_title="Time",
+                yaxis=dict(
+                    title="Total Portfolio Value",  # left y-axis
+                    side="left",
+                    showgrid=True
+                ),
+                yaxis2=dict(
+                    title="Individual Symbol Value",
+                    overlaying="y",
+                    side="right",
+                    showgrid=False
+                ),
+                legend_title="Legend"
+            )
 
             figure = make_subplots(
                 rows=3, cols=1,  # Two rows, one column
