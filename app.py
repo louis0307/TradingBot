@@ -178,7 +178,7 @@ def update_graphs(selected_asset, n_intervals):
 
         pvs_all = pd.read_sql(query4, stream)
         pv_all = pvs_all.copy()
-        pv_all["timestamp"] = pd.to_datetime(pv["timestamp"])
+        pv_all["timestamp"] = pd.to_datetime(pv_all["timestamp"])
         pv_all = pv_all.sort_values("timestamp")
     except Exception as e:
         print(f"Data not yet available: {e}")
