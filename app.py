@@ -96,19 +96,21 @@ app.layout = dbc.Container([
         dark=True,
         className="mb-4"
     ),
-    html.Div(id="pv-total-display", style={
-        "textAlign": "center",
-        "fontSize": "20px",
-        "marginBottom": "20px",
-        "fontWeight": "bold",
-        "border": "2px solid #ccc",
-        "borderRadius": "10px",
-        "padding": "10px",
-        "width": "30%",
-        "margin": "30px auto 30px auto",
-        "backgroundColor": "#dbd5d5",
-        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
-    }),
+    dbc.Row([
+        html.Div(id="pv-total-display", style={
+            "textAlign": "center",
+            "fontSize": "20px",
+            "marginBottom": "20px",
+            "fontWeight": "bold",
+            "border": "2px solid #ccc",
+            "borderRadius": "10px",
+            "padding": "10px",
+            "width": "30%",
+            "margin": "30px auto 30px auto",
+            "backgroundColor": "#dbd5d5",
+            "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
+        })
+    ]),
     dbc.Row([
         html.Div(
             "Total Portfolio Value Over Time",
@@ -117,18 +119,18 @@ app.layout = dbc.Container([
                 "textAlign": "center",
                 "fontSize": "24px",
                 "fontWeight": "bold",
-                "color": "#333",
+                "color": "#ffffff",
                 "border": "2px solid #ccc",
                 "borderRadius": "3px",
                 "padding": "15px 20px",
                 "width": "auto",
                 "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                "backgroundColor": "#f2f2f2",
+                "backgroundColor": "#2e2e2e",
                 "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
             }
         ),
         dcc.Graph(id='total-pv-chart')
-    ]),
+    ], width=12),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
@@ -149,13 +151,13 @@ app.layout = dbc.Container([
                     "textAlign": "center",
                     "fontSize": "24px",
                     "fontWeight": "bold",
-                    "color": "#333",
+                    "color": "#ffffff",
                     "border": "2px solid #ccc",
                     "borderRadius": "3px",
                     "padding": "15px 20px",
                     "width": "auto",
                     "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                    "backgroundColor": "#f2f2f2",
+                    "backgroundColor": "#2e2e2e",
                     "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
                 }
             ),
