@@ -106,8 +106,8 @@ app.layout = dbc.Container([
         "padding": "10px",
         "width": "50%",
         "margin": "0 auto",
-        "backgroundColor": "#f9f9f9",
-        "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)"
+        "backgroundColor": "#dbd5d5",
+        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
     }),
     dbc.Row([
         dcc.Graph(id='total-pv-chart')
