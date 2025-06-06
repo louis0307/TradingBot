@@ -112,25 +112,27 @@ app.layout = dbc.Container([
         })
     ]),
     dbc.Row([
-        html.Div(
-            "Total Portfolio Value Over Time",
-            id="title-pv-chart",
-            style={
-                "textAlign": "center",
-                "fontSize": "24px",
-                "fontWeight": "bold",
-                "color": "#ffffff",
-                "border": "2px solid #ccc",
-                "borderRadius": "3px",
-                "padding": "15px 20px",
-                "width": "auto",
-                "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                "backgroundColor": "#2e2e2e",
-                "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-            }
-        ),
-        dcc.Graph(id='total-pv-chart')
-    ], width=12),
+        dbc.Col([
+            html.Div(
+                "Total Portfolio Value Over Time",
+                id="title-pv-chart",
+                style={
+                    "textAlign": "center",
+                    "fontSize": "24px",
+                    "fontWeight": "bold",
+                    "color": "#ffffff",
+                    "border": "2px solid #ccc",
+                    "borderRadius": "3px",
+                    "padding": "15px 20px",
+                    "width": "auto",
+                    "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                    "backgroundColor": "#2e2e2e",
+                    "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                }
+            ),
+            dcc.Graph(id='total-pv-chart')
+        ], width=12)
+    ]),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
