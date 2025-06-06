@@ -122,7 +122,6 @@ app.layout = dbc.Container([
                 "borderRadius": "3px",
                 "padding": "15px 20px",
                 "width": "auto",
-                "maxWidth": "600px",
                 "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
                 "backgroundColor": "#f2f2f2",
                 "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
@@ -155,7 +154,6 @@ app.layout = dbc.Container([
                     "borderRadius": "3px",
                     "padding": "15px 20px",
                     "width": "auto",
-                    "maxWidth": "600px",
                     "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
                     "backgroundColor": "#f2f2f2",
                     "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
