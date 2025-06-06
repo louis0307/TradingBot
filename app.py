@@ -88,8 +88,8 @@ app.layout = dbc.Container([
     dbc.Navbar(
         dbc.Container([
             dbc.Row([
-                dbc.Col(html.Img(src="/assets/logo.png", height="40px"), width="auto"),  # Add your logo
-                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3"), width="auto")
+                dbc.Col(html.Img(src="/assets/logo.png", height="50px"), width="auto"),  # Add your logo
+                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3", style={"fontWeight": "bold"}), width="auto")
             ], align="center", className="g-0"),
         ]),
         color="#d60404",
@@ -107,12 +107,12 @@ app.layout = dbc.Container([
         "width": "50%",
         "margin": "30px auto 30px auto",
         "backgroundColor": "#dbd5d5",
-        "boxShadow": "0 4px 8px rgba(89, 88, 88, 0.3)"
+        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
     }),
     dbc.Row([
         html.Div(
             "Total Portfolio Value Over Time",
-            id="pv-total-display",
+            id="title-pv-chart",
             style={
                 "textAlign": "center",
                 "fontSize": "24px",
@@ -125,7 +125,7 @@ app.layout = dbc.Container([
                 "maxWidth": "600px",
                 "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
                 "backgroundColor": "#f2f2f2",
-                "boxShadow": "0 6px 12px rgba(89, 88, 88, 0.1)",
+                "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
             }
         ),
         dcc.Graph(id='total-pv-chart')
@@ -138,7 +138,29 @@ app.layout = dbc.Container([
                 value=ASSET_LIST[0],
                 clearable=False
             ),
-            dcc.Graph(id='price-chart'),
+            dcc.Graph(id='price-chart')
+        ], width=12),
+    ]),
+    dbc.Row([
+        dbc.Col([
+            html.Div(
+                "Table of Trades",
+                id="title-table-trades",
+                style={
+                    "textAlign": "center",
+                    "fontSize": "24px",
+                    "fontWeight": "bold",
+                    "color": "#333",
+                    "border": "2px solid #ccc",
+                    "borderRadius": "12px",
+                    "padding": "15px 20px",
+                    "width": "100%",
+                    "maxWidth": "600px",
+                    "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                    "backgroundColor": "#f2f2f2",
+                    "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                }
+            ),
             html.Div(id='table')
         ], width=12),
     ]),
@@ -203,7 +225,7 @@ def update_total_pv_chart(n_intervals):
             ))
 
         fig.update_layout(
-            title="",
+            title="Total Portfolio Value Over Time",
             xaxis_title="Time",
             yaxis=dict(title="Total Portfolio Value", side="left", showgrid=True),
             yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
@@ -295,33 +317,38 @@ def update_graphs(selected_asset, n_intervals):
                 row=1, col=1
             )
             figure.add_trace(
-                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD"], mode="lines", name="MACD", line=dict(color="blue")),
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD"], mode="lines", name="MACD",
+                           line=dict(color="blue", width=0.8)),
                 row=2, col=1
             )
 
             # Add MACD Signal Line (Second Row)
             figure.add_trace(
                 go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Signal"], mode="lines", name="MACD Signal",
-                           line=dict(color="red")),
+                           line=dict(color="red", width=0.8)),
                 row=2, col=1
             )
 
             # Add MACD Histogram as Bars (Second Row)
             figure.add_trace(
-                go.Bar(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram", marker=dict(color="gray")),
+                go.Bar(x=dat_ind_hist.index, y=dat_ind_hist["MACD_Hist"], name="MACD Histogram",
+                       marker=dict(color="white")),
                 row=2, col=1
             )
 
             figure.add_trace(
-                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["K"], mode="lines", name="K", line=dict(color="blue")),
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["K"], mode="lines", name="K",
+                           line=dict(color="blue", width=0.8)),
                 row=3, col=1
             )
             figure.add_trace(
-                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["D"], mode="lines", name="D", line=dict(color="green")),
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["D"], mode="lines", name="D",
+                           line=dict(color="green", width=0.8)),
                 row=3, col=1
             )
             figure.add_trace(
-                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["J"], mode="lines", name="J", line=dict(color="red")),
+                go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["J"], mode="lines", name="J",
+                           line=dict(color="red", width=0.8)),
                 row=3, col=1
             )
 
@@ -333,7 +360,14 @@ def update_graphs(selected_asset, n_intervals):
                 xaxis_title='Date',
                 yaxis_title='Price',
                 height=800,
-                template='plotly_dark'
+                template='plotly_dark',
+                legend=dict(
+                    orientation='h',  # Horizontal legend
+                    yanchor='bottom',
+                    y=-0.3,  # Move below the chart
+                    xanchor='center',
+                    x=0.5  # Center it horizontally
+                )
             )
 
             table = dash_table.DataTable(
