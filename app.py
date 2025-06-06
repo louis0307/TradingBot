@@ -203,7 +203,7 @@ def update_total_pv_chart(n_intervals):
             ))
 
         fig.update_layout(
-            title="Total Portfolio Value Over Time",
+            title="",
             xaxis_title="Time",
             yaxis=dict(title="Total Portfolio Value", side="left", showgrid=True),
             yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
