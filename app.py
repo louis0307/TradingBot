@@ -135,8 +135,52 @@ app.layout = dbc.Container([
 ])
 
 @app.callback(
-    [Output('total-pv-chart', 'figure'),
-     Output('price-chart', 'figure'),
+    Output('total-pv-chart', 'figure'),
+    Input('interval-component', 'n_intervals')
+)
+def update_total_pv_chart(n_intervals):
+    try:
+        pvs_all = pd.read_sql('SELECT * FROM "public"."PORTFOLIO_VALUES"', stream)
+        pvs_all["timestamp"] = pd.to_datetime(pvs_all["timestamp"])
+        pvs_all = pvs_all.sort_values("timestamp")
+
+        pv_total = calc_pv_total()
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=pv_total["timestamp"],
+            y=pv_total["portfolio_value"],
+            mode="lines",
+            name="pv_tot",
+            line=dict(width=2),
+            yaxis="y1"
+        ))
+
+        for sym in pvs_all["symbol"].unique():
+            df_symbol = pvs_all[pvs_all["symbol"] == sym]
+            fig.add_trace(go.Scatter(
+                x=df_symbol["timestamp"],
+                y=df_symbol["portfolio_value"],
+                mode="lines",
+                name=sym,
+                line=dict(width=1),
+                yaxis="y2"
+            ))
+
+        fig.update_layout(
+            title="Total Portfolio Value Over Time",
+            xaxis_title="Time",
+            yaxis=dict(title="Total Portfolio Value", side="left", showgrid=True),
+            yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
+            legend_title="Legend"
+        )
+        return fig
+    except Exception as e:
+        logger.error(f"Error updating total portfolio chart: {e}")
+        return go.Figure()
+
+@app.callback(
+    [Output('price-chart', 'figure'),
      Output('portfolio-chart', 'figure'),
      Output('table', 'children')],
     [Input('asset-dropdown', 'value'),
@@ -176,10 +220,6 @@ def update_graphs(selected_asset, n_intervals):
         pv = pv.drop(columns=["symbol"])
         pv = pv[["timestamp", "portfolio_value"]]
 
-        pvs_all = pd.read_sql(query4, stream)
-        pv_all = pvs_all.copy()
-        pv_all["timestamp"] = pd.to_datetime(pv_all["timestamp"])
-        pv_all = pv_all.sort_values("timestamp")
     except Exception as e:
         print(f"Data not yet available: {e}")
     try:
@@ -190,10 +230,6 @@ def update_graphs(selected_asset, n_intervals):
         tab = tab.sort_values(by='order_timestamp')
 
         if df.empty:
-            pv_total_fig = {'data': [],
-                      'layout': go.Layout(title=f'No Data', xaxis={'title': 'Date'},
-                                          yaxis={'title': 'Total Portfolio Value'})
-                      }
             figure = {'data': [],
                       'layout': go.Layout(title=f'No Data for {selected_asset}', xaxis={'title': 'Date'},
                                           yaxis={'title': 'Price'})
@@ -214,49 +250,6 @@ def update_graphs(selected_asset, n_intervals):
                 style_header={'fontWeight': 'bold'},  # Optional header styling
             )
         else:
-            pv_total = calc_pv_total()
-            #drawdowns = compute_drawdown(pv_total)
-
-            pv_total_fig = go.Figure()
-            pv_total_fig.add_trace(go.Scatter(
-                x=pv_total["timestamp"],
-                y=pv_total["portfolio_value"],
-                mode="lines",
-                name="pv_tot",
-                line=dict(width=2),
-                yaxis="y1"
-            ))
-            #pv_total_fig.update_layout(title=f'Total Portfolio Value Over Time', xaxis_title="Time",
-            #                     yaxis_title="Total Portfolio Value")
-            for sym in pv_all["symbol"].unique():
-                df_symbol = pv_all[pv_all["symbol"] == sym]
-                pv_total_fig.add_trace(go.Scatter(
-                    x=df_symbol["timestamp"],
-                    y=df_symbol["portfolio_value"],
-                    mode="lines",
-                    name=sym,
-                    line=dict(width=1),  # thinner, optional dashed
-                    yaxis="y2"
-                ))
-
-            # Update layout with two y-axes
-            pv_total_fig.update_layout(
-                title="Total Portfolio Value Over Time",
-                xaxis_title="Time",
-                yaxis=dict(
-                    title="Total Portfolio Value",  # left y-axis
-                    side="left",
-                    showgrid=True
-                ),
-                yaxis2=dict(
-                    title="Individual Symbol Value",
-                    overlaying="y",
-                    side="right",
-                    showgrid=False
-                ),
-                legend_title="Legend"
-            )
-
             figure = make_subplots(
                 rows=3, cols=1,  # Two rows, one column
                 shared_xaxes=True,  # Sync x-axes
@@ -337,10 +330,6 @@ def update_graphs(selected_asset, n_intervals):
             )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
-        pv_total_fig = {'data': [],
-                  'layout': go.Layout(title=f'Error loading data', xaxis={'title': 'Date'},
-                                      yaxis={'title': 'Total Portfolio Value'})
-                  }
 
         figure = {'data': [],
                   'layout': go.Layout(title=f'Error loading data for {selected_asset}', xaxis={'title': 'Date'},
@@ -362,7 +351,7 @@ def update_graphs(selected_asset, n_intervals):
             style_cell={'textAlign': 'center'},
             style_header={'fontWeight': 'bold'},
         )
-    return pv_total_fig, figure, pv_fig, table
+    return figure, pv_fig, table
 
 @app.callback(
     Output('log-textarea', 'value'),
