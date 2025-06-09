@@ -26,6 +26,9 @@ def trade_signal():
     trades_1 = pd.read_sql(query, stream)
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
+
+    exchange_info = client.futures_exchange_info()
+
     for asset in assets:
         # print(asset)
         quant = 0
@@ -62,7 +65,6 @@ def trade_signal():
         dat15m_2 = dat_hist.iloc[-2]
         dat15m_3 = dat_hist.iloc[-3]
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
-        exchange_info = client.futures_exchange_info()
         symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
         if symbol_info:
