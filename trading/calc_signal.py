@@ -15,6 +15,23 @@ import pytz
 from sqlalchemy import text
 from decimal import Decimal
 
+# Global in-memory cache
+_exchange_info_cache = {
+    "data": None,
+    "timestamp": 0
+}
+def get_cached_exchange_info(ttl=86400):
+    global _exchange_info_cache
+    now = time.time()
+
+    if _exchange_info_cache["data"] and (now - _exchange_info_cache["timestamp"] < ttl):
+        return _exchange_info_cache["data"]
+
+    # Fetch new data
+    exchange_info = client.futures_exchange_info()
+    _exchange_info_cache["data"] = exchange_info
+    _exchange_info_cache["timestamp"] = now
+    return exchange_info
 
 def trade_signal():
     interval = INTERVALS
@@ -27,7 +44,7 @@ def trade_signal():
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
 
-    exchange_info = client.futures_exchange_info()
+    exchange_info = get_cached_exchange_info()
 
     for asset in assets:
         # print(asset)
