@@ -12,7 +12,7 @@ trade_thread = None
 def run_trade():
     if stop_event.is_set():
         return
-    for _ in range(30):  # Check stop_event periodically to avoid delay issues
+    for _ in range(60):  # Check stop_event periodically to avoid delay issues
         if stop_event.is_set():
             return
         time.sleep(1)
