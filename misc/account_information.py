@@ -120,6 +120,9 @@ def get_binance_futures_position():
             symbol = symbol_info["symbol"]
             precision_data[symbol] = symbol_info.get("quantityPrecision")
 
+        # Access response headers
+        used_weight = client.response.headers.get('X-MBX-USED-WEIGHT-1M')
+        logger.info(f"Used weight in the last minute: {used_weight}")
         logger.info(f"Open positions: {open_positions}")
         logger.info(f"Quantity precision: {precision_data}")
 
