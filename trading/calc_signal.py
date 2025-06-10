@@ -84,7 +84,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        quant_precision = filtered_trades['quant_precision']
+        quant_precision = last_trades[last_trades['symbol'] == asset]['quant_precision']
 
         #if symbol_info:
         #    for f in symbol_info['filters']:
