@@ -101,24 +101,16 @@ def get_binance_futures_position():
         open_positions = {}
         precision_data = {}
 
-        def handle_exchange_info(msg):
-            """Handles incoming exchange information updates."""
-            nonlocal precision_data
-            symbols_info = msg.get("data", {}).get("symbols", [])
-            precision_data = {
-                symbol["symbol"]: symbol["quantityPrecision"]
-                for symbol in symbols_info
-            }
         def handle_futures_message(msg):
             """Handles incoming futures account updates."""
             positions = msg.get("data", {}).get("B", [])  # List of position details
             nonlocal open_positions
+            nonlocal precision_data
             open_positions = {pos["s"]: float(pos["pa"]) for pos in positions if float(pos["pa"]) != 0}
+            precision_data = {pos["s"]: int(pos["qb"]) for pos in positions if "qp" in pos}
 
         # Subscribe to futures account updates
         twm.start_user_socket(handle_futures_message)
-        time.sleep(1)
-        twm.start_futures_market_socket(handle_exchange_info)
 
         # Allow time for data retrieval
         time.sleep(5)
