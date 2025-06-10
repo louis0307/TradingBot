@@ -1,9 +1,12 @@
 # Importing libraries
 import time
 from misc.login import client
+from threading import Event
 import pandas as pd
 import nest_asyncio
 nest_asyncio.apply()
+from binance.um_futures import UMFutures
+
 from binance import ThreadedWebsocketManager
 from misc.login import test_api_key, test_secret_key
 from misc.logger_config import logger
@@ -89,37 +92,47 @@ def assets_usdt(assets, values, token_usdt):
     return assets_in_usdt
 
 
-def handle_futures_message(msg):
-    """Handles incoming futures account updates."""
-    positions = msg.get("data", {}).get("B", [])  # List of position details
-    open_positions = {pos["s"]: float(pos["pa"]) for pos in positions if float(pos["pa"]) != 0}
-    return open_positions
-
 def get_binance_futures_position():
+    twm = ThreadedWebsocketManager(api_key=test_api_key, api_secret=test_secret_key)
+    client = UMFutures(api_key=test_api_key, api_secret=test_secret_key)
+    open_positions = {}
+    precision_data = {}
+    done_event = Event()
+
+    def handle_futures_message(msg):
+        if msg.get("e") == "ACCOUNT_UPDATE":
+            balances = msg["a"]["P"]  # Position updates
+            for pos in balances:
+                symbol = pos["s"]
+                position_amt = float(pos["pa"])
+                if position_amt != 0:
+                    open_positions[symbol] = position_amt
+            done_event.set()
+
     try:
-        twm = ThreadedWebsocketManager(api_key=test_api_key, api_secret=test_secret_key)
         twm.start()
-        open_positions = {}
-        precision_data = {}
+        twm.start_futures_user_socket(callback=handle_futures_message)
 
-        def handle_futures_message(msg):
-            """Handles incoming futures account updates."""
-            positions = msg.get("data", {}).get("B", [])  # List of position details
-            nonlocal open_positions
-            nonlocal precision_data
-            open_positions = {pos["s"]: float(pos["pa"]) for pos in positions if float(pos["pa"]) != 0}
-            precision_data = {pos["s"]: int(pos["qb"]) for pos in positions if "qp" in pos}
+        # Wait for update or timeout
+        done_event.wait(timeout=10)
 
-        # Subscribe to futures account updates
-        twm.start_user_socket(handle_futures_message)
+        # Get precision data from REST endpoint
+        exchange_info = client.exchange_info()
+        for symbol_info in exchange_info["symbols"]:
+            symbol = symbol_info["symbol"]
+            precision_data[symbol] = {
+                "quantityPrecision": symbol_info.get("quantityPrecision"),
+                "pricePrecision": symbol_info.get("pricePrecision"),
+            }
 
-        # Allow time for data retrieval
-        time.sleep(5)
-        logger.info(f"open_positions: {open_positions}, precision_data: {precision_data}")
-        # Stop WebSocket after retrieving positions
-        twm.stop()
+        logger.info(f"Open positions: {open_positions}")
+        logger.info(f"Precision data: {precision_data}")
 
         return open_positions, precision_data
+
     except Exception as e:
-        print(f"Error fetching position: {e}")
-        return 0
+        logger.error(f"Error: {e}")
+        return {}, {}
+
+    finally:
+        twm.stop()
