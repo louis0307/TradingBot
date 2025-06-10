@@ -15,23 +15,6 @@ from misc.login import client
 from misc.logger_config import logger
 from misc.account_information import get_binance_futures_position
 
-# Global in-memory cache
-_exchange_info_cache = {
-    "data": None,
-    "timestamp": 0
-}
-def get_cached_exchange_info(ttl=86400):
-    global _exchange_info_cache
-    now = time.time()
-
-    if _exchange_info_cache["data"] and (now - _exchange_info_cache["timestamp"] < ttl):
-        return _exchange_info_cache["data"]
-
-    # Fetch new data
-    exchange_info = client.futures_exchange_info()
-    _exchange_info_cache["data"] = exchange_info
-    _exchange_info_cache["timestamp"] = now
-    return exchange_info
 
 def trade_signal():
     interval = INTERVALS
@@ -44,8 +27,7 @@ def trade_signal():
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
 
-    #exchange_info = get_cached_exchange_info()
-    pos_amts = get_binance_futures_position()
+    pos_amts, precision_data = get_binance_futures_position()
 
     for asset in assets:
         # print(asset)
@@ -85,7 +67,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        quant_precision = int(last_trades[last_trades['symbol'] == asset]['quant_precision'].iloc[0])
+        quant_precision = precision_data.get(asset)
 
         #if symbol_info:
         #    for f in symbol_info['filters']:

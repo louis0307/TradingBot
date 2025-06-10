@@ -99,7 +99,16 @@ def get_binance_futures_position():
         twm = ThreadedWebsocketManager(api_key=test_api_key, api_secret=test_secret_key)
         twm.start()
         open_positions = {}
+        precision_data = {}
 
+        def handle_exchange_info(msg):
+            """Handles incoming exchange information updates."""
+            nonlocal precision_data
+            symbols_info = msg.get("data", {}).get("symbols", [])
+            precision_data = {
+                symbol["symbol"]: symbol["quantityPrecision"]
+                for symbol in symbols_info
+            }
         def handle_futures_message(msg):
             """Handles incoming futures account updates."""
             positions = msg.get("data", {}).get("B", [])  # List of position details
@@ -108,6 +117,8 @@ def get_binance_futures_position():
 
         # Subscribe to futures account updates
         twm.start_user_socket(handle_futures_message)
+        time.sleep(1)
+        twm.start_futures_market_socket(handle_exchange_info)
 
         # Allow time for data retrieval
         time.sleep(5)
@@ -115,7 +126,7 @@ def get_binance_futures_position():
         # Stop WebSocket after retrieving positions
         twm.stop()
 
-        return open_positions
+        return open_positions, precision_data
     except Exception as e:
-        print(f"Error fetching position for {asset}: {e}")
+        print(f"Error fetching position: {e}")
         return 0
