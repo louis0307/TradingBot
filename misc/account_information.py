@@ -5,11 +5,11 @@ from threading import Event
 import pandas as pd
 import nest_asyncio
 nest_asyncio.apply()
-from binance.um_futures import UMFutures
 
 from binance import ThreadedWebsocketManager
 from misc.login import test_api_key, test_secret_key
 from misc.logger_config import logger
+from misc.login import client
 
 def createMatrix(msg):
     df = pd.DataFrame([msg])
@@ -94,7 +94,6 @@ def assets_usdt(assets, values, token_usdt):
 
 def get_binance_futures_position():
     twm = ThreadedWebsocketManager(api_key=test_api_key, api_secret=test_secret_key)
-    client = UMFutures(api_key=test_api_key, api_secret=test_secret_key)
     open_positions = {}
     precision_data = {}
     done_event = Event()
@@ -117,16 +116,13 @@ def get_binance_futures_position():
         done_event.wait(timeout=10)
 
         # Get precision data from REST endpoint
-        exchange_info = client.exchange_info()
+        exchange_info = client.futures_exchange_info()
         for symbol_info in exchange_info["symbols"]:
             symbol = symbol_info["symbol"]
-            precision_data[symbol] = {
-                "quantityPrecision": symbol_info.get("quantityPrecision"),
-                "pricePrecision": symbol_info.get("pricePrecision"),
-            }
+            precision_data[symbol] = symbol_info.get("quantityPrecision")
 
         logger.info(f"Open positions: {open_positions}")
-        logger.info(f"Precision data: {precision_data}")
+        logger.info(f"Quantity precision: {precision_data}")
 
         return open_positions, precision_data
 
