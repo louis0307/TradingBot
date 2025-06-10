@@ -116,6 +116,7 @@ def get_binance_futures_position():
 
         # Get precision data from REST endpoint
         exchange_info = client.futures_exchange_info()
+        time.sleep(1)
         for symbol_info in exchange_info["symbols"]:
             symbol = symbol_info["symbol"]
             precision_data[symbol] = symbol_info.get("quantityPrecision")
