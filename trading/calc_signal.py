@@ -129,7 +129,7 @@ def trade_signal():
 
         quant = float(np.array(quant).item()) if isinstance(quant, (list, np.ndarray)) and len(quant) == 1 else float(quant)
         #quant = Decimal(str(quant))
-        logger.info(f"Asset: {asset} Signal: {signal} Previous Signal: {signal_1} Amount: {quant}")
+        logger.info(f"Asset: {asset} Signal: {signal} Previous Signal: {signal_1} Amount: {quant} Pos Amount: {pos_amt}")
         try:
         #if lower_limit <= current_price <= upper_limit:
             order = client.futures_create_order(
