@@ -115,7 +115,7 @@ def get_binance_futures_position():
 
         # Allow time for data retrieval
         time.sleep(5)
-        info.logger(f"open_positions: {open_positions}, precision_data: {precision_data}")
+        logger.info(f"open_positions: {open_positions}, precision_data: {precision_data}")
         # Stop WebSocket after retrieving positions
         twm.stop()
 
