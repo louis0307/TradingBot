@@ -1,6 +1,5 @@
 from data.db_connection import stream
 from misc.logger_config import logger
-from trading.calc_signal import trade_signal
 import pandas as pd
 import numpy as np
 import pytz

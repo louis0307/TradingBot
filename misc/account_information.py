@@ -1,6 +1,5 @@
 # Importing libraries
 import time
-from misc.login import client
 from threading import Event
 import pandas as pd
 import nest_asyncio
