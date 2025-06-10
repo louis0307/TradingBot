@@ -181,7 +181,12 @@ app.layout = dbc.Container([
         dbc.Col([
             dcc.Interval(
                 id='interval-component',
-                interval=1000*60,  # in milliseconds (updates every 15 minutes)
+                interval=1000*60,  # in milliseconds
+                n_intervals=0
+            ),
+            dcc.Interval(
+                id='interval-pv',
+                interval=1000*30,  # in milliseconds
                 n_intervals=0
             )
         ])
@@ -191,7 +196,7 @@ app.layout = dbc.Container([
 @app.callback(
     [Output('total-pv-chart', 'figure'),
      Output('pv-total-display', 'children')],
-    Input('interval-component', 'n_intervals')
+    Input('interval-pv', 'n_intervals')
 )
 def update_total_pv_chart(n_intervals):
     try:

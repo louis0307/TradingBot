@@ -1,8 +1,11 @@
 # Importing libraries
+import time
 from misc.login import client
 import pandas as pd
 import nest_asyncio
 nest_asyncio.apply()
+from binance import ThreadedWebsocketManager
+from misc.login import test_api_key, test_secret_key
 
 def createMatrix(msg):
     df = pd.DataFrame([msg])
@@ -85,15 +88,34 @@ def assets_usdt(assets, values, token_usdt):
     return assets_in_usdt
 
 
+def handle_futures_message(msg):
+    """Handles incoming futures account updates."""
+    positions = msg.get("data", {}).get("B", [])  # List of position details
+    open_positions = {pos["s"]: float(pos["pa"]) for pos in positions if float(pos["pa"]) != 0}
+    return open_positions
 
-def get_binance_futures_position(asset):
+def get_binance_futures_position():
     try:
-        positions = client.futures_position_information(symbol=asset.upper())
-        for pos in positions:
-            pos_amt = float(pos['positionAmt'])
-            if pos_amt != 0:
-                return pos_amt  # return the current open position (positive or negative)
-        return 0
+        twm = ThreadedWebsocketManager(api_key=test_api_key, api_secret=test_secret_key)
+        twm.start()
+        open_positions = {}
+
+        def handle_futures_message(msg):
+            """Handles incoming futures account updates."""
+            positions = msg.get("data", {}).get("B", [])  # List of position details
+            nonlocal open_positions
+            open_positions = {pos["s"]: float(pos["pa"]) for pos in positions if float(pos["pa"]) != 0}
+
+        # Subscribe to futures account updates
+        twm.start_user_socket(handle_futures_message)
+
+        # Allow time for data retrieval
+        time.sleep(5)
+
+        # Stop WebSocket after retrieving positions
+        twm.stop()
+
+        return open_positions
     except Exception as e:
         print(f"Error fetching position for {asset}: {e}")
         return 0

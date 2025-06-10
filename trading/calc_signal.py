@@ -1,4 +1,11 @@
 import time
+import datetime
+import pandas as pd
+import numpy as np
+import warnings
+import pytz
+from sqlalchemy import text
+from decimal import Decimal
 
 from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
 from data.db_connection import stream
@@ -7,13 +14,6 @@ from trading.indicators import macd_trade
 from misc.login import client
 from misc.logger_config import logger
 from misc.account_information import get_binance_futures_position
-import datetime
-import pandas as pd
-import numpy as np
-import warnings
-import pytz
-from sqlalchemy import text
-from decimal import Decimal
 
 # Global in-memory cache
 _exchange_info_cache = {
@@ -45,6 +45,7 @@ def trade_signal():
     last_trades = trades_1.loc[latest_idx]
 
     #exchange_info = get_cached_exchange_info()
+    pos_amts = get_binance_futures_position()
 
     for asset in assets:
         # print(asset)
@@ -84,7 +85,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        quant_precision = last_trades[last_trades['symbol'] == asset]['quant_precision']
+        quant_precision = int(last_trades[last_trades['symbol'] == asset]['quant_precision'].iloc[0])
 
         #if symbol_info:
         #    for f in symbol_info['filters']:
@@ -95,7 +96,8 @@ def trade_signal():
         #else:
         #    print(f"Symbol {asset} not found in exchange info.")
 
-        pos_amt = get_binance_futures_position(asset)
+        #pos_amt = get_binance_futures_position(asset)
+        pos_amt = pos_amts.get(asset, 0)
 
         if signal == 0:
             if signal_1 > 0:
