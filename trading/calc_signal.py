@@ -44,7 +44,7 @@ def trade_signal():
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
 
-    exchange_info = get_cached_exchange_info()
+    #exchange_info = get_cached_exchange_info()
 
     for asset in assets:
         # print(asset)
@@ -82,32 +82,20 @@ def trade_signal():
         dat15m_2 = dat_hist.iloc[-2]
         dat15m_3 = dat_hist.iloc[-3]
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
-        symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
+        #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        if symbol_info:
-            for f in symbol_info['filters']:
-                if f['filterType'] == 'LOT_SIZE':
-                    step_size = f['stepSize']
-                    quant_precision = abs(Decimal(step_size).as_tuple().exponent)
-                    #logger.info(f"Quantity precision for {asset}: {quant_precision}")
-        else:
-            print(f"Symbol {asset} not found in exchange info.")
+        quant_precision = filtered_trades['quant_precision']
 
-        #pos_info = last_trades[last_trades['symbol'] == asset]
-        #if 'quantity' in pos_info and not pos_info['quantity'].empty:
-        #    pos_amt = np.float32(pos_info['quantity'])
+        #if symbol_info:
+        #    for f in symbol_info['filters']:
+        #        if f['filterType'] == 'LOT_SIZE':
+        #            step_size = f['stepSize']
+        #            quant_precision = abs(Decimal(step_size).as_tuple().exponent)
+        #            #logger.info(f"Quantity precision for {asset}: {quant_precision}")
         #else:
-        #    pos_amt = 0
-        pos_amt = get_binance_futures_position(asset)
+        #    print(f"Symbol {asset} not found in exchange info.")
 
-        #symbol_info = client.get_symbol_info(asset)
-        #percent_price_filter = next(
-        #    filter for filter in symbol_info['filters'] if filter['filterType'] == 'PERCENT_PRICE_BY_SIDE')
-        #multiplier_up = float(percent_price_filter['askMultiplierUp'])
-        #multiplier_down = float(percent_price_filter['askMultiplierDown'])
-        #current_price = float(client.futures_symbol_ticker(symbol=asset)['price'])
-        #upper_limit = current_price * multiplier_up
-        #lower_limit = current_price * multiplier_down
+        pos_amt = get_binance_futures_position(asset)
 
         if signal == 0:
             if signal_1 > 0:
