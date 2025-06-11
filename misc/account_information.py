@@ -1,6 +1,4 @@
 # Importing libraries
-import time
-from threading import Event
 import pandas as pd
 from misc.login import client
 from misc.logger_config import logger

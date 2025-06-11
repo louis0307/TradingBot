@@ -5,7 +5,8 @@ from misc.logger_config import logger
 from config import stop_event
 from binance import ThreadedWebsocketManager
 from misc.login import test_api_key, test_secret_key
-import threading
+from misc.account_information import get_binance_futures_positions
+
 
 def stream_data():
     logger.info("Starting streaming data cron job.")
@@ -40,3 +41,4 @@ def stream_data():
 
 if __name__ == "__main__":
     stream_data()
+    get_binance_futures_positions()
