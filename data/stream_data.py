@@ -19,7 +19,7 @@ def stream_data():
         for asset in ASSET_LIST_DATA:
             #logger.info(f"Subscribing to {asset} 15m and 1h Kline data.")
             twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='15m')
-            time.sleep(1)
+            time.sleep(0.5)
             twm.start_kline_socket(callback=handle_socket_message, symbol=asset.lower(), interval='1h')
 
         logger.info("Streaming data initialized.")
