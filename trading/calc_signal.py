@@ -23,11 +23,13 @@ def trade_signal():
     warnings.filterwarnings("ignore", category=FutureWarning)
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     query = f'SELECT * FROM "public"."TRADES" ORDER BY "order_timestamp" ASC'
+    query2 = f'SELECT * FROM public."PRECISION_INFO"'
     trades_1 = pd.read_sql(query, stream)
+    precision_info = pd.read_sql(query2, stream)
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
 
-    pos_amts, precision_data = get_binance_futures_position()
+    pos_amts = get_binance_futures_position()
 
     for asset in assets:
         # print(asset)
@@ -67,7 +69,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        quant_precision = precision_data.get(asset)
+        quant_precision = precision_info.loc[precision_info['symbol'] == asset, 'quantityPrecision'].values[0]
 
         #if symbol_info:
         #    for f in symbol_info['filters']:
