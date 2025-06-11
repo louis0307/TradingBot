@@ -25,7 +25,7 @@ def stream_data():
         logger.info("Streaming data initialized.")
 
         # Run for 1 minutes
-        run_duration = 60
+        run_duration = 30
         start_time = time.time()
 
         while time.time() - start_time < run_duration:
