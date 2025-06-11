@@ -68,7 +68,7 @@ def trade_signal():
         signal, hit = macd_trade(dat_1, dat_2, dat15m_1, dat15m_2, dat15m_3, signal_1)
         #symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == asset), None)
 
-        quant_precision = precision_info.loc[precision_info['symbol'] == asset, 'quantityPrecision'].values[0]
+        quant_precision = int(precision_info.loc[precision_info['symbol'] == asset, 'quantityPrecision'].values[0])
 
         #if symbol_info:
         #    for f in symbol_info['filters']:
@@ -82,9 +82,9 @@ def trade_signal():
         pos_amts_temp = pos_amts.loc[pos_amts['symbol'] == asset, 'positionAmt']
 
         if not pos_amts_temp.empty:
-            pos_amt = pos_amts_temp.values[0]
+            pos_amt = float(pos_amts_temp.values[0])
         else:
-            pos_amt = 0
+            pos_amt = 0.0
 
         if signal == 0:
             if signal_1 > 0:
