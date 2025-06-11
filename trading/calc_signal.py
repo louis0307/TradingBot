@@ -13,7 +13,6 @@ from data.preprocessing import dat_preprocess
 from trading.indicators import macd_trade
 from misc.login import client
 from misc.logger_config import logger
-from misc.account_information import get_binance_futures_position
 
 
 def trade_signal():
@@ -24,12 +23,12 @@ def trade_signal():
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     query = f'SELECT * FROM "public"."TRADES" ORDER BY "order_timestamp" ASC'
     query2 = f'SELECT * FROM public."PRECISION_INFO"'
+    query3 = f'SELECT * FROM public."POSITION_AMOUNTS"'
     trades_1 = pd.read_sql(query, stream)
     precision_info = pd.read_sql(query2, stream)
+    pos_amts = pd.read_sql(query3, stream)
     latest_idx = trades_1.groupby('symbol')['order_timestamp'].idxmax()
     last_trades = trades_1.loc[latest_idx]
-
-    pos_amts = get_binance_futures_position()
 
     for asset in assets:
         # print(asset)
@@ -80,8 +79,7 @@ def trade_signal():
         #else:
         #    print(f"Symbol {asset} not found in exchange info.")
 
-        #pos_amt = get_binance_futures_position(asset)
-        pos_amt = pos_amts.get(asset, 0)
+        pos_amt = pos_amts.loc[pos_amts['symbol'] == asset, 'positionAmt'].values[0]
 
         if signal == 0:
             if signal_1 > 0:
