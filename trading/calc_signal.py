@@ -79,7 +79,12 @@ def trade_signal():
         #else:
         #    print(f"Symbol {asset} not found in exchange info.")
 
-        pos_amt = pos_amts.loc[pos_amts['symbol'] == asset, 'positionAmt'].values[0]
+        pos_amts_temp = pos_amts.loc[pos_amts['symbol'] == asset, 'positionAmt']
+
+        if not pos_amts_temp.empty:
+            pos_amt = pos_amts_temp.values[0]
+        else:
+            pos_amt = 0
 
         if signal == 0:
             if signal_1 > 0:
