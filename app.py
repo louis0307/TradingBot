@@ -99,6 +99,7 @@ app.layout = dbc.Container([
     ),
     dbc.Row([
         html.Div(id="pv-total-display", style={
+            "marginTop": "80px",
             "textAlign": "center",
             "fontSize": "20px",
             "marginBottom": "20px",
