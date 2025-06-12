@@ -80,7 +80,7 @@ def calc_pv():
                 conn.commit()  # Commit deletion
 
             wins_losses = pd.DataFrame(wins_losses).reset_index(drop=True)
-            pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=True)
+            pd.DataFrame(wins_losses).to_sql('WINS_LOSSES', stream, if_exists='append', index=False)
         except Exception as e:
             logger.error(f"Error: {e}")
 
