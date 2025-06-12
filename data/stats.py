@@ -39,7 +39,7 @@ def calc_pv_total():
         pv = pv.merge(df, on="timestamp", how="left")  # Ensure all timestamps are included
 
     # Step 4: Forward-fill missing values
-    pv.fillna(method="ffill", inplace=True)
+    pv.ffill(inplace=True)
 
     # Step 5: Compute total portfolio value
     pv["portfolio_value"] = pv[ASSET_LIST].sum(axis=1)  # Sum asset values per timestamp
