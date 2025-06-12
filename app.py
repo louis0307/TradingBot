@@ -107,13 +107,19 @@ app.layout = dbc.Container([
         dbc.Container([
             dbc.Row([
                 dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
-                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3", style={"fontWeight": "bold"}), width="auto")
+                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
+                                style={"fontWeight": "bold", "margin": 0}), width="auto")
             ], align="center", className="g-0"),
         ]),
-        color="#d60404",
+        color="#adb5bd",
         dark=True,
         fixed="top",
-        className="mb-4"
+        className="mb-4",
+        style={
+            "height": "80px",          # total navbar height
+            "paddingTop": "10px",      # spacing inside
+            "paddingBottom": "10px"
+        }
     ),
     dbc.Row([
         dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
