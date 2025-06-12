@@ -397,7 +397,7 @@ def update_graphs(selected_asset, n_intervals):
 
             table_stats = dash_table.DataTable(
                 id='stats-table',
-                columns=[{'name': col, 'id': col} for col in trade_stats_asset.columns],
+                columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
                 data=trade_stats_asset.to_dict('records'),
                 style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
                 style_cell={'textAlign': 'center'},  # Optional styling
