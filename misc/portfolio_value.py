@@ -1,4 +1,5 @@
 import time
+import datetime
 
 from config import INTERVALS, INVESTMENT_AMT
 from data.db_connection import stream
@@ -55,12 +56,18 @@ def calc_pv():
                     win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
                     position += win_loss
 
+            days = duration.days
+            hours, remainder = divmod(duration.seconds, 3600)
+            minutes, _ = divmod(remainder, 60)
+
+            # Build a clean PostgreSQL interval string
+            duration_str = f"{days} days {hours} hours {minutes} minutes"
 
             wins_losses.append({
                 "symbol": asset,
                 "timestamp": row["order_timestamp"],
                 "win_loss": win_loss,
-                "duration": duration,
+                "duration": duration_str,
                 "side": row["side"]
             })
 
