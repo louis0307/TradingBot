@@ -50,13 +50,17 @@ def calc_pv():
                 if prev_row["signal"] == 0 and row["signal"] != 0:
                     position += 0
                 else:
+                    duration = pd.to_datetime(row["order_timestamp"]) - pd.to_datetime(prev_row["order_timestamp"])
                     win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
                     position += win_loss
+
 
             wins_losses.append({
                 "symbol": asset,
                 "timestamp": row["order_timestamp"],
-                "win_loss": win_loss
+                "win_loss": win_loss,
+                "duration": duration,
+                "side": row["side"]
             })
 
             # Append portfolio value for this transaction

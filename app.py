@@ -6,7 +6,7 @@ from main import start_trading_bot, stop_trading_bot
 from misc.global_state import trading_thread
 from misc.portfolio_value import calc_pv
 from data.stats import calc_pv_total
-from data.stats import reconstruct_trades, compute_trade_stats, compute_drawdown
+from data.stats import compute_trade_stats
 
 import os
 import signal
@@ -94,6 +94,7 @@ app.layout = dbc.Container([
         ]),
         color="#d60404",
         dark=True,
+        fixed="top",
         className="mb-4"
     ),
     dbc.Row([
@@ -163,7 +164,8 @@ app.layout = dbc.Container([
                     "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
                 }
             ),
-            html.Div(id='table')
+            html.Div(id='table'),
+            html.Div(id='table-stats')
         ], width=12),
     ]),
     dbc.Row([
@@ -186,7 +188,7 @@ app.layout = dbc.Container([
             ),
             dcc.Interval(
                 id='interval-pv',
-                interval=1000*30,  # in milliseconds
+                interval=1000*60,  # in milliseconds
                 n_intervals=0
             )
         ])
@@ -250,7 +252,8 @@ def update_total_pv_chart(n_intervals):
 
 @app.callback(
     [Output('price-chart', 'figure'),
-     Output('table', 'children')],
+     Output('table', 'children'),
+     Output('table-stats', 'children')],
     [Input('asset-dropdown', 'value'),
      Input('interval-component', 'n_intervals')]
 )
@@ -262,6 +265,7 @@ def update_graphs(selected_asset, n_intervals):
         query = f'SELECT * FROM "public"."{selected_asset}"'
         query2 = 'SELECT * FROM "public"."TRADES"'
         query3 = 'SELECT * FROM "public"."INDICATORS"'
+        query4 = 'SELECT * FROM "public"."WINS_LOSSES"'
 
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
@@ -277,8 +281,12 @@ def update_graphs(selected_asset, n_intervals):
         dat_ind.set_index('dateTime', inplace=True)
         dat_ind_hist = dat_ind[dat_ind['Symbol'] == selected_asset+'1h']
         dat_ind_hist = dat_ind_hist.sort_index()
-        #structured_trades = reconstruct_trades(trades)
-        #compute_trade_stats(structured_trades)
+
+        dat4 = pd.read_sql(query4, stream)
+        trade_stats = dat4[dat4['symbol'] == selected_asset]
+        trade_stats.set_index('timestamp', inplace=True)
+        trade_stats = trade_stats.sort_index()
+        trade_stats_asset = compute_trade_stats(trade_stats)
 
     except Exception as e:
         print(f"Data not yet available: {e}")
@@ -385,6 +393,15 @@ def update_graphs(selected_asset, n_intervals):
                 style_cell={'textAlign': 'center'},  # Optional styling
                 style_header={'fontWeight': 'bold'},  # Optional header styling
             )
+
+            table_stats = dash_table.DataTable(
+                id='stats-table',
+                columns=[{'name': col, 'id': col} for col in trade_stats_asset.columns],
+                data=trade_stats_asset.to_dict('records'),
+                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
+                style_cell={'textAlign': 'center'},  # Optional styling
+                style_header={'fontWeight': 'bold'},  # Optional header styling
+            )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
 
@@ -403,7 +420,15 @@ def update_graphs(selected_asset, n_intervals):
             style_cell={'textAlign': 'center'},
             style_header={'fontWeight': 'bold'},
         )
-    return figure, table
+        table_stats = dash_table.DataTable(
+            id='asset-table',
+            columns=[{'name': col, 'id': col} for col in table_data.columns],
+            data=table_data.to_dict('records'),
+            style_table={'height': '400px', 'overflowY': 'auto'},
+            style_cell={'textAlign': 'center'},
+            style_header={'fontWeight': 'bold'},
+        )
+    return figure, table, table_stats
 
 @app.callback(
     Output('log-textarea', 'value'),
