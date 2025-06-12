@@ -62,6 +62,26 @@ def compute_trade_stats(trades):
     long_stats = trades_asset[trades_asset["side"] == "BUY"]["win_loss"].agg(["mean", "count"])
     short_stats = trades_asset[trades_asset["side"] == "SELL"]["win_loss"].agg(["mean", "count"])
 
+    if trades_asset.empty:
+        # Add empty stats for this asset
+        summary = pd.DataFrame({
+            "Metric": [
+                "Total Trades",
+                "Win Rate (%)",
+                "Avg Gain",
+                "Max Gain",
+                "Avg Loss",
+                "Max Loss",
+                "Avg Trade Duration",
+                "Long Trades",
+                "Avg Long PnL",
+                "Short Trades",
+                "Avg Short PnL"
+            ],
+            "Value": [0, 0, None, None, None, None, None, 0, None, 0, None]
+        })
+        return summary
+
     summary = pd.DataFrame({
         "Metric": [
             "Total Trades",
