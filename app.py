@@ -111,14 +111,14 @@ app.layout = dbc.Container([
                                 style={"fontWeight": "bold", "margin": 0}), width="auto")
             ], align="center", className="g-0"),
         ]),
-        color="#adb5bd",
+        color="#0d1b2a",
         dark=True,
         fixed="top",
         className="mb-4",
         style={
             "height": "80px",          # total navbar height
             "paddingTop": "10px",      # spacing inside
-            "paddingBottom": "10px"
+            "paddingBottom": "50px"
         }
     ),
     dbc.Row([
