@@ -30,6 +30,9 @@ def calc_pv():
 
         win_loss = 0
         duration = None
+        days = 0
+        hours, remainder = 0, 0
+        minutes = 0
         wins_losses = []
         position = 0
         portfolio_values = []
@@ -56,9 +59,10 @@ def calc_pv():
                     win_loss = INVESTMENT_AMT / row["price"] * (row["price"] - prev_row["price"]) * prev_row["signal"]
                     position += win_loss
 
-            days = duration.days
-            hours, remainder = divmod(duration.seconds, 3600)
-            minutes, _ = divmod(remainder, 60)
+            if duration is not None:
+                days = duration.days
+                hours, remainder = divmod(duration.seconds, 3600)
+                minutes, _ = divmod(remainder, 60)
 
             # Build a clean PostgreSQL interval string
             duration_str = f"{days} days {hours} hours {minutes} minutes"
