@@ -28,6 +28,7 @@ def calc_pv():
         trades = trades.sort_values("order_timestamp")
 
         win_loss = 0
+        duration = 0
         wins_losses = []
         position = 0
         portfolio_values = []
