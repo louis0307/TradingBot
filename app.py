@@ -84,6 +84,24 @@ for asset in ASSET_LIST:
         logger.error(f"Error loading data for {asset}: {e}")
         data_dict[asset] = pd.DataFrame({'Date': [], 'Price': []})
 
+card_style = {
+    "textAlign": "center",
+    "padding": "1rem",
+    "backgroundColor": "#0d1b2a",  # Dark navy blue
+    "color": "#f8f9fa",  # Light text
+    "borderRadius": "12px",
+    "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
+}
+
+def create_tile(title, value):
+    return dbc.Card(
+        dbc.CardBody([
+            html.H5(title, className="card-title", style={"color": "#adb5bd"}),  # muted text
+            html.H2(value, className="card-text", style={"fontWeight": "bold"})
+        ]),
+        style=card_style
+    )
+
 app.layout = dbc.Container([
     dbc.Navbar(
         dbc.Container([
@@ -98,6 +116,13 @@ app.layout = dbc.Container([
         className="mb-4"
     ),
     dbc.Row([
+        dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
+        dbc.Col(create_tile("Crypto", "$7,200"), md=4, lg=2),
+        dbc.Col(create_tile("Stocks", "$14,000"), md=4, lg=2),
+        dbc.Col(create_tile("ETF", "$8,750"), md=4, lg=2),
+        dbc.Col(create_tile("Total", "$42,450"), md=4, lg=2),
+    ], className="g-4 justify-content-center"),
+    dbc.Row([
         html.Div(id="pv-total-display", style={
             "marginTop": "160px",
             "textAlign": "center",
@@ -109,8 +134,9 @@ app.layout = dbc.Container([
             "padding": "10px",
             "width": "30%",
             "margin": "30px auto 30px auto",
-            "backgroundColor": "#dbd5d5",
-            "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)"
+            "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+            "backgroundColor": "#1e2f4f",  # deeper blue for card
+            "color": "white",
         })
     ]),
     dbc.Row([
@@ -194,7 +220,13 @@ app.layout = dbc.Container([
             )
         ])
     ])
-])
+],
+fluid=True,
+style={
+    "backgroundColor": "#0b1d3a",  # dark blue
+    "minHeight": "100vh",          # full height
+    "padding": "20px"
+})
 
 @app.callback(
     [Output('total-pv-chart', 'figure'),
@@ -237,6 +269,7 @@ def update_total_pv_chart(n_intervals):
         fig.update_layout(
             title="",
             xaxis_title="Time",
+            template='plotly_dark',
             yaxis=dict(title="Total Portfolio Value", side="left", showgrid=True),
             yaxis2=dict(title="Individual Symbol Value", overlaying="y", side="right", showgrid=False),
             legend_title="Legend"
@@ -309,9 +342,13 @@ def update_graphs(selected_asset, n_intervals):
                 id='table',
                 columns=[{'name': col, 'id': col} for col in table_data.columns],
                 data=table_data.to_dict('records'),
-                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
-                style_cell={'textAlign': 'center'},  # Optional styling
-                style_header={'fontWeight': 'bold'},  # Optional header styling
+                style_table={'height': '400px', 'overflowY': 'auto'},
+                style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+                style_header={
+                    'backgroundColor': '#1a2a45',
+                    'fontWeight': 'bold',
+                    'color': 'white'
+                }
             )
         else:
             figure = make_subplots(
@@ -390,18 +427,26 @@ def update_graphs(selected_asset, n_intervals):
                 id='asset-table',
                 columns=[{'name': col, 'id': col} for col in tab.columns],
                 data=tab.to_dict('records'),
-                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
-                style_cell={'textAlign': 'center'},  # Optional styling
-                style_header={'fontWeight': 'bold'},  # Optional header styling
+                style_table={'height': '400px', 'overflowY': 'auto'},
+                style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+                style_header={
+                    'backgroundColor': '#1a2a45',
+                    'fontWeight': 'bold',
+                    'color': 'white'
+                }
             )
 
             table_stats = dash_table.DataTable(
                 id='stats-table',
                 columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
                 data=trade_stats_asset.to_dict('records'),
-                style_table={'height': '400px', 'overflowY': 'auto'},  # Add scroll for large tables
-                style_cell={'textAlign': 'center'},  # Optional styling
-                style_header={'fontWeight': 'bold'},  # Optional header styling
+                style_table={'height': '400px', 'overflowY': 'auto'},
+                style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+                style_header={
+                    'backgroundColor': '#1a2a45',
+                    'fontWeight': 'bold',
+                    'color': 'white'
+                }
             )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
@@ -418,16 +463,24 @@ def update_graphs(selected_asset, n_intervals):
             columns=[{'name': col, 'id': col} for col in table_data.columns],
             data=table_data.to_dict('records'),
             style_table={'height': '400px', 'overflowY': 'auto'},
-            style_cell={'textAlign': 'center'},
-            style_header={'fontWeight': 'bold'},
+            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_header={
+                'backgroundColor': '#1a2a45',
+                'fontWeight': 'bold',
+                'color': 'white'
+            }
         )
         table_stats = dash_table.DataTable(
             id='asset-table',
             columns=[{'name': col, 'id': col} for col in table_data.columns],
             data=table_data.to_dict('records'),
             style_table={'height': '400px', 'overflowY': 'auto'},
-            style_cell={'textAlign': 'center'},
-            style_header={'fontWeight': 'bold'},
+            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_header={
+                'backgroundColor': '#1a2a45',
+                'fontWeight': 'bold',
+                'color': 'white'
+            }
         )
     return figure, table, table_stats
 
