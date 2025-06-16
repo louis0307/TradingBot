@@ -50,11 +50,6 @@ def calc_pv_total():
 # ---- Trade Statistics ----
 def compute_trade_stats(trades):
     trades_asset = trades.copy()
-    logger.info(f"Step 1: {trades_asset}")
-    trades_asset["timestamp"] = pd.to_datetime(trades_asset["timestamp"])
-    logger.info(f"Step 2: {trades_asset}")
-    trades_asset = trades_asset.sort_values("timestamp")
-    logger.info(f"Step 3: {trades_asset}")
     win_rate = (trades_asset["win_loss"] > 0).mean() * 100
     avg_gain = trades_asset.loc[trades_asset["win_loss"] > 0, "win_loss"].mean()
     max_gain = trades_asset.loc[trades_asset["win_loss"] > 0, "win_loss"].max()
@@ -83,7 +78,6 @@ def compute_trade_stats(trades):
             ],
             "Value": [0, 0, None, None, None, None, None, 0, None, 0, None]
         })
-        logger.info(f"Step 4: {summary}")
         return summary
 
     summary = pd.DataFrame({
