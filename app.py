@@ -118,7 +118,7 @@ app.layout = dbc.Container([
         style={
             "height": "80px",          # total navbar height
             "paddingTop": "10px",      # spacing inside
-            "paddingBottom": "50px"
+            "paddingBottom": "5px"
         }
     ),
     dbc.Row([
@@ -266,7 +266,7 @@ def update_total_pv_chart(n_intervals):
                 y=df_symbol["portfolio_value"],
                 mode="lines",
                 name=symbol,
-                line=dict(width=1, color=colors[i % len(colors)]),
+                line=dict(width=0.75, color=colors[i % len(colors)], dash="dot"),
                 yaxis="y2",
                 hovertemplate=f"Symbol: {symbol}<br>Time: %{{x}}<br>Value: %{{y}}<extra></extra>",
                 opacity=0.8
@@ -442,18 +442,18 @@ def update_graphs(selected_asset, n_intervals):
                 }
             )
 
-            table_stats = dash_table.DataTable(
-                id='stats-table',
-                columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
-                data=trade_stats_asset.to_dict('records'),
-                style_table={'height': '400px', 'overflowY': 'auto'},
-                style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
-                style_header={
-                    'backgroundColor': '#1a2a45',
-                    'fontWeight': 'bold',
-                    'color': 'white'
-                }
-            )
+        table_stats = dash_table.DataTable(
+            id='stats-table',
+            columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
+            data=trade_stats_asset.to_dict('records'),
+            style_table={'height': '400px', 'overflowY': 'auto'},
+            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_header={
+                'backgroundColor': '#1a2a45',
+                'fontWeight': 'bold',
+                'color': 'white'
+            }
+        )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
 
