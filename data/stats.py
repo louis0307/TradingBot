@@ -110,7 +110,7 @@ def compute_trade_stats(trades):
             round(short_stats["mean"], 2)
         ]
     })
-    logger.info(f"Summary for asset {trades_asset['symbol']}: {summary}")
+
     return summary
 
 

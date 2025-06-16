@@ -324,8 +324,10 @@ def update_graphs(selected_asset, n_intervals):
 
         dat4 = pd.read_sql(query4, stream)
         trade_stats = dat4[dat4['symbol'] == selected_asset]
+        logger.info(f"Summary for asset {trade_stats['symbol']}: {trade_stats}")
         trade_stats.set_index('timestamp', inplace=True)
         trade_stats = trade_stats.sort_index()
+        logger.info(f"Summary for asset {trade_stats['symbol']}: {trade_stats}")
         trade_stats_asset = compute_trade_stats(trade_stats)
 
     except Exception as e:
