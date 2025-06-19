@@ -143,7 +143,8 @@ def login_layout():
     ])
 
 @app.callback(
-    Output('login-output', 'children'),
+    Output('url', 'pathname'),             # 🔁 Change the URL path!
+    Output('login-output', 'children'),    # Optional message
     Input('login-button', 'n_clicks'),
     State('username', 'value'),
     State('password', 'value'),
@@ -151,10 +152,11 @@ def login_layout():
 )
 def handle_login(n_clicks, username_input, password_input):
     if username_input == username and password_input == password:
-        user = User()
+        user = User(username_input)
         login_user(user)
-        return dcc.Location(href="/bot-controls", id="redirect")
-    return html.Div("Invalid credentials", style={"color": "red"})
+        return '/bot-controls', ''   # ✅ This triggers page switch
+    return dash.no_update, html.Div("Invalid credentials", style={"color": "red"})
+
 
 
 def dashboard_layout():
