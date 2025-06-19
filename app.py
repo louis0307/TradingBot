@@ -546,7 +546,7 @@ def bot_controls_layout():
             html.H2("Bot Controls", className="text-white"),
             dbc.Button("← Back to Dashboard", href="/", color="secondary", className="mb-3"),
             html.Br(),
-            dbc.Div([
+            dbc.Row([
                 html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
                 html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
                 dcc.Textarea(id='log-textarea',
