@@ -94,31 +94,6 @@ def load_user(user_id):
         return User(user_id)
     return None
 
-@server.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        if request.form.get("username") == username and request.form.get("password") == password:
-            user = User(username)
-            login_user(user)
-            return redirect("/bot-controls")
-        else:
-            return "Invalid credentials", 401
-
-    return '''
-        <form method="post">
-            Username: <input type="text" name="username"/><br/>
-            Password: <input type="password" name="password"/><br/>
-            <input type="submit" value="Login"/>
-        </form>
-    '''
-
-@server.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect("/")
-
-
 
 # Load complete history for each asset at startup
 data_dict = {}
@@ -157,6 +132,30 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content')
 ])
+
+def login_layout():
+    return html.Div([
+        html.H2("Login"),
+        dcc.Input(id="username", type="text", placeholder="Username"),
+        dcc.Input(id="password", type="password", placeholder="Password"),
+        html.Button("Login", id="login-button"),
+        html.Div(id="login-output")
+    ])
+
+@app.callback(
+    Output('login-output', 'children'),
+    Input('login-button', 'n_clicks'),
+    State('username', 'value'),
+    State('password', 'value'),
+    prevent_initial_call=True
+)
+def handle_login(n_clicks, username_input, password_input):
+    if username_input == username and password_input == password:
+        user = User()
+        login_user(user)
+        return dcc.Location(href="/bot-controls", id="redirect")
+    return html.Div("Invalid credentials", style={"color": "red"})
+
 
 def dashboard_layout():
     return dbc.Container([
@@ -546,7 +545,7 @@ def bot_controls_layout():
             html.H2("Bot Controls", className="text-white"),
             dbc.Button("← Back to Dashboard", href="/", color="secondary", className="mb-3"),
             html.Br(),
-            dbc.Row([
+            dbc.Col([
                 html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
                 html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
                 dcc.Textarea(id='log-textarea',
@@ -567,13 +566,15 @@ def bot_controls_layout():
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/bot-controls':
-        if current_user.is_authenticated:
-            return bot_controls_layout()
-        else:
-            return dbc.Container(html.H4("You must be logged in to access this page.", style={"color": "red"}))
+    if pathname == '/login':
+        return login_layout()
+    elif pathname == '/bot-controls':
+        if not current_user.is_authenticated:
+            return dcc.Location(href='/login', id='redirect-login')
+        return bot_controls_layout()
     else:
-        return dashboard_layout()
+        return dashboard_layout()  # your current layout
+
 
 
 
