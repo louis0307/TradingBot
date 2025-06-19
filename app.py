@@ -169,9 +169,9 @@ def dashboard_layout():
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
                 dbc.Nav([
-                    dbc.NavItem(dbc.NavLink("Dashboard", href="/", className="text-white")),
-                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white"))
-                ], className="ms-auto", navbar=True)
+                    dbc.NavItem(dbc.NavLink("Dashboard", href="/", className="text-white fw-bold")),
+                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold"))
+                ], className="ms-auto", navbar=True, pills=True, justified=True)
             ]),
             color="#0d1b2a",
             dark=True,
@@ -183,6 +183,7 @@ def dashboard_layout():
                 "paddingBottom": "5px"
             }
         ),
+        html.Br(),
         dbc.Row([
             dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
             dbc.Col(create_tile("Crypto", "$7,200"), md=4, lg=2),
@@ -613,6 +614,17 @@ def run_trading_bot(start_bot_clicks, stop_bot_clicks, log_value):
         else:
             log_value += '\nTrading bot is not running.'
     return log_value
+
+
+@app.callback(
+    Output('url', 'pathname'),
+    Input('logout-button', 'n_clicks'),
+    prevent_initial_call=True
+)
+def logout_callback(n_clicks):
+    logout_user()
+    return '/'
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=10000)
