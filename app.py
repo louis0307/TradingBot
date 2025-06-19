@@ -264,55 +264,6 @@ def dashboard_layout():
         "padding": "20px"
     })
 
-
-@login_required
-def bot_controls_layout():
-    return dbc.Container([
-        dbc.Row([
-            dbc.Col([
-                html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
-                html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
-                dcc.Textarea(id='log-textarea',
-                             value='',
-                             style={'width': '100%', 'height': 200},
-                             readOnly=True
-                             )
-            ])
-        ]),
-        dbc.Row([
-            dbc.Col([
-                dcc.Interval(
-                    id='interval-component',
-                    interval=1000*60,  # in milliseconds
-                    n_intervals=0
-                ),
-                dcc.Interval(
-                    id='interval-pv',
-                    interval=1000*60,  # in milliseconds
-                    n_intervals=0
-                )
-            ])
-        ])
-    ],
-    fluid=True,
-    style={
-        "backgroundColor": "#0b1d3a",  # dark blue
-        "minHeight": "100vh",          # full height
-        "padding": "20px"
-    })
-
-@app.callback(Output('page-content', 'children'),
-              Input('url', 'pathname'))
-def display_page(pathname):
-    if pathname == '/bot-controls':
-        if current_user.is_authenticated:
-            return bot_controls_layout()
-        else:
-            return dbc.Container(html.H4("You must be logged in to access this page.", style={"color": "red"}))
-    else:
-        return dashboard_layout()
-
-
 @app.callback(
     [Output('total-pv-chart', 'figure'),
      Output('pv-total-display', 'children')],
@@ -568,6 +519,56 @@ def update_graphs(selected_asset, n_intervals):
             }
         )
     return figure, table, table_stats
+
+
+@login_required
+def bot_controls_layout():
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
+                html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
+                dcc.Textarea(id='log-textarea',
+                             value='',
+                             style={'width': '100%', 'height': 200},
+                             readOnly=True
+                             )
+            ])
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Interval(
+                    id='interval-component',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                ),
+                dcc.Interval(
+                    id='interval-pv',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                )
+            ])
+        ])
+    ],
+    fluid=True,
+    style={
+        "backgroundColor": "#0b1d3a",  # dark blue
+        "minHeight": "100vh",          # full height
+        "padding": "20px"
+    })
+
+@app.callback(Output('page-content', 'children'),
+              Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == '/bot-controls':
+        if current_user.is_authenticated:
+            return bot_controls_layout()
+        else:
+            return dbc.Container(html.H4("You must be logged in to access this page.", style={"color": "red"}))
+    else:
+        return dashboard_layout()
+
+
 
 @app.callback(
     Output('log-textarea', 'value'),
