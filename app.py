@@ -173,7 +173,7 @@ def dashboard_layout():
                     dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold"))
                 ], className="ms-auto", navbar=True, pills=True, justified=True)
             ]),
-            color="#0d1b2a",
+            color="#070f17",
             dark=True,
             fixed="top",
             className="mb-4",
