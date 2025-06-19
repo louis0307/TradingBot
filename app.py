@@ -43,6 +43,12 @@ server = app.server
 #dash_authentication = BasicAuth(server, '/login', '/dashboard', secret_key)
 
 server.secret_key = secret_key
+server.config.update(
+    SESSION_COOKIE_SECURE=True,  # Ensures session cookies are sent over HTTPS
+    SESSION_COOKIE_HTTPONLY=True,  # Prevents JavaScript access to the cookie
+    SESSION_COOKIE_SAMESITE='Lax'  # Good balance between security and usability
+)
+
 if not server.secret_key:
     raise ValueError("No SECRET_KEY set for Flask application.")
 @server.before_request
@@ -54,8 +60,8 @@ def enforce_https():
         url = request.url.replace("http://", "https://", 1)
         return redirect(url, code = 301)
 
-users = {username: password}
-auth = dash_auth.BasicAuth(app, users)
+#users = {username: password}
+#auth = dash_auth.BasicAuth(app, users)
 
 def handle_shutdown(signal, frame):
     logger.info("Shutting down gracefully...")
@@ -68,6 +74,51 @@ signal.signal(signal.SIGINT, handle_shutdown)
 @server.route("/health")
 def health_check():
     return 'OK', 200
+
+
+
+
+login_manager = LoginManager()
+login_manager.init_app(server)
+login_manager.login_view = '/login'
+
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id == username:
+        return User(user_id)
+    return None
+
+@server.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        if request.form.get("username") == username and request.form.get("password") == password:
+            user = User(username)
+            login_user(user)
+            return redirect("/bot-controls")
+        else:
+            return "Invalid credentials", 401
+
+    return '''
+        <form method="post">
+            Username: <input type="text" name="username"/><br/>
+            Password: <input type="password" name="password"/><br/>
+            <input type="submit" value="Login"/>
+        </form>
+    '''
+
+@server.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
 
 # Load complete history for each asset at startup
 data_dict = {}
@@ -102,137 +153,165 @@ def create_tile(title, value):
         style=card_style
     )
 
-app.layout = dbc.Container([
-    dbc.Navbar(
-        dbc.Container([
-            dbc.Row([
-                dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
-                dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
-                                style={"fontWeight": "bold", "margin": 0}), width="auto")
-            ], align="center", className="g-0"),
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+def dashboard_layout():
+    return dbc.Container([
+        dbc.Navbar(
+            dbc.Container([
+                dbc.Row([
+                    dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
+                    dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
+                                    style={"fontWeight": "bold", "margin": 0}), width="auto")
+                ], align="center", className="g-0"),
+            ]),
+            color="#0d1b2a",
+            dark=True,
+            fixed="top",
+            className="mb-4",
+            style={
+                "height": "80px",  # total navbar height
+                "paddingTop": "10px",  # spacing inside
+                "paddingBottom": "5px"
+            }
+        ),
+        dbc.Row([
+            dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
+            dbc.Col(create_tile("Crypto", "$7,200"), md=4, lg=2),
+            dbc.Col(create_tile("Stocks", "$14,000"), md=4, lg=2),
+            dbc.Col(create_tile("ETF", "$8,750"), md=4, lg=2),
+            dbc.Col(create_tile("Total", "$42,450"), md=4, lg=2),
+        ], className="g-4 justify-content-center"),
+        dbc.Row([
+            html.Div(id="pv-total-display", style={
+                "marginTop": "160px",
+                "textAlign": "center",
+                "fontSize": "20px",
+                "marginBottom": "20px",
+                "fontWeight": "bold",
+                "border": "2px solid #ccc",
+                "borderRadius": "10px",
+                "padding": "10px",
+                "width": "30%",
+                "margin": "30px auto 30px auto",
+                "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+                "backgroundColor": "#1e2f4f",  # deeper blue for card
+                "color": "white",
+            })
         ]),
-        color="#0d1b2a",
-        dark=True,
-        fixed="top",
-        className="mb-4",
-        style={
-            "height": "80px",          # total navbar height
-            "paddingTop": "10px",      # spacing inside
-            "paddingBottom": "5px"
-        }
-    ),
-    dbc.Row([
-        dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
-        dbc.Col(create_tile("Crypto", "$7,200"), md=4, lg=2),
-        dbc.Col(create_tile("Stocks", "$14,000"), md=4, lg=2),
-        dbc.Col(create_tile("ETF", "$8,750"), md=4, lg=2),
-        dbc.Col(create_tile("Total", "$42,450"), md=4, lg=2),
-    ], className="g-4 justify-content-center"),
-    dbc.Row([
-        html.Div(id="pv-total-display", style={
-            "marginTop": "160px",
-            "textAlign": "center",
-            "fontSize": "20px",
-            "marginBottom": "20px",
-            "fontWeight": "bold",
-            "border": "2px solid #ccc",
-            "borderRadius": "10px",
-            "padding": "10px",
-            "width": "30%",
-            "margin": "30px auto 30px auto",
-            "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-            "backgroundColor": "#1e2f4f",  # deeper blue for card
-            "color": "white",
-        })
-    ]),
-    dbc.Row([
-        dbc.Col([
-            html.Div(
-                "Total Portfolio Value Over Time",
-                id="title-pv-chart",
-                style={
-                    "textAlign": "center",
-                    "fontSize": "24px",
-                    "fontWeight": "bold",
-                    "color": "#ffffff",
-                    "border": "2px solid #ccc",
-                    "borderRadius": "3px",
-                    "padding": "15px 20px",
-                    "width": "auto",
-                    "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                    "backgroundColor": "#2e2e2e",
-                    "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                }
-            ),
-            dcc.Graph(id='total-pv-chart')
-        ], width=12)
-    ]),
-    dbc.Row([
-        dbc.Col([
-            dcc.Dropdown(
-                id='asset-dropdown',
-                options=[{'label': asset, 'value': asset} for asset in ASSET_LIST],
-                value=ASSET_LIST[0],
-                clearable=False
-            ),
-            dcc.Graph(id='price-chart')
-        ], width=12),
-    ]),
-    dbc.Row([
-        dbc.Col([
-            html.Div(
-                "Table of Trades",
-                id="title-table-trades",
-                style={
-                    "textAlign": "center",
-                    "fontSize": "24px",
-                    "fontWeight": "bold",
-                    "color": "#ffffff",
-                    "border": "2px solid #ccc",
-                    "borderRadius": "3px",
-                    "padding": "15px 20px",
-                    "width": "auto",
-                    "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                    "backgroundColor": "#2e2e2e",
-                    "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                }
-            ),
-            html.Div(id='table'),
-            html.Div(id='table-stats')
-        ], width=12),
-    ]),
-    dbc.Row([
-        dbc.Col([
-            html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
-            html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
-            dcc.Textarea(id='log-textarea',
-                         value='',
-                         style={'width': '100%', 'height': 200},
-                         readOnly=True
-                         )
+        dbc.Row([
+            dbc.Col([
+                html.Div(
+                    "Total Portfolio Value Over Time",
+                    id="title-pv-chart",
+                    style={
+                        "textAlign": "center",
+                        "fontSize": "24px",
+                        "fontWeight": "bold",
+                        "color": "#ffffff",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "3px",
+                        "padding": "15px 20px",
+                        "width": "auto",
+                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                        "backgroundColor": "#2e2e2e",
+                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                    }
+                ),
+                dcc.Graph(id='total-pv-chart')
+            ], width=12)
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Dropdown(
+                    id='asset-dropdown',
+                    options=[{'label': asset, 'value': asset} for asset in ASSET_LIST],
+                    value=ASSET_LIST[0],
+                    clearable=False
+                ),
+                dcc.Graph(id='price-chart')
+            ], width=12),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                html.Div(
+                    "Table of Trades",
+                    id="title-table-trades",
+                    style={
+                        "textAlign": "center",
+                        "fontSize": "24px",
+                        "fontWeight": "bold",
+                        "color": "#ffffff",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "3px",
+                        "padding": "15px 20px",
+                        "width": "auto",
+                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                        "backgroundColor": "#2e2e2e",
+                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                    }
+                ),
+                html.Div(id='table'),
+                html.Div(id='table-stats')
+            ], width=12),
         ])
-    ]),
-    dbc.Row([
-        dbc.Col([
-            dcc.Interval(
-                id='interval-component',
-                interval=1000*60,  # in milliseconds
-                n_intervals=0
-            ),
-            dcc.Interval(
-                id='interval-pv',
-                interval=1000*60,  # in milliseconds
-                n_intervals=0
-            )
+    ], fluid=True, style={
+        "backgroundColor": "#0b1d3a",
+        "minHeight": "100vh",
+        "padding": "20px"
+    })
+
+
+@login_required
+def bot_controls_layout():
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
+                html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
+                dcc.Textarea(id='log-textarea',
+                             value='',
+                             style={'width': '100%', 'height': 200},
+                             readOnly=True
+                             )
+            ])
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Interval(
+                    id='interval-component',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                ),
+                dcc.Interval(
+                    id='interval-pv',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                )
+            ])
         ])
-    ])
-],
-fluid=True,
-style={
-    "backgroundColor": "#0b1d3a",  # dark blue
-    "minHeight": "100vh",          # full height
-    "padding": "20px"
-})
+    ],
+    fluid=True,
+    style={
+        "backgroundColor": "#0b1d3a",  # dark blue
+        "minHeight": "100vh",          # full height
+        "padding": "20px"
+    })
+
+@app.callback(Output('page-content', 'children'),
+              Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == '/bot-controls':
+        if current_user.is_authenticated:
+            return bot_controls_layout()
+        else:
+            return dbc.Container(html.H4("You must be logged in to access this page.", style={"color": "red"}))
+    else:
+        return dashboard_layout()
+
 
 @app.callback(
     [Output('total-pv-chart', 'figure'),
