@@ -167,6 +167,10 @@ def dashboard_layout():
                     dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
+                dbc.Nav([
+                    dbc.NavItem(dbc.NavLink("Dashboard", href="/", className="text-white")),
+                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white"))
+                ], className="ms-auto", navbar=True)
             ]),
             color="#0d1b2a",
             dark=True,
@@ -257,6 +261,20 @@ def dashboard_layout():
                 html.Div(id='table'),
                 html.Div(id='table-stats')
             ], width=12),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Interval(
+                    id='interval-component',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                ),
+                dcc.Interval(
+                    id='interval-pv',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                )
+            ])
         ])
     ], fluid=True, style={
         "backgroundColor": "#0b1d3a",
@@ -525,7 +543,10 @@ def update_graphs(selected_asset, n_intervals):
 def bot_controls_layout():
     return dbc.Container([
         dbc.Row([
-            dbc.Col([
+            html.H2("Bot Controls", className="text-white"),
+            dbc.Button("← Back to Dashboard", href="/", color="secondary", className="mb-3"),
+            html.Br(),
+            dbc.Div([
                 html.Button('Start Trading Bot', id='start-bot-button', n_clicks=0),
                 html.Button('Stop Trading Bot', id='stop-bot-button', n_clicks=0),
                 dcc.Textarea(id='log-textarea',
@@ -533,20 +554,6 @@ def bot_controls_layout():
                              style={'width': '100%', 'height': 200},
                              readOnly=True
                              )
-            ])
-        ]),
-        dbc.Row([
-            dbc.Col([
-                dcc.Interval(
-                    id='interval-component',
-                    interval=1000*60,  # in milliseconds
-                    n_intervals=0
-                ),
-                dcc.Interval(
-                    id='interval-pv',
-                    interval=1000*60,  # in milliseconds
-                    n_intervals=0
-                )
             ])
         ])
     ],
