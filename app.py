@@ -160,7 +160,7 @@ def dashboard_layout():
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
                 dbc.Nav([
-                    dbc.NavItem(dbc.NavLink("Asset View", href="/", className="text-white fw-bold",
+                    dbc.NavItem(dbc.NavLink("Asset View", href="/asset-view", className="text-white fw-bold",
                                             style={
                                                 "borderLeft": "1px solid #ffffff55",
                                                 "borderRight": "1px solid #ffffff55",
@@ -279,40 +279,6 @@ def dashboard_layout():
         ]),
         dbc.Row([
             dbc.Col([
-                dcc.Dropdown(
-                    id='asset-dropdown',
-                    options=[{'label': asset, 'value': asset} for asset in ASSET_LIST],
-                    value=ASSET_LIST[0],
-                    clearable=False
-                ),
-                dcc.Graph(id='price-chart')
-            ], width=12),
-        ]),
-        dbc.Row([
-            dbc.Col([
-                html.Div(
-                    "Table of Trades",
-                    id="title-table-trades",
-                    style={
-                        "textAlign": "center",
-                        "fontSize": "24px",
-                        "fontWeight": "bold",
-                        "color": "#ffffff",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "3px",
-                        "padding": "15px 20px",
-                        "width": "auto",
-                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                        "backgroundColor": "#2e2e2e",
-                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                    }
-                ),
-                html.Div(id='table'),
-                html.Div(id='table-stats')
-            ], width=12),
-        ]),
-        dbc.Row([
-            dbc.Col([
                 dcc.Interval(
                     id='interval-component',
                     interval=1000*60,  # in milliseconds
@@ -384,12 +350,107 @@ def update_total_pv_chart(n_intervals):
         if not pv_total.empty:
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
             total_pv_display = f"${current_total_pv:,.2f}"
-            invested_capital = f"${len(ASSET_LIST)*INVESTMENT_AMT/10:,.2f}"
-            rel_return = f"{str(current_total_pv / invested_capital * 100):,.2f}%"
-        return fig, str(total_pv_display), str(rel_return), str(invested_capital)
+            invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
+            rel_return = f"{(current_total_pv / invested_capital * 100):,.2f}%"
+        return fig, str(total_pv_display), str(rel_return), str("$"+round(invested_capital,0))
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
         return go.Figure(), "$0", "0%", "$0"
+
+
+def asset_layout():
+    return dbc.Container([
+        dbc.Navbar(
+            dbc.Container([
+                dbc.Row([
+                    dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
+                    dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
+                                    style={"fontWeight": "bold", "margin": 0}), width="auto")
+                ], align="center", className="g-0"),
+                dbc.Nav([
+                    dbc.NavItem(dbc.NavLink("Portfolio Dashboard", href="/", className="text-white fw-bold",
+                                            style={
+                                                "borderLeft": "1px solid #ffffff55",
+                                                "borderRight": "1px solid #ffffff55",
+                                                "padding": "0.5rem 1rem",
+                                                "backgroundColor": "#1a2d4f",  # lighter blue
+                                                "fontWeight": "bold"}
+                                            )),
+                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold",
+                                            style={
+                                                "borderLeft": "1px solid #ffffff55",
+                                                "borderRight": "1px solid #ffffff55",
+                                                "padding": "0.5rem 1rem",
+                                                "backgroundColor": "#1a2d4f",  # lighter blue
+                                                "fontWeight": "bold"}
+                                            ))
+                ], className="ms-auto", navbar=True)
+            ]),
+            color="#070f17",
+            dark=True,
+            fixed="top",
+            className="mb-4",
+            style={
+                "height": "55px",  # total navbar height
+                "paddingTop": "5px",  # spacing inside
+                "paddingBottom": "5px"
+            }
+        ),
+        html.Br(),
+        dbc.Row([
+            dbc.Col([
+                dcc.Dropdown(
+                    id='asset-dropdown',
+                    options=[{'label': asset, 'value': asset} for asset in ASSET_LIST],
+                    value=ASSET_LIST[0],
+                    clearable=False
+                ),
+                dcc.Graph(id='price-chart')
+            ], width=12),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                html.Div(
+                    "Table of Trades",
+                    id="title-table-trades",
+                    style={
+                        "textAlign": "center",
+                        "fontSize": "24px",
+                        "fontWeight": "bold",
+                        "color": "#ffffff",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "3px",
+                        "padding": "15px 20px",
+                        "width": "auto",
+                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                        "backgroundColor": "#2e2e2e",
+                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                    }
+                ),
+                html.Div(id='table'),
+                html.Div(id='table-stats')
+            ], width=12),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Interval(
+                    id='interval-component',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                ),
+                dcc.Interval(
+                    id='interval-pv',
+                    interval=1000*60,  # in milliseconds
+                    n_intervals=0
+                )
+            ])
+        ])
+    ], fluid=True, style={
+        "backgroundColor": "#0b1d3a",
+        "minHeight": "100vh",
+        "padding": "20px"
+    })
+
 
 @app.callback(
     [Output('price-chart', 'figure'),
@@ -626,6 +687,8 @@ def display_page(pathname):
         if not current_user.is_authenticated:
             return dcc.Location(href='/login', id='redirect-login')
         return bot_controls_layout()
+    elif pathname == '/asset-view':
+        return asset_layout()
     else:
         return dashboard_layout()  # your current layout
 
