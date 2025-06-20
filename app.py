@@ -1,4 +1,4 @@
-from config import INTERVALS, ASSET_LIST
+from config import INTERVALS, ASSET_LIST, INVESTMENT_AMT
 from data.db_connection import stream
 from data.preprocessing import dat_preprocess
 from misc.logger_config import logger
@@ -119,15 +119,6 @@ card_style = {
     "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
 }
 
-def create_tile(title, value):
-    return dbc.Card(
-        dbc.CardBody([
-            html.H5(title, className="card-title", style={"color": "#adb5bd"}),  # muted text
-            html.H2(value, className="card-text", style={"fontWeight": "bold"})
-        ]),
-        style=card_style
-    )
-
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content')
@@ -169,7 +160,6 @@ def dashboard_layout():
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
                 dbc.Nav([
-                    dbc.NavItem(dbc.NavLink("Dashboard", href="/", className="text-white fw-bold")),
                     dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold"))
                 ], className="ms-auto", navbar=True)
             ]),
@@ -183,13 +173,69 @@ def dashboard_layout():
                 "paddingBottom": "5px"
             }
         ),
+        html.Br(),
         dbc.Row([
-            dbc.Col(create_tile("Cash", "$12,500"), md=4, lg=2),
-            dbc.Col(create_tile("Crypto", "$7,200"), md=4, lg=2),
-            dbc.Col(create_tile("Stocks", "$14,000"), md=4, lg=2),
-            dbc.Col(create_tile("ETF", "$8,750"), md=4, lg=2),
-            dbc.Col(create_tile("Total", "$42,450"), md=4, lg=2),
-        ], className="g-4 justify-content-center"),
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([
+                        html.Div("Absolute Return", id="pv-total-display", style={
+                            "textAlign": "center",
+                            "fontSize": "20px",
+                            "fontWeight": "bold",
+                            "color": "white"
+                        })
+                    ]),
+                    style={
+                        "backgroundColor": "#1e2f4f",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "10px",
+                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+                        "padding": "10px"
+                    }
+                ),
+                md=3  # 12 / 4 = 3 columns each on medium+ screens
+            ),
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([
+                        html.Div("Relative Return", id="rel-return", style={
+                            "textAlign": "center",
+                            "fontSize": "20px",
+                            "fontWeight": "bold",
+                            "color": "white"
+                        })
+                    ]),
+                    style={
+                        "backgroundColor": "#1e2f4f",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "10px",
+                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+                        "padding": "10px"
+                    }
+                ),
+                md=3
+            ),
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([
+                        html.Div("Invested Amount", id="invested-amount", style={
+                            "textAlign": "center",
+                            "fontSize": "20px",
+                            "fontWeight": "bold",
+                            "color": "white"
+                        })
+                    ]),
+                    style={
+                        "backgroundColor": "#1e2f4f",
+                        "border": "2px solid #ccc",
+                        "borderRadius": "10px",
+                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+                        "padding": "10px"
+                    }
+                ),
+                md=3
+            )
+        ], className="g-4", style={"marginTop": "160px"}),
         dbc.Row([
             html.Div(id="pv-total-display", style={
                 "marginTop": "160px",
@@ -209,23 +255,23 @@ def dashboard_layout():
         ]),
         dbc.Row([
             dbc.Col([
-                html.Div(
-                    "Total Portfolio Value Over Time",
-                    id="title-pv-chart",
-                    style={
-                        "textAlign": "center",
-                        "fontSize": "24px",
-                        "fontWeight": "bold",
-                        "color": "#ffffff",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "3px",
-                        "padding": "15px 20px",
-                        "width": "auto",
-                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                        "backgroundColor": "#2e2e2e",
-                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                    }
-                ),
+                # html.Div(
+                #     "Total Portfolio Value Over Time",
+                #     id="title-pv-chart",
+                #     style={
+                #         "textAlign": "center",
+                #         "fontSize": "24px",
+                #         "fontWeight": "bold",
+                #         "color": "#ffffff",
+                #         "border": "2px solid #ccc",
+                #         "borderRadius": "3px",
+                #         "padding": "15px 20px",
+                #         "width": "auto",
+                #         "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
+                #         "backgroundColor": "#2e2e2e",
+                #         "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
+                #     }
+                # ),
                 dcc.Graph(id='total-pv-chart')
             ], width=12)
         ]),
@@ -285,7 +331,9 @@ def dashboard_layout():
 
 @app.callback(
     [Output('total-pv-chart', 'figure'),
-     Output('pv-total-display', 'children')],
+     Output('pv-total-display', 'children'),
+     Output('rel-return', 'children'),
+     Output('invested-amount', 'children')],
     Input('interval-pv', 'n_intervals')
 )
 def update_total_pv_chart(n_intervals):
@@ -333,11 +381,13 @@ def update_total_pv_chart(n_intervals):
         total_pv_display = ""
         if not pv_total.empty:
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
-            total_pv_display = f"Current Total Portfolio Return: ${current_total_pv:,.2f}"
-        return fig, total_pv_display
+            total_pv_display = f"${current_total_pv:,.2f}"
+            rel_return = f"{current_total_pv/(len(ASSET_LIST)*INVESTMENT_AMT)*100:,.2f}%"
+            invested_capital = str(len(ASSET_LIST)*INVESTMENT_AMT)
+        return fig, total_pv_display, rel_return, invested_capital
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
-        return go.Figure(), "Error loading total portfolio value"
+        return go.Figure(), "$0", "0%", "$0"
 
 @app.callback(
     [Output('price-chart', 'figure'),
