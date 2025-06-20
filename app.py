@@ -160,7 +160,22 @@ def dashboard_layout():
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
                 dbc.Nav([
-                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold"))
+                    dbc.NavItem(dbc.NavLink("Asset View", href="/", className="text-white fw-bold",
+                                            style={
+                                                "borderLeft": "1px solid #ffffff55",
+                                                "borderRight": "1px solid #ffffff55",
+                                                "padding": "0.5rem 1rem",
+                                                "backgroundColor": "#1a2d4f",  # lighter blue
+                                                "fontWeight": "bold"}
+                                            )),
+                    dbc.NavItem(dbc.NavLink("Admin", href="/login", className="text-white fw-bold",
+                                            style={
+                                                "borderLeft": "1px solid #ffffff55",
+                                                "borderRight": "1px solid #ffffff55",
+                                                "padding": "0.5rem 1rem",
+                                                "backgroundColor": "#1a2d4f",  # lighter blue
+                                                "fontWeight": "bold"}
+                                            ))
                 ], className="ms-auto", navbar=True)
             ]),
             color="#070f17",
@@ -196,7 +211,7 @@ def dashboard_layout():
                         "padding": "1rem",
                         "backgroundColor": "#0d1b2a",  # Dark navy blue
                         "color": "#f8f9fa",  # Light text
-                        "borderRadius": "12px",
+                        "borderRadius": "8px",
                         "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
@@ -223,7 +238,7 @@ def dashboard_layout():
                         "padding": "1rem",
                         "backgroundColor": "#0d1b2a",  # Dark navy blue
                         "color": "#f8f9fa",  # Light text
-                        "borderRadius": "12px",
+                        "borderRadius": "8px",
                         "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
@@ -250,51 +265,17 @@ def dashboard_layout():
                         "padding": "1rem",
                         "backgroundColor": "#0d1b2a",  # Dark navy blue
                         "color": "#f8f9fa",  # Light text
-                        "borderRadius": "12px",
+                        "borderRadius": "8px",
                         "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
                 md=2, sm=6, xs=12
             )
         ], className="g-4 justify-content-center", style={"marginTop": "160px"}),
-        # dbc.Row([
-        #     html.Div(id="pv-total-display", style={
-        #         "marginTop": "160px",
-        #         "textAlign": "center",
-        #         "fontSize": "20px",
-        #         "marginBottom": "20px",
-        #         "fontWeight": "bold",
-        #         "border": "2px solid #ccc",
-        #         "borderRadius": "10px",
-        #         "padding": "10px",
-        #         "width": "30%",
-        #         "margin": "30px auto 30px auto",
-        #         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-        #         "backgroundColor": "#1e2f4f",  # deeper blue for card
-        #         "color": "white",
-        #     })
-        # ]),
         dbc.Row([
             dbc.Col([
-                # html.Div(
-                #     "Total Portfolio Value Over Time",
-                #     id="title-pv-chart",
-                #     style={
-                #         "textAlign": "center",
-                #         "fontSize": "24px",
-                #         "fontWeight": "bold",
-                #         "color": "#ffffff",
-                #         "border": "2px solid #ccc",
-                #         "borderRadius": "3px",
-                #         "padding": "15px 20px",
-                #         "width": "auto",
-                #         "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                #         "backgroundColor": "#2e2e2e",
-                #         "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                #     }
-                # ),
                 dcc.Graph(id='total-pv-chart')
-            ], width=12)
+            ], width=8)
         ]),
         dbc.Row([
             dbc.Col([
@@ -403,8 +384,8 @@ def update_total_pv_chart(n_intervals):
         if not pv_total.empty:
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
             total_pv_display = f"${current_total_pv:,.2f}"
-            rel_return = f"{current_total_pv/(len(ASSET_LIST)*INVESTMENT_AMT)*100:,.2f}%"
-            invested_capital = str(len(ASSET_LIST)*INVESTMENT_AMT/10)
+            invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
+            rel_return = f"{current_total_pv / invested_capital * 100:,.2f}%"
         return fig, str(total_pv_display), str(rel_return), str(invested_capital)
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
