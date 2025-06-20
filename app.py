@@ -385,7 +385,7 @@ def update_total_pv_chart(n_intervals):
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
             total_pv_display = f"${current_total_pv:,.2f}"
             invested_capital = f"${len(ASSET_LIST)*INVESTMENT_AMT/10:,.2f}"
-            rel_return = f"{current_total_pv / invested_capital * 100:,.2f}%"
+            rel_return = f"{str(current_total_pv / invested_capital * 100):,.2f}%"
         return fig, str(total_pv_display), str(rel_return), str(invested_capital)
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
