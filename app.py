@@ -178,9 +178,16 @@ def dashboard_layout():
             dbc.Col(
                 dbc.Card(
                     dbc.CardBody([
-                        html.Div("Absolute Return", id="pv-total-display", style={
+                        html.Div("Absolute Return", style={
                             "textAlign": "center",
-                            "fontSize": "20px",
+                            "fontSize": "16px",
+                            "fontWeight": "500",
+                            "color": "#adb5bd",  # muted text color
+                            "marginBottom": "8px"
+                        }),
+                        html.Div(id="pv-total-display", style={
+                            "textAlign": "center",
+                            "fontSize": "24px",
                             "fontWeight": "bold",
                             "color": "white"
                         })
@@ -190,17 +197,24 @@ def dashboard_layout():
                         "border": "2px solid #ccc",
                         "borderRadius": "10px",
                         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "10px"
+                        "padding": "15px"
                     }
                 ),
-                md=3  # 12 / 4 = 3 columns each on medium+ screens
+                md=2, sm=6, xs=12  # make it narrower
             ),
             dbc.Col(
                 dbc.Card(
                     dbc.CardBody([
-                        html.Div("Relative Return", id="rel-return", style={
+                        html.Div("Relative Return", style={
                             "textAlign": "center",
-                            "fontSize": "20px",
+                            "fontSize": "16px",
+                            "fontWeight": "500",
+                            "color": "#adb5bd",
+                            "marginBottom": "8px"
+                        }),
+                        html.Div(id="rel-return", style={
+                            "textAlign": "center",
+                            "fontSize": "24px",
                             "fontWeight": "bold",
                             "color": "white"
                         })
@@ -210,17 +224,24 @@ def dashboard_layout():
                         "border": "2px solid #ccc",
                         "borderRadius": "10px",
                         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "10px"
+                        "padding": "15px"
                     }
                 ),
-                md=3
+                md=2, sm=6, xs=12
             ),
             dbc.Col(
                 dbc.Card(
                     dbc.CardBody([
-                        html.Div("Invested Amount", id="invested-amount", style={
+                        html.Div("Invested Amount", style={
                             "textAlign": "center",
-                            "fontSize": "20px",
+                            "fontSize": "16px",
+                            "fontWeight": "500",
+                            "color": "#adb5bd",
+                            "marginBottom": "8px"
+                        }),
+                        html.Div(id="invested-amount", style={
+                            "textAlign": "center",
+                            "fontSize": "24px",
                             "fontWeight": "bold",
                             "color": "white"
                         })
@@ -230,29 +251,29 @@ def dashboard_layout():
                         "border": "2px solid #ccc",
                         "borderRadius": "10px",
                         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "10px"
+                        "padding": "15px"
                     }
                 ),
-                md=3
+                md=2, sm=6, xs=12
             )
-        ], className="g-4", style={"marginTop": "160px"}),
-        dbc.Row([
-            html.Div(id="pv-total-display", style={
-                "marginTop": "160px",
-                "textAlign": "center",
-                "fontSize": "20px",
-                "marginBottom": "20px",
-                "fontWeight": "bold",
-                "border": "2px solid #ccc",
-                "borderRadius": "10px",
-                "padding": "10px",
-                "width": "30%",
-                "margin": "30px auto 30px auto",
-                "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                "backgroundColor": "#1e2f4f",  # deeper blue for card
-                "color": "white",
-            })
-        ]),
+        ], className="g-4 justify-content-center", style={"marginTop": "160px"}),
+        # dbc.Row([
+        #     html.Div(id="pv-total-display", style={
+        #         "marginTop": "160px",
+        #         "textAlign": "center",
+        #         "fontSize": "20px",
+        #         "marginBottom": "20px",
+        #         "fontWeight": "bold",
+        #         "border": "2px solid #ccc",
+        #         "borderRadius": "10px",
+        #         "padding": "10px",
+        #         "width": "30%",
+        #         "margin": "30px auto 30px auto",
+        #         "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
+        #         "backgroundColor": "#1e2f4f",  # deeper blue for card
+        #         "color": "white",
+        #     })
+        # ]),
         dbc.Row([
             dbc.Col([
                 # html.Div(
@@ -383,7 +404,7 @@ def update_total_pv_chart(n_intervals):
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
             total_pv_display = f"${current_total_pv:,.2f}"
             rel_return = f"{current_total_pv/(len(ASSET_LIST)*INVESTMENT_AMT)*100:,.2f}%"
-            invested_capital = str(len(ASSET_LIST)*INVESTMENT_AMT)
+            invested_capital = str(len(ASSET_LIST)*INVESTMENT_AMT)/10
         return fig, total_pv_display, rel_return, invested_capital
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
