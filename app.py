@@ -405,7 +405,7 @@ def update_total_pv_chart(n_intervals):
             total_pv_display = f"${current_total_pv:,.2f}"
             rel_return = f"{current_total_pv/(len(ASSET_LIST)*INVESTMENT_AMT)*100:,.2f}%"
             invested_capital = str(len(ASSET_LIST)*INVESTMENT_AMT)/10
-        return fig, total_pv_display, rel_return, invested_capital
+        return fig, str(total_pv_display), str(rel_return), str(invested_capital)
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
         return go.Figure(), "$0", "0%", "$0"
