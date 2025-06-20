@@ -183,8 +183,8 @@ def dashboard_layout():
             fixed="top",
             className="mb-4",
             style={
-                "height": "80px",  # total navbar height
-                "paddingTop": "10px",  # spacing inside
+                "height": "55px",  # total navbar height
+                "paddingTop": "5px",  # spacing inside
                 "paddingBottom": "5px"
             }
         ),
@@ -196,7 +196,7 @@ def dashboard_layout():
                         html.Div("Absolute Return", style={
                             "textAlign": "center",
                             "fontSize": "16px",
-                            "fontWeight": "500",
+                            "fontWeight": "bold",
                             "color": "#adb5bd",  # muted text color
                             "marginBottom": "8px"
                         }),
@@ -223,7 +223,7 @@ def dashboard_layout():
                         html.Div("Relative Return", style={
                             "textAlign": "center",
                             "fontSize": "16px",
-                            "fontWeight": "500",
+                            "fontWeight": "bold",
                             "color": "#adb5bd",
                             "marginBottom": "8px"
                         }),
@@ -250,7 +250,7 @@ def dashboard_layout():
                         html.Div("Invested Amount", style={
                             "textAlign": "center",
                             "fontSize": "16px",
-                            "fontWeight": "500",
+                            "fontWeight": "bold",
                             "color": "#adb5bd",
                             "marginBottom": "8px"
                         }),
@@ -271,7 +271,7 @@ def dashboard_layout():
                 ),
                 md=2, sm=6, xs=12
             )
-        ], className="g-4 justify-content-center", style={"marginTop": "160px"}),
+        ], className="g-2", style={"marginTop": "120px"}),
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='total-pv-chart')
@@ -384,7 +384,7 @@ def update_total_pv_chart(n_intervals):
         if not pv_total.empty:
             current_total_pv = pv_total["portfolio_value"].iloc[-1]
             total_pv_display = f"${current_total_pv:,.2f}"
-            invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
+            invested_capital = f"${len(ASSET_LIST)*INVESTMENT_AMT/10:,.2f}"
             rel_return = f"{current_total_pv / invested_capital * 100:,.2f}%"
         return fig, str(total_pv_display), str(rel_return), str(invested_capital)
     except Exception as e:
