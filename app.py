@@ -193,11 +193,11 @@ def dashboard_layout():
                         })
                     ]),
                     style={
-                        "backgroundColor": "#1e2f4f",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "15px"
+                        "padding": "1rem",
+                        "backgroundColor": "#0d1b2a",  # Dark navy blue
+                        "color": "#f8f9fa",  # Light text
+                        "borderRadius": "12px",
+                        "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
                 md=2, sm=6, xs=12  # make it narrower
@@ -220,11 +220,11 @@ def dashboard_layout():
                         })
                     ]),
                     style={
-                        "backgroundColor": "#1e2f4f",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "15px"
+                        "padding": "1rem",
+                        "backgroundColor": "#0d1b2a",  # Dark navy blue
+                        "color": "#f8f9fa",  # Light text
+                        "borderRadius": "12px",
+                        "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
                 md=2, sm=6, xs=12
@@ -247,11 +247,11 @@ def dashboard_layout():
                         })
                     ]),
                     style={
-                        "backgroundColor": "#1e2f4f",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 8px rgba(181, 179, 179, 0.3)",
-                        "padding": "15px"
+                        "padding": "1rem",
+                        "backgroundColor": "#0d1b2a",  # Dark navy blue
+                        "color": "#f8f9fa",  # Light text
+                        "borderRadius": "12px",
+                        "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
                     }
                 ),
                 md=2, sm=6, xs=12
