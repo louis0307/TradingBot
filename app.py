@@ -375,7 +375,7 @@ def update_total_pv_chart(n_intervals):
             },
             style_header={
                 "fontWeight": "bold",
-                "backgroundColor": "#3a6fd0"
+                "backgroundColor": "#0d1b2a"
             },
             style_as_list_view=True
         )
