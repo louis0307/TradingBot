@@ -204,7 +204,7 @@ def dashboard_layout():
                             "textAlign": "center",
                             "fontSize": "24px",
                             "fontWeight": "bold",
-                            "color": "white"
+                            "color": "#00b509"
                         })
                     ]),
                     style={
@@ -231,7 +231,7 @@ def dashboard_layout():
                             "textAlign": "center",
                             "fontSize": "24px",
                             "fontWeight": "bold",
-                            "color": "white"
+                            "color": "#00b509"
                         })
                     ]),
                     style={
@@ -258,7 +258,7 @@ def dashboard_layout():
                             "textAlign": "center",
                             "fontSize": "24px",
                             "fontWeight": "bold",
-                            "color": "white"
+                            "color": "#00b509"
                         })
                     ]),
                     style={
@@ -275,7 +275,16 @@ def dashboard_layout():
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='total-pv-chart')
-            ], width=8)
+            ], width=8),
+            dbc.Col([
+                html.Div(id='table-stats-total', style={
+                    "marginTop": "20px",
+                    "padding": "10px",
+                    "backgroundColor": "#4f8af7",
+                    "boxShadow": "0 2px 6px rgba(0,0,0,0.2)",
+                    "color": "white"
+                })
+            ], width=4)
         ]),
         dbc.Row([
             dbc.Col([
@@ -301,7 +310,8 @@ def dashboard_layout():
     [Output('total-pv-chart', 'figure'),
      Output('pv-total-display', 'children'),
      Output('rel-return', 'children'),
-     Output('invested-amount', 'children')],
+     Output('invested-amount', 'children'),
+     Output('table-stats-total', 'children')],
     Input('interval-pv', 'n_intervals')
 )
 def update_total_pv_chart(n_intervals):
@@ -311,6 +321,12 @@ def update_total_pv_chart(n_intervals):
         pvs_all = pvs_all.sort_values("timestamp")
 
         pv_total = calc_pv_total()
+
+        query1 = 'SELECT * FROM "public"."WINS_LOSSES"'
+        trade_stats_tot = pd.read_sql(query1, stream)
+        trade_stats_tot.set_index('timestamp', inplace=True)
+        trade_stats_tot = trade_stats_tot.sort_index()
+        stats_tot = compute_trade_stats(trade_stats_tot)
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(
@@ -352,10 +368,24 @@ def update_total_pv_chart(n_intervals):
             total_pv_display = f"${current_total_pv:,.2f}"
             invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
             rel_return = f"{(current_total_pv / invested_capital * 100):,.2f}%"
-        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0)))
+
+        table_stats = dash_table.DataTable(
+            id='stats-table-total',
+            columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
+            data=stats_tot.to_dict('records'),
+            style_table={'height': '400px', 'overflowY': 'auto'},
+            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_header={
+                'backgroundColor': '#1a2a45',
+                'fontWeight': 'bold',
+                'color': 'white'
+            }
+        )
+
+        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), table_stats
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
-        return go.Figure(), "$0", "0%", "$0"
+        return go.Figure(), "$0", "0%", "$0", pd.DataFrame([0, 0], columns=['Metric', 'Value'])
 
 
 def asset_layout():
@@ -404,31 +434,24 @@ def asset_layout():
                     options=[{'label': asset, 'value': asset} for asset in ASSET_LIST],
                     value=ASSET_LIST[0],
                     clearable=False
-                ),
-                dcc.Graph(id='price-chart')
-            ], width=12),
+                )
+            ], width=4),
         ]),
         dbc.Row([
             dbc.Col([
-                html.Div(
-                    "Table of Trades",
-                    id="title-table-trades",
-                    style={
-                        "textAlign": "center",
-                        "fontSize": "24px",
-                        "fontWeight": "bold",
-                        "color": "#ffffff",
-                        "border": "2px solid #ccc",
-                        "borderRadius": "3px",
-                        "padding": "15px 20px",
-                        "width": "auto",
-                        "margin": "0 auto 30px auto",  # top: 0, right: auto, bottom: 30px, left: auto
-                        "backgroundColor": "#2e2e2e",
-                        "boxShadow": "0 6px 12px rgba(181, 179, 179, 0.3)",
-                    }
-                ),
-                html.Div(id='table'),
-                html.Div(id='table-stats')
+                dcc.Graph(id='price-chart')
+            ], width=12)
+        ]),
+        dbc.Row([
+            dbc.Col([
+                html.Div(id='table-stats', style={
+                    "marginTop": "20px",
+                    "padding": "10px",
+                    "backgroundColor": "#4f8af7",
+                    "boxShadow": "0 2px 6px rgba(0,0,0,0.2)",
+                    "color": "white"
+                }),
+                html.Div(id='table')
             ], width=12),
         ]),
         dbc.Row([
