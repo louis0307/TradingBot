@@ -630,12 +630,17 @@ def update_graphs(selected_asset, n_intervals):
             columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
             data=trade_stats_asset.to_dict('records'),
             style_table={'height': '400px', 'overflowY': 'auto'},
-            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_cell={
+                "backgroundColor": "#4f8af7",
+                "color": "white",
+                "textAlign": "left",
+                "padding": "8px",
+            },
             style_header={
-                'backgroundColor': '#1a2a45',
-                'fontWeight': 'bold',
-                'color': 'white'
-            }
+                "fontWeight": "bold",
+                "backgroundColor": "#0d1b2a"
+            },
+            style_as_list_view=True
         )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
