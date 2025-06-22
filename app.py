@@ -375,7 +375,7 @@ def update_total_pv_chart(n_intervals):
             },
             style_header={
                 "fontWeight": "bold",
-                "backgroundColor": "#0d1b2a"
+                "backgroundColor": "#3a6fd0"
             },
             style_as_list_view=True
         )
@@ -659,7 +659,7 @@ def update_graphs(selected_asset, n_intervals):
             style_table={'height': '400px', 'overflowY': 'auto'},
             style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
             style_header={
-                'backgroundColor': '#1a2a45',
+                'backgroundColor': '#3a6fd0',
                 'fontWeight': 'bold',
                 'color': 'white'
             }
