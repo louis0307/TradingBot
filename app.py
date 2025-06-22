@@ -270,6 +270,33 @@ def dashboard_layout():
                     }
                 ),
                 md=2, sm=6, xs=12
+            ),
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([
+                        html.Div("Latest BTC/USDT Price", style={
+                            "textAlign": "center",
+                            "fontSize": "16px",
+                            "fontWeight": "bold",
+                            "color": "#adb5bd",
+                            "marginBottom": "8px"
+                        }),
+                        html.Div(id="btc-price", style={
+                            "textAlign": "center",
+                            "fontSize": "24px",
+                            "fontWeight": "bold",
+                            "color": "#00b509"
+                        })
+                    ]),
+                    style={
+                        "padding": "1rem",
+                        "backgroundColor": "#0d1b2a",  # Dark navy blue
+                        "color": "#f8f9fa",  # Light text
+                        "borderRadius": "8px",
+                        "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)"
+                    }
+                ),
+                md=2, sm=6, xs=12
             )
         ], className="g-2", style={"marginTop": "120px"}),
         dbc.Row([
@@ -305,6 +332,7 @@ def dashboard_layout():
      Output('pv-total-display', 'children'),
      Output('rel-return', 'children'),
      Output('invested-amount', 'children'),
+     Output('btc-price', 'children'),
      Output('table-stats-total', 'children')],
     Input('interval-pv', 'n_intervals')
 )
@@ -321,6 +349,10 @@ def update_total_pv_chart(n_intervals):
         trade_stats_tot.set_index('timestamp', inplace=True)
         trade_stats_tot = trade_stats_tot.sort_index()
         stats_tot = compute_trade_stats(trade_stats_tot)
+
+        query2 = 'SELECT * FROM "public"."BTCUSDT" ORDER BY "dateTime" DESC LIMIT 1'
+        btc_price = pd.read_sql(query2, stream)
+        last_btc_price = float(btc_price['close'].iloc[-1])
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(
@@ -375,15 +407,17 @@ def update_total_pv_chart(n_intervals):
             },
             style_header={
                 "fontWeight": "bold",
-                "backgroundColor": "#3a6fd0"
+                "backgroundColor": "#044bd1"
             },
             style_as_list_view=True
         )
 
-        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), table_stats
+        last_btc_price = f"USDT {last_btc_price:,.2f}"
+
+        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), last_btc_price, table_stats
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
-        return go.Figure(), "$0", "0%", "$0", pd.DataFrame([0, 0], columns=['Metric', 'Value'])
+        return go.Figure(), "$0", "0%", "$0", "USDT 0", pd.DataFrame([0, 0], columns=['Metric', 'Value'])
 
 
 def asset_layout():
