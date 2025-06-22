@@ -274,16 +274,10 @@ def dashboard_layout():
         ], className="g-2", style={"marginTop": "120px"}),
         dbc.Row([
             dbc.Col([
-                dcc.Graph(id='total-pv-chart')
+                dcc.Graph(id='total-pv-chart', style={"height": "100%"})
             ], width=8),
             dbc.Col([
-                html.Div(id='table-stats-total', style={
-                    "marginTop": "20px",
-                    "padding": "10px",
-                    "backgroundColor": "#4f8af7",
-                    "boxShadow": "0 2px 6px rgba(0,0,0,0.2)",
-                    "color": "white"
-                })
+                html.Div(id='table-stats-total', style={"height": "100%"})
             ], width=4)
         ]),
         dbc.Row([
@@ -373,13 +367,17 @@ def update_total_pv_chart(n_intervals):
             id='stats-table-total',
             columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
             data=stats_tot.to_dict('records'),
-            style_table={'height': '400px', 'overflowY': 'auto'},
-            style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+            style_cell={
+                "backgroundColor": "#4f8af7",
+                "color": "white",
+                "textAlign": "left",
+                "padding": "8px",
+            },
             style_header={
-                'backgroundColor': '#1a2a45',
-                'fontWeight': 'bold',
-                'color': 'white'
-            }
+                "fontWeight": "bold",
+                "backgroundColor": "#3a6fd0"
+            },
+            style_as_list_view=True
         )
 
         return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), table_stats
