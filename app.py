@@ -298,14 +298,14 @@ def dashboard_layout():
                 ),
                 md=2, sm=6, xs=12
             )
-        ], className="g-2", style={"marginTop": "120px"}),
+        ], className="g-2", style={"marginTop": "60px"}),
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='total-pv-chart', style={"height": "100%"})
-            ], width=8),
+            ], width=8.1),
             dbc.Col([
                 html.Div(id='table-stats-total', style={"height": "100%"})
-            ], width=4)
+            ], width=3.9)
         ]),
         dbc.Row([
             dbc.Col([
