@@ -155,7 +155,7 @@ def dashboard_layout():
         dbc.Navbar(
             dbc.Container([
                 dbc.Row([
-                    dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
+                    dbc.Col(html.Img(src="/assets/logo.png", height="50px"), width="auto"),  # Add your logo
                     dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
@@ -176,14 +176,16 @@ def dashboard_layout():
                                                 "backgroundColor": "#1a2d4f",  # lighter blue
                                                 "fontWeight": "bold"}
                                             ))
-                ], className="ms-auto", navbar=True)
-            ]),
+                ], className="justify-content-end", navbar=True)
+            ],
+                width="auto",
+                className="ms-auto"),
             color="#070f17",
             dark=True,
             fixed="top",
             className="mb-4",
             style={
-                "height": "55px",  # total navbar height
+                "height": "50px",  # total navbar height
                 "paddingTop": "5px",  # spacing inside
                 "paddingBottom": "5px"
             }
@@ -412,7 +414,7 @@ def update_total_pv_chart(n_intervals):
                 "padding": "8px",
             },
             style_header={
-                'backgroundColor': '#112a42',
+                'backgroundColor': '#043c75',
                 'color': 'white',
                 'fontWeight': 'bold',
                 'border': '1px solid #1c2c3c',
@@ -437,7 +439,7 @@ def asset_layout():
         dbc.Navbar(
             dbc.Container([
                 dbc.Row([
-                    dbc.Col(html.Img(src="/assets/logo.png", height="55px"), width="auto"),  # Add your logo
+                    dbc.Col(html.Img(src="/assets/logo.png", height="50px"), width="auto"),  # Add your logo
                     dbc.Col(html.H2("Trading Bot Dashboard", className="text-white ms-3",
                                     style={"fontWeight": "bold", "margin": 0}), width="auto")
                 ], align="center", className="g-0"),
@@ -458,14 +460,16 @@ def asset_layout():
                                                 "backgroundColor": "#1a2d4f",  # lighter blue
                                                 "fontWeight": "bold"}
                                             ))
-                ], className="ms-auto", navbar=True)
-            ]),
+                ], className="justify-content-end", navbar=True)
+            ],
+                width="auto",
+                className="ms-auto"),
             color="#070f17",
             dark=True,
             fixed="top",
             className="mb-4",
             style={
-                "height": "55px",  # total navbar height
+                "height": "50px",  # total navbar height
                 "paddingTop": "5px",  # spacing inside
                 "paddingBottom": "5px"
             }
@@ -681,7 +685,7 @@ def update_graphs(selected_asset, n_intervals):
                     'textAlign': 'left'
                 },
                 style_header={
-                    'backgroundColor': '#112a42',  # darker/different blue
+                    'backgroundColor': '#043c75',  # darker/different blue
                     'color': 'white',  # bright text
                     'fontWeight': 'bold',
                     'fontSize': '18px',
@@ -712,7 +716,7 @@ def update_graphs(selected_asset, n_intervals):
                 'textAlign': 'left'
             },
             style_header={
-                'backgroundColor': '#112a42',  # darker/different blue
+                'backgroundColor': '#043c75',  # darker/different blue
                 'color': 'white',  # bright text
                 'fontWeight': 'bold',
                 'fontSize': '18px',
