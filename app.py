@@ -479,7 +479,7 @@ def asset_layout():
                     clearable=False
                 )
             ], width=4),
-        ]),
+        ], style={"marginTop": "60px"}),
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='price-chart')
@@ -493,9 +493,11 @@ def asset_layout():
                     "backgroundColor": "#4f8af7",
                     "boxShadow": "0 2px 6px rgba(0,0,0,0.2)",
                     "color": "white"
-                }),
+                })
+            ], width=6),
+            dbc.Col([
                 html.Div(id='table')
-            ], width=12),
+            ], width=6)
         ]),
         dbc.Row([
             dbc.Col([
