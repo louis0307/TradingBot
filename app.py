@@ -311,7 +311,7 @@ def dashboard_layout():
                     "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)",
                     "height": "100%"})
             ], width=4)
-        ]),
+        ], style={"marginTop": "5px"}),
         dbc.Row([
             dbc.Col([
                 dcc.Interval(
@@ -412,10 +412,11 @@ def update_total_pv_chart(n_intervals):
                 "padding": "8px",
             },
             style_header={
-                'backgroundColor': '#0d1b2a',
-                'color': '#adb5bd',
+                'backgroundColor': '#112a42',
+                'color': 'white',
                 'fontWeight': 'bold',
-                'border': '1px solid #1c2c3c'
+                'border': '1px solid #1c2c3c',
+                'fontSize': '18px'
             },
             style_data_conditional=[{
                     'if': {'row_index': 'odd'},
@@ -484,21 +485,25 @@ def asset_layout():
             dbc.Col([
                 dcc.Graph(id='price-chart')
             ], width=12)
-        ]),
+        ], style={"marginTop": "5px"}),
         dbc.Row([
             dbc.Col([
                 html.Div(id='table-stats', style={
-                    "marginTop": "20px",
-                    "padding": "10px",
-                    "backgroundColor": "#4f8af7",
-                    "boxShadow": "0 2px 6px rgba(0,0,0,0.2)",
-                    "color": "white"
-                })
+                    "padding": "1rem",
+                    "backgroundColor": "#0d1b2a",
+                    "borderRadius": "8px",
+                    "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)",
+                    "height": "100%"})
             ], width=6),
             dbc.Col([
-                html.Div(id='table')
+                html.Div(id='table', style={
+                    "padding": "1rem",
+                    "backgroundColor": "#0d1b2a",
+                    "borderRadius": "8px",
+                    "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)",
+                    "height": "100%"})
             ], width=6)
-        ]),
+        ], style={"marginTop": "30px"}),
         dbc.Row([
             dbc.Col([
                 dcc.Interval(
@@ -663,31 +668,62 @@ def update_graphs(selected_asset, n_intervals):
                 id='asset-table',
                 columns=[{'name': col, 'id': col} for col in tab.columns],
                 data=tab.to_dict('records'),
-                style_table={'height': '400px', 'overflowY': 'auto'},
-                style_cell={'textAlign': 'center', 'backgroundColor': '#132743', 'color': 'white'},
+                style_table={
+                    "overflowX": "auto",
+                    "height": "100%",
+                    "width": "100%"
+                },
+                style_cell={
+                    'backgroundColor': '#0d1b2a',
+                    'color': 'white',
+                    'border': '1px solid #1c2c3c',
+                    'padding': '10px',
+                    'textAlign': 'left'
+                },
                 style_header={
-                    'backgroundColor': '#1a2a45',
+                    'backgroundColor': '#112a42',  # darker/different blue
+                    'color': 'white',  # bright text
                     'fontWeight': 'bold',
-                    'color': 'white'
-                }
+                    'fontSize': '18px',
+                    'border': '1px solid #1c2c3c'
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': '#14273b'
+                    }
+                ]
             )
 
         table_stats = dash_table.DataTable(
             id='stats-table',
             columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
             data=trade_stats_asset.to_dict('records'),
-            style_table={'height': '400px', 'overflowY': 'auto'},
+            style_table={
+                "overflowX": "auto",
+                "height": "100%",
+                "width": "100%"
+            },
             style_cell={
-                "backgroundColor": "#4f8af7",
-                "color": "white",
-                "textAlign": "left",
-                "padding": "8px",
+                'backgroundColor': '#0d1b2a',
+                'color': 'white',
+                'border': '1px solid #1c2c3c',
+                'padding': '10px',
+                'textAlign': 'left'
             },
             style_header={
-                "fontWeight": "bold",
-                "backgroundColor": "#0d1b2a"
+                'backgroundColor': '#112a42',  # darker/different blue
+                'color': 'white',  # bright text
+                'fontWeight': 'bold',
+                'fontSize': '18px',
+                'border': '1px solid #1c2c3c'
             },
-            style_as_list_view=True
+            style_data_conditional=[
+                {
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': '#14273b'
+                }
+            ]
         )
     except Exception as e:
         logger.error(f"Error updating graph for {selected_asset}: {e}")
