@@ -177,9 +177,7 @@ def dashboard_layout():
                                                 "fontWeight": "bold"}
                                             ))
                 ], className="justify-content-end", navbar=True)
-            ],
-                width="auto",
-                className="ms-auto"),
+            ]),
             color="#070f17",
             dark=True,
             fixed="top",
@@ -461,9 +459,7 @@ def asset_layout():
                                                 "fontWeight": "bold"}
                                             ))
                 ], className="justify-content-end", navbar=True)
-            ],
-                width="auto",
-                className="ms-auto"),
+            ]),
             color="#070f17",
             dark=True,
             fixed="top",
