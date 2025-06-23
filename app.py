@@ -302,10 +302,15 @@ def dashboard_layout():
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='total-pv-chart', style={"height": "100%"})
-            ], width=8.1),
+            ], width=8),
             dbc.Col([
-                html.Div(id='table-stats-total', style={"height": "100%"})
-            ], width=3.9)
+                html.Div(id='table-stats-total', style={
+                    "padding": "1rem",
+                    "backgroundColor": "#0d1b2a",
+                    "borderRadius": "8px",
+                    "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)",
+                    "height": "100%"})
+            ], width=4)
         ]),
         dbc.Row([
             dbc.Col([
@@ -400,16 +405,22 @@ def update_total_pv_chart(n_intervals):
             columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
             data=stats_tot.to_dict('records'),
             style_cell={
-                "backgroundColor": "#4f8af7",
+                "backgroundColor": "#0d1b2a",
                 "color": "white",
+                'border': '1px solid #1c2c3c',
                 "textAlign": "left",
                 "padding": "8px",
             },
             style_header={
-                "fontWeight": "bold",
-                "backgroundColor": "#044bd1"
+                'backgroundColor': '#0d1b2a',
+                'color': '#adb5bd',
+                'fontWeight': 'bold',
+                'border': '1px solid #1c2c3c'
             },
-            style_as_list_view=True
+            style_data_conditional=[{
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': '#14273b'
+            }]
         )
 
         last_btc_price = f"USDT {last_btc_price:,.2f}"
