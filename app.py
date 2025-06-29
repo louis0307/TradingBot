@@ -304,12 +304,20 @@ def dashboard_layout():
                 dcc.Graph(id='total-pv-chart', style={"height": "100%"})
             ], width=8),
             dbc.Col([
-                html.Div(id='table-stats-total', style={
+                html.Div([
+                    dbc.Tabs([
+                        dbc.Tab(label="Tab 1", tab_id="tab-1"),
+                        dbc.Tab(label="Tab 2", tab_id="tab-2"),
+                    ], id="tabs", active_tab="tab-1", className="mb-3"),
+
+                    html.Div(id='tab-content')  # This will change depending on active_tab
+                ], id='table-stats-total', style={
                     "padding": "1rem",
                     "backgroundColor": "#0d1b2a",
                     "borderRadius": "8px",
                     "boxShadow": "0 4px 10px rgba(0, 0, 0, 0.3)",
-                    "height": "100%"})
+                    "height": "100%"
+                })
             ], width=4)
         ], style={"marginTop": "5px"}),
         dbc.Row([
@@ -323,6 +331,11 @@ def dashboard_layout():
                     id='interval-pv',
                     interval=1000*60,  # in milliseconds
                     n_intervals=0
+                ),
+                dcc.Interval(
+                    id='interval-tabs',
+                    interval=1000 * 60 * 5,  # in milliseconds
+                    n_intervals=0
                 )
             ])
         ])
@@ -333,12 +346,85 @@ def dashboard_layout():
     })
 
 @app.callback(
+    Output('tab-content', 'children'),
+    [Input('tabs', 'active_tab'),
+     Input('interval-tabs', 'n_intervals')]
+)
+def update_table_content(active_tab):
+    try:
+        query1 = 'SELECT * FROM "public"."WINS_LOSSES"'
+        trade_stats_tot = pd.read_sql(query1, stream)
+        trade_stats_tot.set_index('timestamp', inplace=True)
+        trade_stats_tot = trade_stats_tot.sort_index()
+        stats_tot = compute_trade_stats(trade_stats_tot)
+
+        query2 = 'SELECT symbol, side, order_timestamp, price FROM (SELECT DISTINCT ON (symbol) * FROM public."TRADES" ' \
+                 'ORDER BY symbol, order_timestamp DESC) WHERE signal <> 0'
+        open_positions = pd.read_sql(query2, stream)
+
+
+        table_stats = dash_table.DataTable(
+            id='table-stats',
+            columns=[{'name': col, 'id': col} for col in ['KPI', 'Value']],
+            data=stats_tot.to_dict('records'),
+            style_cell={
+                "backgroundColor": "#0d1b2a",
+                "color": "white",
+                'border': '1px solid #1c2c3c',
+                "textAlign": "left",
+                "padding": "8px",
+            },
+            style_header={
+                'backgroundColor': '#043c75',
+                'color': 'white',
+                'fontWeight': 'bold',
+                'border': '1px solid #1c2c3c',
+                'fontSize': '18px'
+            },
+            style_data_conditional=[{
+                'if': {'row_index': 'odd'},
+                'backgroundColor': '#14273b'
+            }]
+        )
+
+        table_pos = dash_table.DataTable(
+            id='table-pos',
+            columns=[{'name': col, 'id': col} for col in ['Symbol', 'Side', 'Opened at', 'Price']],
+            data=open_positions.to_dict('records'),
+            style_cell={
+                "backgroundColor": "#0d1b2a",
+                "color": "white",
+                'border': '1px solid #1c2c3c',
+                "textAlign": "left",
+                "padding": "8px",
+            },
+            style_header={
+                'backgroundColor': '#043c75',
+                'color': 'white',
+                'fontWeight': 'bold',
+                'border': '1px solid #1c2c3c',
+                'fontSize': '18px'
+            },
+            style_data_conditional=[{
+                'if': {'row_index': 'odd'},
+                'backgroundColor': '#14273b'
+            }]
+        )
+
+        if active_tab == "tab-1":
+            return table_stats
+        elif active_tab == "tab-2":
+            return table_pos
+    except Exception as e:
+        logger.error(f"Error updating Statistics: {e}")
+        return pd.DataFrame([0, 0], columns=['Metric', 'Value'])
+
+@app.callback(
     [Output('total-pv-chart', 'figure'),
      Output('pv-total-display', 'children'),
      Output('rel-return', 'children'),
      Output('invested-amount', 'children'),
-     Output('btc-price', 'children'),
-     Output('table-stats-total', 'children')],
+     Output('btc-price', 'children')],
     Input('interval-pv', 'n_intervals')
 )
 def update_total_pv_chart(n_intervals):
@@ -348,12 +434,6 @@ def update_total_pv_chart(n_intervals):
         pvs_all = pvs_all.sort_values("timestamp")
 
         pv_total = calc_pv_total()
-
-        query1 = 'SELECT * FROM "public"."WINS_LOSSES"'
-        trade_stats_tot = pd.read_sql(query1, stream)
-        trade_stats_tot.set_index('timestamp', inplace=True)
-        trade_stats_tot = trade_stats_tot.sort_index()
-        stats_tot = compute_trade_stats(trade_stats_tot)
 
         query2 = 'SELECT * FROM "public"."BTCUSDT" ORDER BY "dateTime" DESC LIMIT 1'
         btc_price = pd.read_sql(query2, stream)
@@ -400,36 +480,12 @@ def update_total_pv_chart(n_intervals):
             invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
             rel_return = f"{(current_total_pv / invested_capital * 100):,.2f}%"
 
-        table_stats = dash_table.DataTable(
-            id='stats-table-total',
-            columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
-            data=stats_tot.to_dict('records'),
-            style_cell={
-                "backgroundColor": "#0d1b2a",
-                "color": "white",
-                'border': '1px solid #1c2c3c',
-                "textAlign": "left",
-                "padding": "8px",
-            },
-            style_header={
-                'backgroundColor': '#043c75',
-                'color': 'white',
-                'fontWeight': 'bold',
-                'border': '1px solid #1c2c3c',
-                'fontSize': '18px'
-            },
-            style_data_conditional=[{
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': '#14273b'
-            }]
-        )
-
         last_btc_price = f"USDT {last_btc_price:,.2f}"
 
-        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), last_btc_price, table_stats
+        return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), last_btc_price
     except Exception as e:
         logger.error(f"Error updating total portfolio chart: {e}")
-        return go.Figure(), "$0", "0%", "$0", "USDT 0", pd.DataFrame([0, 0], columns=['Metric', 'Value'])
+        return go.Figure(), "$0", "0%", "$0", "USDT 0"
 
 
 def asset_layout():
