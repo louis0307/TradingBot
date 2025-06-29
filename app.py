@@ -365,7 +365,7 @@ def update_table_content(active_tab, n_intervals):
 
         table_stats = dash_table.DataTable(
             id='table-stats',
-            columns=[{'name': col, 'id': col} for col in ['KPI', 'Value']],
+            columns=[{'name': col, 'id': col} for col in ['Metric', 'Value']],
             data=stats_tot.to_dict('records'),
             style_cell={
                 "backgroundColor": "#0d1b2a",
