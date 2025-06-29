@@ -389,7 +389,7 @@ def update_table_content(active_tab, n_intervals):
 
         table_pos = dash_table.DataTable(
             id='table-pos',
-            columns=[{'name': col, 'id': col} for col in ['Symbol', 'Side', 'Opened at', 'Price']],
+            columns=[{'name': col, 'id': col} for col in ['symbol', 'side', 'order_timestamp', 'price']],
             data=open_positions.to_dict('records'),
             style_cell={
                 "backgroundColor": "#0d1b2a",
