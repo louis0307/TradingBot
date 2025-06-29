@@ -350,7 +350,7 @@ def dashboard_layout():
     [Input('tabs', 'active_tab'),
      Input('interval-tabs', 'n_intervals')]
 )
-def update_table_content(active_tab):
+def update_table_content(active_tab, n_intervals):
     try:
         query1 = 'SELECT * FROM "public"."WINS_LOSSES"'
         trade_stats_tot = pd.read_sql(query1, stream)
