@@ -593,10 +593,18 @@ def update_graphs(selected_asset, n_intervals):
     try:
         dat_dict = {}
         trades = {}
-        query = f'SELECT * FROM "public"."{selected_asset}"'
-        query2 = 'SELECT * FROM "public"."TRADES"'
-        query3 = 'SELECT * FROM "public"."INDICATORS"'
-        query4 = 'SELECT * FROM "public"."WINS_LOSSES"'
+        query = f'''
+        SELECT * FROM "public"."{selected_asset}" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        '''
+        query2 = f'''
+        SELECT * FROM "public"."TRADES" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        '''
+        query3 = f'''
+        SELECT * FROM "public"."INDICATORS" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        '''
+        query4 = f'''
+        SELECT * FROM "public"."WINS_LOSSES" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        '''
 
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
