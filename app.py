@@ -602,9 +602,7 @@ def update_graphs(selected_asset, n_intervals):
         query3 = f'''
         SELECT * FROM "public"."INDICATORS" WHERE "dateTime" > NOW() - INTERVAL '2 months'
         '''
-        query4 = f'''
-        SELECT * FROM "public"."WINS_LOSSES" WHERE "timestamp" > NOW() - INTERVAL '2 months'
-        '''
+        query4 = f'SELECT * FROM "public"."WINS_LOSSES"'
 
         dat = pd.read_sql(query, stream)
         dat.set_index('dateTime', inplace=True)
