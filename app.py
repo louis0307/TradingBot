@@ -480,7 +480,7 @@ def update_total_pv_chart(n_intervals):
             invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
             rel_return = f"{(current_total_pv / invested_capital * 100):,.2f}%"
 
-        last_btc_price = f"USDT {round(last_btc_price,0)}"
+        last_btc_price = f"USDT {round(last_btc_price,0):,}"
 
         return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), last_btc_price
     except Exception as e:
