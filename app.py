@@ -306,8 +306,8 @@ def dashboard_layout():
             dbc.Col([
                 html.Div([
                     dbc.Tabs([
-                        dbc.Tab(label="Tab 1", tab_id="tab-1"),
-                        dbc.Tab(label="Tab 2", tab_id="tab-2"),
+                        dbc.Tab(label="KPI's", tab_id="tab-1"),
+                        dbc.Tab(label="Open Positions", tab_id="tab-2"),
                     ], id="tabs", active_tab="tab-1", className="mb-3"),
 
                     html.Div(id='tab-content')  # This will change depending on active_tab
@@ -480,7 +480,7 @@ def update_total_pv_chart(n_intervals):
             invested_capital = len(ASSET_LIST)*INVESTMENT_AMT/10
             rel_return = f"{(current_total_pv / invested_capital * 100):,.2f}%"
 
-        last_btc_price = f"USDT {last_btc_price:,.2f}"
+        last_btc_price = f"USDT {round(last_btc_price,0)}"
 
         return fig, str(total_pv_display), str(rel_return), str("$"+str(round(invested_capital,0))), last_btc_price
     except Exception as e:
@@ -627,6 +627,9 @@ def update_graphs(selected_asset, n_intervals):
         tab = trades[selected_asset]
         tab["order_timestamp"] = pd.to_datetime(tab["order_timestamp"])
         tab = tab.sort_values(by='order_timestamp')
+        open_longs = tab[(tab['side'] == 'BUY') & (tab['signal'] == 1)]
+        open_shorts = tab[(tab['side'] == 'SELL') & (tab['signal'] == -1)]
+        close_trades = tab[tab['signal'] == 0]
 
         if df.empty:
             figure = {'data': [],
@@ -666,6 +669,45 @@ def update_graphs(selected_asset, n_intervals):
                 ),
                 row=1, col=1
             )
+            # Add Open Long markers (green ▲)
+            figure.add_trace(
+                go.Scatter(
+                    x=open_longs['order_timestamp'],
+                    y=open_longs['price'],
+                    mode='markers',
+                    name='Open Long',
+                    marker=dict(color='lime', size=12, symbol='triangle-up', line=dict(width=1, color='white')),
+                    hovertemplate='Open Long<br>Date: %{x}<br>Price: %{y}<extra></extra>'
+                ),
+                row=1, col=1
+            )
+
+            # Add Open Short markers (purple ▼)
+            figure.add_trace(
+                go.Scatter(
+                    x=open_shorts['order_timestamp'],
+                    y=open_shorts['price'],
+                    mode='markers',
+                    name='Open Short',
+                    marker=dict(color='magenta', size=12, symbol='triangle-down', line=dict(width=1, color='white')),
+                    hovertemplate='Open Short<br>Date: %{x}<br>Price: %{y}<extra></extra>'
+                ),
+                row=1, col=1
+            )
+
+            # Add Close markers (red ✖)
+            figure.add_trace(
+                go.Scatter(
+                    x=close_trades['order_timestamp'],
+                    y=close_trades['price'],
+                    mode='markers',
+                    name='Close Position',
+                    marker=dict(color='red', size=10, symbol='x', line=dict(width=1, color='white')),
+                    hovertemplate='Close<br>Date: %{x}<br>Price: %{y}<extra></extra>'
+                ),
+                row=1, col=1
+            )
+
             figure.add_trace(
                 go.Scatter(x=dat_ind_hist.index, y=dat_ind_hist["MACD"], mode="lines", name="MACD",
                            line=dict(color="blue", width=0.8)),
