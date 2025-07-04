@@ -597,13 +597,13 @@ def update_graphs(selected_asset, n_intervals):
         SELECT * FROM "public"."{selected_asset}" WHERE "dateTime" > NOW() - INTERVAL '2 months'
         '''
         query2 = f'''
-        SELECT * FROM "public"."TRADES" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        SELECT * FROM "public"."TRADES" WHERE "order_timestamp" > NOW() - INTERVAL '2 months'
         '''
         query3 = f'''
         SELECT * FROM "public"."INDICATORS" WHERE "dateTime" > NOW() - INTERVAL '2 months'
         '''
         query4 = f'''
-        SELECT * FROM "public"."WINS_LOSSES" WHERE "dateTime" > NOW() - INTERVAL '2 months'
+        SELECT * FROM "public"."WINS_LOSSES" WHERE "timestamp" > NOW() - INTERVAL '2 months'
         '''
 
         dat = pd.read_sql(query, stream)
